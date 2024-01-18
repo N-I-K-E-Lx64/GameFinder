@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
 
+    alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
 }
 
@@ -30,16 +31,18 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.ktor.client.android)
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.sqlDelight.android)
         }
         commonMain.dependencies {
             api(libs.koin.core)
             api(libs.koin.compose)
 
-            api(libs.napier)
+            api(libs.kermit)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
+            //implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
@@ -54,6 +57,8 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
 
+            implementation(libs.sqlDelight.coroutines)
+
             implementation(libs.material3.window.size.multiplatform)
         }
         desktopMain.dependencies {
@@ -61,7 +66,8 @@ kotlin {
 
             implementation(libs.ktor.client.desktop)
             implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.logback.classic)
+
+            implementation(libs.sqlDelight.jvm)
         }
     }
 }
@@ -117,5 +123,13 @@ buildkonfig {
 
     defaultConfigs {
 
+    }
+}
+
+sqldelight {
+    databases {
+        create("GameFinderDatabase") {
+            packageName.set("de.hive.gamefinder.database")
+        }
     }
 }
