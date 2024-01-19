@@ -69,52 +69,67 @@ class CreateGameScreen : Screen {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    OutlinedTextField(
-                        value = screenModel.gameName.value,
-                        onValueChange = { screenModel.setGameName(it) },
-                        label = {
+                    Card {
+                        Column (
+                            modifier = Modifier.padding(16.dp)
+                        ) {
                             Text(
-                                text = "Name"
+                                "Game Name",
+                                style = MaterialTheme.typography.headlineSmall
                             )
-                        },
-                        placeholder = {
-                            Text(
-                                text = "Anno 1800"
-                            )
-                        }
-                    )
-                }
 
-                item {
-                    Text("Platform")
-                    Column {
-                        screenModel.platforms.forEach { platform ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .selectable(
-                                        selected = (platform == screenModel.platform.value),
-                                        onClick = { screenModel.setPlatform(platform) },
-                                        role = Role.RadioButton
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = screenModel.gameName.value,
+                                onValueChange = { screenModel.setGameName(it) },
+                                label = {
+                                    Text(
+                                        text = "Name"
                                     )
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = (platform == screenModel.platform.value),
-                                    onClick = null
-                                )
-                                Text(
-                                    text = platform.name,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 16.dp)
-                                )
-                            }
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = "Anno 1800"
+                                    )
+                                }
+                            )
                         }
                     }
                 }
 
+                item {
+                    Card {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Platform", style = MaterialTheme.typography.headlineSmall)
+                            screenModel.platforms.forEach { platform ->
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp)
+                                        .selectable(
+                                            selected = (platform == screenModel.platform.value),
+                                            onClick = { screenModel.setPlatform(platform) },
+                                            role = Role.RadioButton
+                                        ),
+                                        //.padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = (platform == screenModel.platform.value),
+                                        onClick = null
+                                    )
+                                    Text(
+                                        text = platform.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(start = 16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

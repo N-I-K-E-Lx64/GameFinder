@@ -11,13 +11,24 @@ import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.database.GameFinderDatabase
 import de.hive.gamefinder.feature.create_game.CreateGameViewModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
+import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 class KoinInit {
-    fun koinInit() {
-        startKoin { modules(listOf(platformModule(), coreModule)) }
+    fun init(appDeclaration: KoinAppDeclaration = {}): Koin {
+        println("Koin Function")
+        return startKoin {
+            modules(
+                listOf(
+                    platformModule(),
+                    coreModule
+                )
+            )
+            appDeclaration()
+        }.koin
     }
 }
 

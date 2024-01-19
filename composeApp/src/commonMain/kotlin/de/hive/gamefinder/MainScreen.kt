@@ -51,7 +51,7 @@ class MainScreen : Screen {
             }
         ) { innerPadding ->
             Column(
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
             ) {
                 when (state) {
                     is MainViewModel.State.Init -> {

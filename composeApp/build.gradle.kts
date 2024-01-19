@@ -25,7 +25,9 @@ kotlin {
         val desktopMain by getting
         
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
+            //implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.compose.ui.tooling.preview.desktop)
+
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.koin.android)
@@ -60,6 +62,7 @@ kotlin {
             implementation(libs.sqlDelight.coroutines)
 
             implementation(libs.material3.window.size.multiplatform)
+            implementation(libs.materialKolor)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -68,6 +71,9 @@ kotlin {
             implementation(libs.kotlinx.coroutines.swing)
 
             implementation(libs.sqlDelight.jvm)
+
+            implementation(libs.jewel.int.ui.standalone)
+            implementation(libs.jewel.int.ui.decoratedWindow)
         }
     }
 }
@@ -102,7 +108,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     dependencies {
-        debugImplementation(libs.compose.ui.tooling)
+        debugImplementation(libs.compose.ui.tooling.preview.desktop)
     }
 }
 
