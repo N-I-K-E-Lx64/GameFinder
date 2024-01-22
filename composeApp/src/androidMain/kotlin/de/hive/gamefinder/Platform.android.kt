@@ -1,3 +1,5 @@
+package de.hive.gamefinder
+
 import android.os.Build
 
 class AndroidPlatform : Platform {

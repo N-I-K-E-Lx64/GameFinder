@@ -1,0 +1,23 @@
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS game_entity (
+    id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    platform INTEGER AS Int NOT NULL
+);
+
+getAllGames:
+SELECT * FROM game_entity;
+
+getGameById:
+SELECT * FROM game_entity WHERE id = ?;
+
+addGame:
+INSERT OR REPLACE INTO game_entity (name, platform)
+VALUES ?;
+
+updateGame:
+UPDATE game_entity SET name = ?, platform = ?;
+
+deleteGameById:
+DELETE FROM game_entity WHERE id = ?;
