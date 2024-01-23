@@ -2,7 +2,9 @@ package de.hive.gamefinder
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import de.hive.gamefinder.di.KoinInit
 import de.hive.gamefinder.ui.DesktopViewModel
 import de.hive.gamefinder.ui.IntUiThemes
@@ -53,6 +55,7 @@ fun main() {
         ) {
             DecoratedWindow(
                 onCloseRequest = { exitApplication() },
+                state = rememberWindowState(width = 1024.dp, height = 720.dp),
                 title = "GameFinder"
             ) {
                 TitleBarView()

@@ -3,8 +3,10 @@ package de.hive.gamefinder.core.adapter.igdb
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import de.hive.gamefinder.BuildKonfig
+import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
-import de.hive.gamefinder.core.domain.AdditionalGameInformation
+import de.hive.gamefinder.core.domain.IgdbInformation
+import de.hive.gamefinder.core.utils.levenshteinSimilarity
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import io.ktor.client.*
@@ -61,15 +63,21 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         }
     }
 
-    override suspend fun getGameDetails(gameName: String): AdditionalGameInformation {
+    override suspend fun getGameDetails(gameName: String): IgdbInformation {
         val igdbResult = client.post(IGDB_GAME_ENDPOINT) {
-            setBody("fields cover.image_id; where name = \"${gameName}\";")
+            setBody("fields name, cover.image_id; search \"${gameName}\";")
             headers {
                 append("Client-Id", BuildKonfig.CLIENT_ID)
             }
         }.body<Array<IgdbGameInformationDto>>()
 
-        return AdditionalGameInformation(igdbResult[0].gameId, igdbResult[0].cover.imageId)
+        if (igdbResult.isEmpty()) {
+            throw EmptySearchResultException("$gameName could not be found!")
+        }
+
+        val desiredGame = igdbResult.maxBy { levenshteinSimilarity(it.name, gameName) }
+
+        return IgdbInformation(desiredGame.name, desiredGame.gameId, desiredGame.cover.imageId)
     }
 }
 
@@ -91,6 +99,7 @@ data class IgdbCoverInformationDto(
 @Serializable
 data class IgdbGameInformationDto(
     @JsonNames("id") val gameId: Int,
+    @JsonNames("name") val name: String,
     @JsonNames("cover") val cover: IgdbCoverInformationDto
 )
 
