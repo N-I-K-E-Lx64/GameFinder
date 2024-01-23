@@ -3,7 +3,9 @@ import kotlin.Int;
 CREATE TABLE IF NOT EXISTS game_entity (
     id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    platform INTEGER AS Int NOT NULL
+    platform INTEGER AS Int NOT NULL,
+    game_id INTEGER AS Int NOT NULL,
+    cover_image_id TEXT NOT NULL
 );
 
 getAllGames:
@@ -13,7 +15,7 @@ getGameById:
 SELECT * FROM game_entity WHERE id = ?;
 
 addGame:
-INSERT OR REPLACE INTO game_entity (name, platform)
+INSERT OR REPLACE INTO game_entity (name, platform, game_id, cover_image_id)
 VALUES ?;
 
 updateGame:

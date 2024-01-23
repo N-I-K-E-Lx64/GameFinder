@@ -4,6 +4,7 @@ data class Game(
     val id: Int = 0,
     val name: String,
     val platform: Platform,
+    val additionalGameInformation: AdditionalGameInformation
 )
 
 enum class Platform {

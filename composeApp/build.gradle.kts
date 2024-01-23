@@ -1,10 +1,14 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+
+    alias(libs.plugins.serialization)
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
@@ -39,30 +43,36 @@ kotlin {
             api(libs.koin.core)
             api(libs.koin.compose)
 
-            api(libs.kermit)
+            api(libs.multiplatform.noArg)
+            api(libs.multiplatform.coroutines)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
-            //implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+
+            implementation(libs.logback)
+            implementation(libs.napier)
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
 
             implementation(libs.sqlDelight.coroutines)
 
+            implementation(libs.kamel)
+
             implementation(libs.material3.window.size.multiplatform)
-            implementation(libs.materialKolor)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -127,8 +137,16 @@ compose.desktop {
 buildkonfig {
     packageName = "de.hive.gamefinder"
 
-    defaultConfigs {
+    val props = Properties()
+    try {
+        props.load(file("secrets.properties").inputStream())
+    } catch (e: Exception) {
+        println(e)
+    }
 
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", props.getProperty("client_id"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", props.getProperty("client_secret"))
     }
 }
 
