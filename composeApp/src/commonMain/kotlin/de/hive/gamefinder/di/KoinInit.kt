@@ -2,7 +2,6 @@ package de.hive.gamefinder.di
 
 import com.russhwolf.settings.Settings
 import database.Game_entity
-import de.hive.gamefinder.MainViewModel
 import de.hive.gamefinder.core.adapter.GameRepository
 import de.hive.gamefinder.core.adapter.gameIdAdapter
 import de.hive.gamefinder.core.adapter.idAdapter
@@ -15,7 +14,6 @@ import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
 import de.hive.gamefinder.database.GameFinderDatabase
-import de.hive.gamefinder.feature.create_game.CreateGameViewModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
@@ -51,31 +49,24 @@ val coreModule = module {
     }
 
     single { GameRepository(database = get()) }
-
-    single<GamePersistencePort> { GameRepository(get()) }
-
-    single<GameUseCase> { GameService(get()) }
-
     single<Settings> { Settings() }
 
     /**
      * Screen modules
      */
-    single { MainViewModel(get()) }
     single { LibraryScreenModel(get(), get()) }
-
-
-    single { CreateGameViewModel(get(), get()) }
 
     /**
      * Adapters
      */
     single<IgdbApiPort> { IgdbApiAdapter(get()) }
+    single<GamePersistencePort> { GameRepository(get()) }
 
     /**
      * Ports
      */
     single<IgdbUseCase> { IgdbService(get()) }
+    single<GameUseCase> { GameService(get()) }
 }
 
 expect fun platformModule(): Module
