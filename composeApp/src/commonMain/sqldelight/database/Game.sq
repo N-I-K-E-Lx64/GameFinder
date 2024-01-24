@@ -14,6 +14,12 @@ SELECT * FROM game_entity;
 getGameById:
 SELECT * FROM game_entity WHERE id = ?;
 
+getGameByName:
+SELECT *
+FROM game_entity
+WHERE lower(name) LIKE (:query || '%')
+ORDER BY name;
+
 addGame:
 INSERT OR REPLACE INTO game_entity (name, platform, game_id, cover_image_id)
 VALUES ?;

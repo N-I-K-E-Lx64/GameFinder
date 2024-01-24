@@ -10,6 +10,8 @@ import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -17,6 +19,12 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
 
     private val _eventsFlow = Channel<UiEvents>(Channel.UNLIMITED)
     val eventsFlow = _eventsFlow.receiveAsFlow()
+
+    private val _searchResult = MutableStateFlow<List<Game>>(emptyList())
+    val searchResult = _searchResult.asStateFlow()
+    fun setSearchResult(searchResult: List<Game>) {
+        _searchResult.value = searchResult
+    }
 
     fun addGame(gameName: String, selectedPlatform: Platform) {
         screenModelScope.launch {
@@ -42,5 +50,9 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
                 }
             }
         }
+    }
+
+    fun searchGames(query: String) {
+        setSearchResult(gameUseCase.searchGames(query))
     }
 }

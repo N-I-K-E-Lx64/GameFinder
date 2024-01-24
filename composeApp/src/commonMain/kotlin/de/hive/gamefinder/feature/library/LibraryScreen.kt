@@ -9,6 +9,9 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -18,8 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -37,13 +44,16 @@ class LibraryScreen : Screen {
         const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
     }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalLayoutApi::class,
+        ExperimentalMaterial3Api::class
+    )
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
         val screenModel = getScreenModel<LibraryScreenModel>()
         val state by stateScreenModel.state.collectAsState()
+        val testState by screenModel.searchResult.collectAsState()
 
         val windowSizeClass = calculateWindowSizeClass()
 
@@ -83,11 +93,10 @@ class LibraryScreen : Screen {
                 )
             }
         ) { innerPadding ->
-            Column (
+            Box (
                 modifier = Modifier
                     .fillMaxSize()
                     .consumeWindowInsets(innerPadding)
-                    .padding(16.dp)
             ) {
                 when (state) {
                     is LibraryStateScreenModel.State.Init -> {
@@ -99,37 +108,55 @@ class LibraryScreen : Screen {
                     is LibraryStateScreenModel.State.Result -> {
                         val games = (state as LibraryStateScreenModel.State.Result).games
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
-                                text = "Games",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-
-                            /*Box(
-                                modifier = Modifier.semantics { isTraversalGroup = true }
-                            ) {
-                                SearchBar(
-                                    query = searchText,
-                                    onQueryChange = { searchText = it },
-                                    onSearch = { active = false },
-                                    active = active,
-                                    onActiveChange = { active = it },
-                                    placeholder = { Text("Search") },
-                                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                ) {
-                                    repeat(4)
-                                }
-                            }*/
+                            Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
+                            Text(text = "${games.size} imported games", style = MaterialTheme.typography.titleSmall)
                         }
 
-                        Text("${games.size} Imported Games", modifier = Modifier.padding(bottom = 8.dp))
+                        Box(
+                            modifier = Modifier
+                                .semantics { isTraversalGroup = true }
+                                .zIndex(1f)
+                                .align(Alignment.TopEnd)
+                                .padding(top = 8.dp, end = 16.dp),
+                        ) {
+                            DockedSearchBar(
+                                modifier = Modifier.semantics { traversalIndex = -1f },
+                                query = searchText,
+                                onQueryChange = { searchText = it; screenModel.searchGames(it) },
+                                onSearch = { active = false },
+                                active = active,
+                                onActiveChange = { active = it },
+                                placeholder = { Text("Search") },
+                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        active = false
+                                        searchText = ""
+                                        stateScreenModel.loadGames()
+                                    }) {
+                                        Icon(Icons.Default.Close, contentDescription = null)
+                                    }
+                                }
+                            ) {
+                                println(testState)
+                                val test = testState.take(4)
+                                test.forEach { game ->
+                                    ListItem(
+                                        headlineContent = { Text(game.name) },
+                                        supportingContent = { Text(game.platform.name) },
+                                        leadingContent = { Icon(Icons.Filled.VideogameAsset, contentDescription = null) },
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
 
                         LazyVerticalGrid(
+                            contentPadding = PaddingValues(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp),
                             columns = GridCells.Adaptive(minSize = 250.dp),
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),

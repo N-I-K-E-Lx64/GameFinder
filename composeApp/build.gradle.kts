@@ -52,6 +52,7 @@ kotlin {
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+            implementation(compose.materialIconsExtended)
 
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)

@@ -33,6 +33,13 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .map { entity -> entity?.toModel() }
     }
 
+    override fun searchGames(searchQuery: String): List<Game> {
+        return dbQueries
+            .getGameByName(query = searchQuery)
+            .executeAsList()
+            .map { gameEntity -> gameEntity.toModel() }
+    }
+
     override suspend fun updateGame(game: Game) {
         game.toEntity().let {
             dbQueries.updateGame(name = it.name, platform = it.platform)

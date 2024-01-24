@@ -7,9 +7,11 @@ interface GameUseCase {
 
     suspend fun createGame(game: Game)
 
-    suspend fun getGames(): Flow<List<Game>>
+    fun getGames(): Flow<List<Game>>
 
     fun getGame(id: Int): Flow<Game>
+
+    fun searchGames(query: String): List<Game>
 
     suspend fun updateGame(game: Game)
 
