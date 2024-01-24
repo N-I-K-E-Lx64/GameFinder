@@ -10,12 +10,16 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         persistencePort.createGame(game)
     }
 
-    override suspend fun getGames(): Flow<List<Game>> {
+    override fun getGames(): Flow<List<Game>> {
         return persistencePort.getGames()
     }
 
     override fun getGame(id: Int): Flow<Game> {
         TODO("Not yet implemented")
+    }
+
+    override fun searchGames(query: String): List<Game> {
+        return persistencePort.searchGames(query)
     }
 
     override suspend fun updateGame(game: Game) {

@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 
 object DesktopViewModel {
 
-    var theme: IntUiThemes by mutableStateOf(IntUiThemes.Light)
+    var theme: IntUiThemes by mutableStateOf(IntUiThemes.System)
 
     val projectColor = Color(0xff654b40)
 }

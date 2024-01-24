@@ -7,11 +7,15 @@ import de.hive.gamefinder.core.domain.Platform
 fun Game_entity.toModel() = Game(
     id = id,
     name = name,
-    platform = Platform.entries[platform]
+    platform = Platform.entries[platform],
+    igdbGameId = game_id,
+    coverImageId = cover_image_id,
 )
 
 fun Game.toEntity() = Game_entity(
     id = id,
     name = name,
-    platform = platform.ordinal
+    platform = platform.ordinal,
+    game_id = igdbGameId,
+    cover_image_id = coverImageId
 )

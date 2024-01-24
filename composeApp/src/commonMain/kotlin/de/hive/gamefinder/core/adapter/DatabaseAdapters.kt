@@ -20,5 +20,14 @@ val platformAdapter = object : ColumnAdapter<Int, Long> {
     override fun encode(value: Int): Long {
         return value.toLong()
     }
+}
 
+val gameIdAdapter = object : ColumnAdapter<Int, Long> {
+    override fun decode(databaseValue: Long): Int {
+        return databaseValue.toInt()
+    }
+
+    override fun encode(value: Int): Long {
+        return value.toLong()
+    }
 }

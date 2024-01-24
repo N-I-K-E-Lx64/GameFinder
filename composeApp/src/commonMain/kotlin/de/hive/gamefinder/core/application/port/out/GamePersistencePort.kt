@@ -11,6 +11,8 @@ interface GamePersistencePort {
 
     fun getGame(id: Int): Flow<Game?>
 
+    fun searchGames(searchQuery: String): List<Game>
+
     suspend fun updateGame(game: Game)
 
     suspend fun deleteGame(id: Int)

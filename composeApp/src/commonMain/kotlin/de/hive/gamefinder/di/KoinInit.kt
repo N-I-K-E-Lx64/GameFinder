@@ -1,15 +1,21 @@
 package de.hive.gamefinder.di
 
+import com.russhwolf.settings.Settings
 import database.Game_entity
-import de.hive.gamefinder.MainViewModel
 import de.hive.gamefinder.core.adapter.GameRepository
+import de.hive.gamefinder.core.adapter.gameIdAdapter
 import de.hive.gamefinder.core.adapter.idAdapter
+import de.hive.gamefinder.core.adapter.igdb.IgdbApiAdapter
 import de.hive.gamefinder.core.adapter.platformAdapter
 import de.hive.gamefinder.core.application.GameService
+import de.hive.gamefinder.core.application.IgdbService
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
+import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
+import de.hive.gamefinder.core.application.port.out.IgdbApiPort
 import de.hive.gamefinder.database.GameFinderDatabase
-import de.hive.gamefinder.feature.create_game.CreateGameViewModel
+import de.hive.gamefinder.feature.library.LibraryScreenModel
+import de.hive.gamefinder.feature.library.LibraryStateScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -19,7 +25,6 @@ import org.koin.dsl.module
 
 class KoinInit {
     fun init(appDeclaration: KoinAppDeclaration = {}): Koin {
-        println("Koin Function")
         return startKoin {
             modules(
                 listOf(
@@ -38,22 +43,32 @@ val coreModule = module {
             driver = get<DatabaseDriverFactory>().createDriver(),
             game_entityAdapter = Game_entity.Adapter(
                 idAdapter = idAdapter,
-                platformAdapter = platformAdapter
+                platformAdapter = platformAdapter,
+                game_idAdapter = gameIdAdapter
             )
         )
     }
 
     single { GameRepository(database = get()) }
-
-    single<GamePersistencePort> { GameRepository(get()) }
-
-    single<GameUseCase> { GameService(get()) }
+    single<Settings> { Settings() }
 
     /**
      * Screen modules
      */
-    single { MainViewModel(get()) }
-    single { CreateGameViewModel(get()) }
+    single { LibraryStateScreenModel(get()) }
+    single { LibraryScreenModel(get(), get()) }
+
+    /**
+     * Adapters
+     */
+    single<IgdbApiPort> { IgdbApiAdapter(get()) }
+    single<GamePersistencePort> { GameRepository(get()) }
+
+    /**
+     * Ports
+     */
+    single<IgdbUseCase> { IgdbService(get()) }
+    single<GameUseCase> { GameService(get()) }
 }
 
 expect fun platformModule(): Module

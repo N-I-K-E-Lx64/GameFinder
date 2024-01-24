@@ -4,12 +4,6 @@ data class Game(
     val id: Int = 0,
     val name: String,
     val platform: Platform,
+    val igdbGameId: Int,
+    val coverImageId: String
 )
-
-enum class Platform {
-    STEAM,
-    XBOX,
-    XBOX_GAMEPASS,
-    EPIC_GAMES,
-    UBISOFT_CONNECT
-}
