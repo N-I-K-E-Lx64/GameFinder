@@ -1,33 +1,43 @@
 package de.hive.gamefinder.core.adapter
 
 import app.cash.sqldelight.ColumnAdapter
+import de.hive.gamefinder.core.domain.GameMode
+import de.hive.gamefinder.core.domain.Platform
 
-val idAdapter = object : ColumnAdapter<Int, Long> {
-    override fun decode(databaseValue: Long): Int {
-        return databaseValue.toInt()
+val platformAdapter = object : ColumnAdapter<Platform, Long> {
+    override fun decode(databaseValue: Long): Platform {
+        return Platform.entries[databaseValue.toInt()]
     }
 
-    override fun encode(value: Int): Long {
+    override fun encode(value: Platform): Long {
+        return value.ordinal.toLong()
+    }
+}
+
+val gameModeAdapter = object : ColumnAdapter<List<GameMode>, String> {
+    override fun decode(databaseValue: String): List<GameMode> {
+        if (databaseValue.isEmpty()) {
+            return emptyList<GameMode>()
+        } else {
+            val enumValues = databaseValue.split(",").map { it.toInt() }
+            return enumValues.map { GameMode.entries[it] }
+        }
+    }
+
+    override fun encode(value: List<GameMode>): String {
+        return value.map { it.ordinal }.joinToString(separator = ",")
+    }
+}
+
+val booleanAdapter = object : ColumnAdapter<Boolean, Long> {
+    override fun decode(databaseValue: Long): Boolean {
+        return databaseValue.toBoolean()
+    }
+
+    override fun encode(value: Boolean): Long {
         return value.toLong()
     }
 }
 
-val platformAdapter = object : ColumnAdapter<Int, Long> {
-    override fun decode(databaseValue: Long): Int {
-        return databaseValue.toInt()
-    }
-
-    override fun encode(value: Int): Long {
-        return value.toLong()
-    }
-}
-
-val gameIdAdapter = object : ColumnAdapter<Int, Long> {
-    override fun decode(databaseValue: Long): Int {
-        return databaseValue.toInt()
-    }
-
-    override fun encode(value: Int): Long {
-        return value.toLong()
-    }
-}
+fun Boolean.toLong() = if (this) 1L else 0L
+fun Long.toBoolean() = this == 1L

@@ -44,7 +44,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
 
     override fun getGamesByPlatform(platform: Platform): Flow<List<Game>> {
         return dbQueries
-            .getGamesByPlatform(platform.ordinal)
+            .getGamesByPlatform(platform)
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { games -> games.map { it.toModel() } }

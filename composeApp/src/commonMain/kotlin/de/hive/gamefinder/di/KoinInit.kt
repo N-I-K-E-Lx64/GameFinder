@@ -1,10 +1,10 @@
 package de.hive.gamefinder.di
 
+import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import com.russhwolf.settings.Settings
 import database.Game_entity
 import de.hive.gamefinder.core.adapter.GameRepository
-import de.hive.gamefinder.core.adapter.gameIdAdapter
-import de.hive.gamefinder.core.adapter.idAdapter
+import de.hive.gamefinder.core.adapter.gameModeAdapter
 import de.hive.gamefinder.core.adapter.igdb.IgdbApiAdapter
 import de.hive.gamefinder.core.adapter.platformAdapter
 import de.hive.gamefinder.core.application.GameService
@@ -42,9 +42,13 @@ val coreModule = module {
         GameFinderDatabase(
             driver = get<DatabaseDriverFactory>().createDriver(),
             game_entityAdapter = Game_entity.Adapter(
-                idAdapter = idAdapter,
+                idAdapter = IntColumnAdapter,
                 platformAdapter = platformAdapter,
-                game_idAdapter = gameIdAdapter
+                game_idAdapter = IntColumnAdapter,
+                game_modesAdapter = gameModeAdapter,
+                //campaign_coopAdapter = booleanAdapter,
+                //online_coopAdapter = booleanAdapter,
+                online_max_playersAdapter = IntColumnAdapter
             )
         )
     }

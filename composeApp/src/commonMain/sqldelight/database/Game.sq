@@ -1,11 +1,20 @@
 import kotlin.Int;
+import kotlin.Boolean;
+import kotlin.String;
+import kotlin.collections.List;
+import de.hive.gamefinder.core.domain.GameMode;
+import de.hive.gamefinder.core.domain.Platform;
 
 CREATE TABLE IF NOT EXISTS game_entity (
     id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    platform INTEGER AS Int NOT NULL,
+    platform INTEGER AS Platform NOT NULL,
     game_id INTEGER AS Int NOT NULL,
-    cover_image_id TEXT NOT NULL
+    cover_image_id TEXT NOT NULL,
+    game_modes TEXT AS List<GameMode>,
+    campaign_coop INTEGER AS Boolean,
+    online_coop INTEGER AS Boolean,
+    online_max_players INTEGER AS Int
 );
 
 getAllGames:
@@ -27,7 +36,8 @@ WHERE platform = ?
 ORDER BY name;
 
 addGame:
-INSERT OR REPLACE INTO game_entity (name, platform, game_id, cover_image_id)
+INSERT OR REPLACE INTO game_entity
+(name, platform, game_id, cover_image_id, game_modes, campaign_coop, online_coop, online_max_players)
 VALUES ?;
 
 updateGame:

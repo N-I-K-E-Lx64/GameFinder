@@ -12,6 +12,7 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
+    //alias(libs.plugins.multiplatform.resources)
 }
 
 kotlin {
@@ -46,6 +47,9 @@ kotlin {
             api(libs.multiplatform.noArg)
             api(libs.multiplatform.coroutines)
 
+            //api(libs.moko.resources)
+            //api(libs.moko.resourcesCompose)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -70,6 +74,7 @@ kotlin {
             implementation(libs.voyager.koin)
 
             implementation(libs.sqlDelight.coroutines)
+            implementation(libs.sqlDelight.primitives)
 
             implementation(libs.kamel)
 
@@ -158,3 +163,8 @@ sqldelight {
         }
     }
 }
+
+
+/*multiplatformResources {
+    multiplatformResourcesPackage = "de.hive.gamefinder"
+}*/

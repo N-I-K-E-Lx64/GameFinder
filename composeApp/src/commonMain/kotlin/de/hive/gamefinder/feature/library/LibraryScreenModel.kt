@@ -34,12 +34,7 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
                 // Get additional information from IGDB
                 val igdbInformation = igdbUseCase.getGameDetails(gameName)
 
-                val game = Game(
-                    name = igdbInformation.gameName,
-                    platform = selectedPlatform,
-                    igdbGameId = igdbInformation.gameId,
-                    coverImageId = igdbInformation.coverImageId
-                )
+                val game = igdbInformation.copy(platform = selectedPlatform)
                 gameUseCase.createGame(game)
 
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("$gameName has been successfully imported into the library."))
