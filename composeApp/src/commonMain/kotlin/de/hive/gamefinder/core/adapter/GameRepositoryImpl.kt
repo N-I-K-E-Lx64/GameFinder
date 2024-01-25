@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.database.GameFinderDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -30,14 +31,23 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .getGameById(id)
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
-            .map { entity -> entity?.toModel() }
+            .map { it?.toModel() }
     }
 
-    override fun searchGames(searchQuery: String): List<Game> {
+    override fun getGamesByName(name: String): Flow<List<Game>> {
         return dbQueries
-            .getGameByName(query = searchQuery)
-            .executeAsList()
-            .map { gameEntity -> gameEntity.toModel() }
+            .searchGamesByName(query = name)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { games -> games.map { it.toModel() } }
+    }
+
+    override fun getGamesByPlatform(platform: Platform): Flow<List<Game>> {
+        return dbQueries
+            .getGamesByPlatform(platform.ordinal)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { games -> games.map { it.toModel() } }
     }
 
     override suspend fun updateGame(game: Game) {

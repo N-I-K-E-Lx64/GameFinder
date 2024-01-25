@@ -14,10 +14,16 @@ SELECT * FROM game_entity;
 getGameById:
 SELECT * FROM game_entity WHERE id = ?;
 
-getGameByName:
+searchGamesByName:
 SELECT *
 FROM game_entity
 WHERE lower(name) LIKE (:query || '%')
+ORDER BY name;
+
+getGamesByPlatform:
+SELECT *
+FROM game_entity
+WHERE platform = ?
 ORDER BY name;
 
 addGame:

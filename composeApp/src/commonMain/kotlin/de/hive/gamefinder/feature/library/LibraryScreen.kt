@@ -13,8 +13,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.*
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -38,13 +37,13 @@ import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class LibraryScreen : Screen {
+class LibraryScreen(val filter: Platform?) : Screen {
 
     companion object {
         const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
     }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalLayoutApi::class,
+    @OptIn(ExperimentalLayoutApi::class,
         ExperimentalMaterial3Api::class
     )
     @Composable
@@ -53,11 +52,7 @@ class LibraryScreen : Screen {
         val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
         val screenModel = getScreenModel<LibraryScreenModel>()
         val state by stateScreenModel.state.collectAsState()
-        val testState by screenModel.searchResult.collectAsState()
-
-        val windowSizeClass = calculateWindowSizeClass()
-
-        println(windowSizeClass.widthSizeClass)
+        val searchResultState by screenModel.searchResult.collectAsState()
 
         val snackbarHostState = remember { SnackbarHostState() }
         var openDialog by remember { mutableStateOf(false) }
@@ -67,7 +62,17 @@ class LibraryScreen : Screen {
         var gameName by remember { mutableStateOf("") }
         var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
 
+        // When the Screen is replaced (due to a navigation event) load the data
+        if (navigator.lastEvent == StackEvent.Replace) {
+            if (filter == null) {
+                stateScreenModel.loadGames()
+            } else {
+                stateScreenModel.loadGamesForPlatform(filter)
+            }
+        }
+
         LaunchedEffect(Unit) {
+            // Load the data initially
             stateScreenModel.loadGames()
 
             withContext(Dispatchers.Main.immediate) {
@@ -103,6 +108,7 @@ class LibraryScreen : Screen {
                         Text("Init")
                     }
                     is LibraryStateScreenModel.State.Loading -> {
+                        // TODO : Implement a custom loading animation
                         Text("Loading")
                     }
                     is LibraryStateScreenModel.State.Result -> {
@@ -136,15 +142,14 @@ class LibraryScreen : Screen {
                                     IconButton(onClick = {
                                         active = false
                                         searchText = ""
-                                        stateScreenModel.loadGames()
+                                        screenModel.resetSearchResults()
                                     }) {
                                         Icon(Icons.Default.Close, contentDescription = null)
                                     }
                                 }
                             ) {
-                                println(testState)
-                                val test = testState.take(4)
-                                test.forEach { game ->
+                                val searchResults = searchResultState.take(4)
+                                searchResults.forEach { game ->
                                     ListItem(
                                         headlineContent = { Text(game.name) },
                                         supportingContent = { Text(game.platform.name) },
@@ -157,7 +162,7 @@ class LibraryScreen : Screen {
 
                         LazyVerticalGrid(
                             contentPadding = PaddingValues(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp),
-                            columns = GridCells.Adaptive(minSize = 250.dp),
+                            columns = GridCells.Adaptive(minSize = 200.dp),
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)

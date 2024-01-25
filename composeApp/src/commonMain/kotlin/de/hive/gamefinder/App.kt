@@ -73,7 +73,7 @@ fun NavigationWrapper(
             drawerContent = {
                 PermanentNavigationDrawerContent(
                     selectedRoute = selectedRoute,
-                    onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) }
+                    onDrawerItemClicked = { selectedRoute = it.name; navigator.replaceAll(it.destination) }
                 )
             },
         ) {

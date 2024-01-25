@@ -6,7 +6,9 @@ import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
 import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.GameQuery
 import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.QueryType
 import de.hive.gamefinder.core.utils.UiEvents
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
@@ -52,7 +54,16 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
         }
     }
 
-    fun searchGames(query: String) {
-        setSearchResult(gameUseCase.searchGames(query))
+    fun searchGames(searchQuery: String) {
+        screenModelScope.launch {
+            val query = GameQuery(QueryType.NAME, searchQuery)
+            gameUseCase.getGamesByQuery(query).collect {
+                setSearchResult(it)
+            }
+        }
+    }
+
+    fun resetSearchResults() {
+        setSearchResult(emptyList())
     }
 }
