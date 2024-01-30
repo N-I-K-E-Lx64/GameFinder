@@ -29,15 +29,5 @@ val gameModeAdapter = object : ColumnAdapter<List<GameMode>, String> {
     }
 }
 
-val booleanAdapter = object : ColumnAdapter<Boolean, Long> {
-    override fun decode(databaseValue: Long): Boolean {
-        return databaseValue.toBoolean()
-    }
-
-    override fun encode(value: Boolean): Long {
-        return value.toLong()
-    }
-}
-
 fun Boolean.toLong() = if (this) 1L else 0L
 fun Long.toBoolean() = this == 1L

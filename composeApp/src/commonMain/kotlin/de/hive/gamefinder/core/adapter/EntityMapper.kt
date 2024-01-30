@@ -1,6 +1,8 @@
 package de.hive.gamefinder.core.adapter
 
+import database.Friend_entity
 import database.Game_entity
+import de.hive.gamefinder.core.domain.Friend
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.MultiplayerMode
 
@@ -24,4 +26,14 @@ fun Game.toEntity() = Game_entity(
     campaign_coop = multiplayerMode?.hasCampaignCoop,
     online_coop = multiplayerMode?.hasOnlineCoop,
     online_max_players = multiplayerMode?.onlineCoopMaxPlayers
+)
+
+fun Friend_entity.toModel() = Friend(
+    id = id,
+    name = name
+)
+
+fun Friend.toEntity() = Friend_entity(
+    id = id,
+    name = name
 )

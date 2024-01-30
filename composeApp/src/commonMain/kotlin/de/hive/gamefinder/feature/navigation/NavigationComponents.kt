@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import cafe.adriel.voyager.core.screen.Screen
@@ -28,20 +29,39 @@ import io.github.aakira.napier.Napier
 @Composable
 fun AppNavigationRail(
     selectedRoute: String,
-    onDrawerClicked: () -> Unit = {}
+    onDrawerClicked: () -> Unit = {},
+    onActionButtonClicked: () -> Unit = {},
+    onDrawerItemClicked: (NavigationElement) -> Unit
 ) {
     NavigationRail(
         modifier = Modifier.fillMaxHeight(),
         containerColor = MaterialTheme.colorScheme.inverseOnSurface
     ) {
-        NavigationRailItem(
+        Column(
             modifier = Modifier.layoutId(LayoutType.HEADER),
-            selected = false,
-            onClick = onDrawerClicked,
-            icon = {
-                Icon(Icons.Default.Menu, contentDescription = null)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            NavigationRailItem(
+                selected = false,
+                onClick = onDrawerClicked,
+                icon = {
+                    Icon(Icons.Default.Menu, contentDescription = null)
+                }
+            )
+            FloatingActionButton(
+                onClick = onActionButtonClicked,
+                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            ) {
+                Icon(
+                    Icons.Filled.PersonAdd,
+                    contentDescription = "Add Friend",
+                    modifier = Modifier.size(18.dp)
+                )
             }
-        )
+        }
 
         Column(
            modifier = Modifier.layoutId(LayoutType.CONTENT),
@@ -51,7 +71,7 @@ fun AppNavigationRail(
             SCREEN_NAVIGATION.forEach {
                 NavigationRailItem(
                     selected = selectedRoute == it.name,
-                    onClick = { println(it.name) },
+                    onClick = { onDrawerItemClicked(it) },
                     icon = {
                         Icon(it.icon, contentDescription = null)
                     }
@@ -100,7 +120,8 @@ fun PermanentNavigationDrawerContent(
 fun ModalNavigationDrawerContent(
     selectedRoute: String,
     onDrawerClicked: () -> Unit = {},
-    onDrawerItemClicked: (NavigationElement) -> Unit
+    onDrawerItemClicked: (NavigationElement) -> Unit = {},
+    onActionButtonClicked: () -> Unit = {}
 ) {
     ModalDrawerSheet {
         Layout(
@@ -109,26 +130,52 @@ fun ModalNavigationDrawerContent(
                 .padding(16.dp),
             measurePolicy = navigationMeasurePolicy(),
             content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .layoutId(LayoutType.HEADER),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.layoutId(LayoutType.HEADER),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(
+                    Row(
                         modifier = Modifier
-                            .padding(16.dp)
-                            .layoutId(LayoutType.HEADER),
-                        text = "GAMEFINDER",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    IconButton(onClick = onDrawerClicked) {
-                        Icon(Icons.Default.MenuOpen, contentDescription = null)
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .layoutId(LayoutType.HEADER),
+                            text = "GAMEFINDER",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        IconButton(onClick = onDrawerClicked) {
+                            Icon(Icons.Default.MenuOpen, contentDescription = null)
+                        }
+                    }
+
+                    ExtendedFloatingActionButton(
+                        onClick = onActionButtonClicked,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, bottom = 40.dp),
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PersonAdd,
+                            contentDescription = "Add Friend",
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Add Friend",
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
+
 
                 NavigationDrawerContent(
                     selectedRoute = selectedRoute,

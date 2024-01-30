@@ -1,3 +1,4 @@
+
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
@@ -30,8 +31,7 @@ kotlin {
         val desktopMain by getting
         
         androidMain.dependencies {
-            //implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.compose.ui.tooling.preview.desktop)
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.androidx.activity.compose)
 
@@ -67,7 +67,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
 
-            implementation(libs.logback)
             implementation(libs.napier)
 
             implementation(libs.voyager.navigator)
@@ -82,6 +81,10 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+
+            implementation(libs.logback)
+
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.ktor.client.desktop)
             implementation(libs.kotlinx.coroutines.swing)
@@ -124,13 +127,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     dependencies {
-        debugImplementation(libs.compose.ui.tooling.preview.desktop)
+        debugImplementation(libs.compose.ui.tooling.preview)
     }
 }
 
 compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
+        //mainClass = "MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

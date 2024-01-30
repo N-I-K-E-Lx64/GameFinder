@@ -17,7 +17,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbUseCase: IgdbUseCase) : ScreenModel {
+class LibraryScreenModel(
+    private val gameUseCase: GameUseCase,
+    private val igdbUseCase: IgdbUseCase
+) : ScreenModel {
 
     private val _eventsFlow = Channel<UiEvents>(Channel.UNLIMITED)
     val eventsFlow = _eventsFlow.receiveAsFlow()

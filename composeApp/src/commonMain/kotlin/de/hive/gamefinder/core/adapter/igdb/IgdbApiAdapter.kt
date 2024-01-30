@@ -83,7 +83,7 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         val igdbResult = client.post(IGDB_GAME_ENDPOINT) {
             setBody("""
                 fields name, cover.image_id, multiplayer_modes, game_modes;
-                search "Anno 1800";
+                search "$gameName";
                 where version_parent = null;
                 where parent_game = null;
                 limit 20;

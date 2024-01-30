@@ -39,4 +39,10 @@ class LibraryStateScreenModel(private val gameUseCase: GameUseCase) : StateScree
             }
         }
     }
+
+    fun deleteGame(gameId: Int) {
+        screenModelScope.launch {
+            gameUseCase.deleteGame(gameId)
+        }
+    }
 }

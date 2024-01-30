@@ -33,6 +33,7 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
     }
 
     override suspend fun deleteGame(id: Int) {
-        TODO("Not yet implemented")
+        println(id)
+        persistencePort.deleteGame(id)
     }
 }

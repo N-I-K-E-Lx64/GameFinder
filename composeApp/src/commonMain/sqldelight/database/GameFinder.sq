@@ -4,6 +4,7 @@ import kotlin.String;
 import kotlin.collections.List;
 import de.hive.gamefinder.core.domain.GameMode;
 import de.hive.gamefinder.core.domain.Platform;
+import de.hive.gamefinder.core.domain.Friend;
 
 CREATE TABLE IF NOT EXISTS game_entity (
     id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +16,19 @@ CREATE TABLE IF NOT EXISTS game_entity (
     campaign_coop INTEGER AS Boolean,
     online_coop INTEGER AS Boolean,
     online_max_players INTEGER AS Int
+);
+
+CREATE TABLE IF NOT EXISTS friend_entity (
+    id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS game_friends (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER,
+    friend_id INTEGER,
+    FOREIGN KEY(game_id) REFERENCES game_entity(id),
+    FOREIGN KEY(friend_id) REFERENCES friend_entity(id)
 );
 
 getAllGames:
@@ -45,3 +59,19 @@ UPDATE game_entity SET name = ?, platform = ?;
 
 deleteGameById:
 DELETE FROM game_entity WHERE id = ?;
+
+createFriend:
+INSERT OR REPLACE INTO friend_entity (name) VALUES ?;
+
+getAllFriends:
+SELECT * FROM friend_entity;
+
+getFriendsByGame:
+SELECT DISTINCT fe.id, game_id, name, IIF(game_id = ?, 1, 0) AS owning FROM friend_entity AS fe
+LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
+
+addGameFriendRelation:
+INSERT INTO game_friends (game_id, friend_id) VALUES (:gameId, :friendId);
+
+removeGameFriendRelation:
+DELETE FROM game_friends WHERE game_id = :gameId AND friend_id = :friendId;

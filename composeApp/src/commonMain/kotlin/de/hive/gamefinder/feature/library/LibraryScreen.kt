@@ -30,8 +30,11 @@ import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
+import de.hive.gamefinder.utils.HorizontalTwoPaneStrategy
+import de.hive.gamefinder.utils.TwoPane
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
@@ -43,21 +46,28 @@ class LibraryScreen(val filter: Platform?) : Screen {
         const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
     }
 
-    @OptIn(ExperimentalLayoutApi::class,
+    @OptIn(
+        ExperimentalLayoutApi::class,
         ExperimentalMaterial3Api::class
     )
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
         val screenModel = getScreenModel<LibraryScreenModel>()
-        val state by stateScreenModel.state.collectAsState()
         val searchResultState by screenModel.searchResult.collectAsState()
 
+        val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
+        val state by stateScreenModel.state.collectAsState()
+
+        val sideSheetScreenModel = getScreenModel<LibrarySideSheetScreenModel>()
+        val sideSheetState by sideSheetScreenModel.state.collectAsState()
+
+        // UI relevant state
         val snackbarHostState = remember { SnackbarHostState() }
         var openDialog by remember { mutableStateOf(false) }
-        var searchText by remember { mutableStateOf("") }
-        var active by remember { mutableStateOf(false) }
+        var selectedGame by remember { mutableStateOf(0) }
+
+        var splitFraction by remember { mutableStateOf(1f) }
 
         var gameName by remember { mutableStateOf("") }
         var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
@@ -88,135 +98,119 @@ class LibraryScreen(val filter: Platform?) : Screen {
             }
         }
 
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    onClick = { openDialog = true },
-                    icon = { Icon(Icons.Filled.Add, "Import a new game") },
-                    text = { Text(text = "Import Game") }
-                )
+        when (state) {
+            is LibraryStateScreenModel.State.Init -> {
+                Text("Init")
             }
-        ) { innerPadding ->
-            Box (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .consumeWindowInsets(innerPadding)
-            ) {
-                when (state) {
-                    is LibraryStateScreenModel.State.Init -> {
-                        Text("Init")
-                    }
-                    is LibraryStateScreenModel.State.Loading -> {
-                        // TODO : Implement a custom loading animation
-                        Text("Loading")
-                    }
-                    is LibraryStateScreenModel.State.Result -> {
-                        val games = (state as LibraryStateScreenModel.State.Result).games
 
-                        Column(
-                            modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
-                            Text(text = "${games.size} imported games", style = MaterialTheme.typography.titleSmall)
-                        }
+            is LibraryStateScreenModel.State.Loading -> {
+                // TODO : Implement a custom loading animation
+                Text("Loading")
+            }
 
-                        Box(
-                            modifier = Modifier
-                                .semantics { isTraversalGroup = true }
-                                .zIndex(1f)
-                                .align(Alignment.TopEnd)
-                                .padding(top = 8.dp, end = 16.dp),
-                        ) {
-                            DockedSearchBar(
-                                modifier = Modifier.semantics { traversalIndex = -1f },
-                                query = searchText,
-                                onQueryChange = { searchText = it; screenModel.searchGames(it) },
-                                onSearch = { active = false },
-                                active = active,
-                                onActiveChange = { active = it },
-                                placeholder = { Text("Search") },
-                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                trailingIcon = {
-                                    IconButton(onClick = {
-                                        active = false
-                                        searchText = ""
-                                        screenModel.resetSearchResults()
-                                    }) {
-                                        Icon(Icons.Default.Close, contentDescription = null)
-                                    }
-                                }
+            is LibraryStateScreenModel.State.Result -> {
+                println(MaterialTheme.colorScheme.background)
+                println(MaterialTheme.colorScheme.surface)
+                Scaffold(
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
+                    topBar = { AppBar(
+                        searchResultState = searchResultState,
+                        onQueryChange = { screenModel.searchGames(it) }
+                    ) },
+                    floatingActionButton = {
+                        ExtendedFloatingActionButton(
+                            onClick = { openDialog = true },
+                            icon = { Icon(Icons.Filled.Add, "Import a new game") },
+                            text = { Text(text = "Import Game") }
+                        )
+                    }
+                ) { innerPadding ->
+                    TwoPane(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        first = {
+                            val games = (state as LibraryStateScreenModel.State.Result).games
+
+                            LazyVerticalGrid(
+                                contentPadding = PaddingValues(16.dp),
+                                columns = GridCells.Adaptive(minSize = 200.dp),
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                val searchResults = searchResultState.take(4)
-                                searchResults.forEach { game ->
-                                    ListItem(
-                                        headlineContent = { Text(game.name) },
-                                        supportingContent = { Text(game.platform.name) },
-                                        leadingContent = { Icon(Icons.Filled.VideogameAsset, contentDescription = null) },
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
-                                    )
-                                }
-                            }
-                        }
-
-                        LazyVerticalGrid(
-                            contentPadding = PaddingValues(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp),
-                            columns = GridCells.Adaptive(minSize = 200.dp),
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(games) {
-                                ElevatedCard(
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                items(games) {
+                                    ElevatedCard(
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                        //colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                                        onClick = {
+                                            selectedGame = it.id
+                                            sideSheetScreenModel.loadFriends(it)
+                                            splitFraction = 2f / 3f
+                                        },
                                     ) {
-                                        KamelImage(
-                                            resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
-                                            contentDescription = "${it.name} - Cover",
-                                            contentScale = ContentScale.Crop,
-                                            onLoading = { progress -> CircularProgressIndicator(progress) },
-                                            modifier = Modifier
-                                                //.aspectRatio(1.0f)
-                                                .clip(RoundedCornerShape(16.dp))
-                                        )
-                                        Text(
-                                            text = it.name,
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-                                        Text(
-                                            text = it.platform.platform,
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                        )
+                                        Column(
+                                            modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            KamelImage(
+                                                resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
+                                                contentDescription = "${it.name} - Cover",
+                                                contentScale = ContentScale.Crop,
+                                                onLoading = { progress -> CircularProgressIndicator(progress) },
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(16.dp))
+                                            )
+                                            Text(
+                                                text = it.name,
+                                                modifier = Modifier.padding(horizontal = 16.dp),
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                            Text(
+                                                text = it.platform.platform,
+                                                modifier = Modifier.padding(horizontal = 16.dp),
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
-
-                        when {
-                            openDialog -> {
-                                CreateGameDialog(
-                                    onDismissRequest = { openDialog = false },
-                                    onSave = {
-                                        screenModel.addGame(gameName, selectedPlatform)
-                                        // Reset form values
-                                        gameName = ""
-                                        selectedPlatform = Platform.STEAM
-                                        // Close the dialog
-                                        openDialog = false
-                                    },
-                                    onUpdateName = { gameName = it },
-                                    onSelectPlatform = { selectedPlatform = it },
-                                    gameName = gameName,
-                                    selectedPlatform = selectedPlatform,
-                                    platforms = stateScreenModel.platforms
+                        },
+                        second = { LibrarySideSheet(
+                            state = sideSheetState,
+                            onSideSheetClosed = { splitFraction = 1f },
+                            onDeleteGame = { stateScreenModel.deleteGame(selectedGame) },
+                            onFriendRelationUpdated = { relation, change ->
+                                sideSheetScreenModel.updateFriendRelations(
+                                    selectedGame,
+                                    relation,
+                                    change
                                 )
                             }
+                        )},
+                        strategy = HorizontalTwoPaneStrategy(
+                            splitFraction = splitFraction
+                        )
+                    )
+
+                    when {
+                        openDialog -> {
+                            CreateGameDialog(
+                                onDismissRequest = { openDialog = false },
+                                onSave = {
+                                    screenModel.addGame(gameName, selectedPlatform)
+                                    // Reset form values
+                                    gameName = ""
+                                    selectedPlatform = Platform.STEAM
+                                    // Close the dialog
+                                    openDialog = false
+                                },
+                                onUpdateName = { gameName = it },
+                                onSelectPlatform = { selectedPlatform = it },
+                                gameName = gameName,
+                                selectedPlatform = selectedPlatform,
+                                platforms = stateScreenModel.platforms
+                            )
                         }
                     }
                 }
@@ -233,14 +227,15 @@ private fun CreateGameDialog(
     onSelectPlatform: (platform: Platform) -> Unit,
     gameName: String,
     selectedPlatform: Platform,
-    platforms: Array<Platform>) {
+    platforms: Array<Platform>
+) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card {
-            Column (
+            Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text (
+                Text(
                     "Import a game",
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -261,7 +256,7 @@ private fun CreateGameDialog(
 
                 Column(modifier = Modifier.selectableGroup()) {
                     platforms.forEach { platform ->
-                        Row (
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
@@ -288,13 +283,77 @@ private fun CreateGameDialog(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
-                    TextButton(onClick = { onDismissRequest() } ) {
+                    TextButton(onClick = { onDismissRequest() }) {
                         Text("Cancel")
                     }
 
-                    TextButton(onClick = { onSave() } ) {
+                    TextButton(onClick = { onSave() }) {
                         Text("Save")
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppBar(
+    searchResultState: List<Game>,
+    onQueryChange: (queryText: String) -> Unit
+) {
+    var searchText by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = "99 imported games",
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .semantics { isTraversalGroup = true }
+                .zIndex(1f)
+                //.align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 16.dp),
+        ) {
+            DockedSearchBar(
+                modifier = Modifier.semantics { traversalIndex = -1f },
+                query = searchText,
+                onQueryChange = { searchText = it; onQueryChange(it) },
+                onSearch = { active = false },
+                active = active,
+                onActiveChange = { active = it },
+                placeholder = { Text("Search") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        active = false
+                        searchText = ""
+                        //screenModel.resetSearchResults()
+                    }) {
+                        Icon(Icons.Default.Close, contentDescription = null)
+                    }
+                }
+            ) {
+                val searchResults = searchResultState.take(4)
+                searchResults.forEach { game ->
+                    ListItem(
+                        headlineContent = { Text(game.name) },
+                        supportingContent = { Text(game.platform.name) },
+                        leadingContent = { Icon(Icons.Filled.VideogameAsset, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
                 }
             }
         }

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
-    private val dbQueries = database.gameQueries
+    private val dbQueries = database.gameFinderQueries
 
     override suspend fun createGame(game: Game) {
         dbQueries.addGame(game.toEntity())
