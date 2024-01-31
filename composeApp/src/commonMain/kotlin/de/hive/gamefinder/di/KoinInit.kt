@@ -4,29 +4,32 @@ import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import com.russhwolf.settings.Settings
 import database.Friend_entity
 import database.Game_entity
-import de.hive.gamefinder.core.adapter.FriendRepository
-import de.hive.gamefinder.core.adapter.GameRepository
-import de.hive.gamefinder.core.adapter.gameModeAdapter
+import database.Tag_entity
 import de.hive.gamefinder.core.adapter.igdb.IgdbApiAdapter
-import de.hive.gamefinder.core.adapter.platformAdapter
+import de.hive.gamefinder.core.adapter.persistence.*
 import de.hive.gamefinder.core.application.FriendService
 import de.hive.gamefinder.core.application.GameService
 import de.hive.gamefinder.core.application.IgdbService
+import de.hive.gamefinder.core.application.TagService
 import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
+import de.hive.gamefinder.core.application.port.`in`.TagUseCase
 import de.hive.gamefinder.core.application.port.out.FriendPersistencePort
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
+import de.hive.gamefinder.core.application.port.out.TagPersistencePort
 import de.hive.gamefinder.database.GameFinderDatabase
 import de.hive.gamefinder.feature.library.LibraryScreenModel
-import de.hive.gamefinder.feature.library.LibrarySideSheetScreenModel
 import de.hive.gamefinder.feature.library.LibraryStateScreenModel
+import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
+import de.hive.gamefinder.feature.library.details.LibraryGameDetailsStateScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.scope.get
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -57,6 +60,9 @@ val coreModule = module {
             ),
             friend_entityAdapter = Friend_entity.Adapter(
                 idAdapter = IntColumnAdapter
+            ),
+            tag_entityAdapter = Tag_entity.Adapter(
+                idAdapter = IntColumnAdapter
             )
         )
     }
@@ -70,7 +76,8 @@ val coreModule = module {
      */
     single { LibraryStateScreenModel(get()) }
     single { LibraryScreenModel(get(), get()) }
-    single { LibrarySideSheetScreenModel(get()) }
+    single { LibraryGameDetailsStateScreenModel(get()) }
+    single { GameDetailsScreenModel(get()) }
     single { NavigationScreenModel(get()) }
 
     /**
@@ -79,6 +86,7 @@ val coreModule = module {
     single<IgdbApiPort> { IgdbApiAdapter(get()) }
     single<GamePersistencePort> { GameRepository(get()) }
     single<FriendPersistencePort> { FriendRepository(get()) }
+    single<TagPersistencePort> { TagRepository(get()) }
 
     /**
      * Ports
@@ -86,6 +94,7 @@ val coreModule = module {
     single<IgdbUseCase> { IgdbService(get()) }
     single<GameUseCase> { GameService(get()) }
     single<FriendUseCase> { FriendService(get()) }
+    single<TagUseCase> { TagService(get()) }
 }
 
 expect fun platformModule(): Module

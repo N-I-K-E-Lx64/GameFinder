@@ -6,6 +6,7 @@ data class Game(
     val platform: Platform = Platform.STEAM,
     val igdbGameId: Int,
     val coverImageId: String,
+    val tags: List<Tag> = emptyList(),
     val gameModes: List<GameMode>?,
     val multiplayerMode: MultiplayerMode?
 )

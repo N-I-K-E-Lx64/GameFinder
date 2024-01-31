@@ -1,4 +1,4 @@
-package de.hive.gamefinder.core.adapter
+package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.ColumnAdapter
 import de.hive.gamefinder.core.domain.GameMode

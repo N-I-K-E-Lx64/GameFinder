@@ -1,4 +1,4 @@
-package de.hive.gamefinder.core.adapter
+package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
@@ -36,7 +36,7 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
 
     override suspend fun createGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
-            .addGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
+            .createGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
         Napier.v("Add friend $friendId to game $gameId")
     }
 

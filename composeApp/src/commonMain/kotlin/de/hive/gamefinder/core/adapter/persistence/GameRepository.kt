@@ -1,11 +1,13 @@
-package de.hive.gamefinder.core.adapter
+package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.Tag
 import de.hive.gamefinder.database.GameFinderDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +25,26 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .getAllGames()
             .asFlow()
             .mapToList(Dispatchers.IO)
-            .map { games -> games.map { gameEntity -> gameEntity.toModel() } }
+            .map { rows ->
+                rows.groupBy { it.id }.values.map { games ->
+                    val firstGame = games.first()
+
+                    Game(
+                        id = firstGame.id,
+                        name = firstGame.name,
+                        platform = firstGame.platform,
+                        igdbGameId = firstGame.game_id,
+                        coverImageId = firstGame.cover_image_id,
+                        tags = games.filter { it.tag != null }.map { Tag(it.id_!!, it.tag!!) },
+                        gameModes = firstGame.game_modes,
+                        multiplayerMode = MultiplayerMode(
+                            hasCampaignCoop = firstGame.campaign_coop ?: false,
+                            hasOnlineCoop = firstGame.online_coop ?: false,
+                            onlineCoopMaxPlayers = firstGame.online_max_players ?: 0
+                        )
+                    )
+                }
+            }
     }
 
     override fun getGame(id: Int): Flow<Game?> {

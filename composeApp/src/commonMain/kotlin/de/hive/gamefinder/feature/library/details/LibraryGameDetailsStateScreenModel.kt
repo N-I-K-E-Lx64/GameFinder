@@ -1,4 +1,4 @@
-package de.hive.gamefinder.feature.library
+package de.hive.gamefinder.feature.library.details
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -7,7 +7,9 @@ import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.domain.Game
 import kotlinx.coroutines.launch
 
-class LibrarySideSheetScreenModel(private val friendUseCase: FriendUseCase) : StateScreenModel<LibrarySideSheetScreenModel.State>(State.Loading) {
+class LibraryGameDetailsStateScreenModel(private val friendUseCase: FriendUseCase) : StateScreenModel<LibraryGameDetailsStateScreenModel.State>(
+    State.Loading
+) {
 
     sealed class State {
         data object Loading : State()

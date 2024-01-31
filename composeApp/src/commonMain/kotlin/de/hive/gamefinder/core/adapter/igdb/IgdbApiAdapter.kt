@@ -108,6 +108,7 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             igdbGameId = desiredGame.gameId,
             coverImageId = desiredGame.cover.imageId,
             gameModes = gameModes,
+            tags = emptyList(),
             multiplayerMode = multiplayerMode
         )
     }

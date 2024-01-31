@@ -33,6 +33,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
+import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
+import de.hive.gamefinder.feature.library.details.LibraryGameDetailsStateScreenModel
+import de.hive.gamefinder.feature.library.details.LibrarySideSheet
 import de.hive.gamefinder.utils.HorizontalTwoPaneStrategy
 import de.hive.gamefinder.utils.TwoPane
 import io.kamel.image.KamelImage
@@ -59,8 +62,9 @@ class LibraryScreen(val filter: Platform?) : Screen {
         val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
         val state by stateScreenModel.state.collectAsState()
 
-        val sideSheetScreenModel = getScreenModel<LibrarySideSheetScreenModel>()
-        val sideSheetState by sideSheetScreenModel.state.collectAsState()
+        val gameDetailsStateScreenModel = getScreenModel<LibraryGameDetailsStateScreenModel>()
+        val sideSheetState by gameDetailsStateScreenModel.state.collectAsState()
+        val gameDetailsScreenModel = getScreenModel<GameDetailsScreenModel>()
 
         // UI relevant state
         val snackbarHostState = remember { SnackbarHostState() }
@@ -109,8 +113,6 @@ class LibraryScreen(val filter: Platform?) : Screen {
             }
 
             is LibraryStateScreenModel.State.Result -> {
-                println(MaterialTheme.colorScheme.background)
-                println(MaterialTheme.colorScheme.surface)
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                     topBar = { AppBar(
@@ -145,7 +147,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                         //colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                         onClick = {
                                             selectedGame = it.id
-                                            sideSheetScreenModel.loadFriends(it)
+                                            gameDetailsStateScreenModel.loadFriends(it)
                                             splitFraction = 2f / 3f
                                         },
                                     ) {
@@ -178,16 +180,18 @@ class LibraryScreen(val filter: Platform?) : Screen {
                         },
                         second = { LibrarySideSheet(
                             state = sideSheetState,
+                            screenModel = gameDetailsScreenModel,
                             onSideSheetClosed = { splitFraction = 1f },
                             onDeleteGame = { stateScreenModel.deleteGame(selectedGame) },
                             onFriendRelationUpdated = { relation, change ->
-                                sideSheetScreenModel.updateFriendRelations(
+                                gameDetailsStateScreenModel.updateFriendRelations(
                                     selectedGame,
                                     relation,
                                     change
                                 )
                             }
-                        )},
+                        )
+                        },
                         strategy = HorizontalTwoPaneStrategy(
                             splitFraction = splitFraction
                         )
