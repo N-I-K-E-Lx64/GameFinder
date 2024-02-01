@@ -5,7 +5,9 @@ import com.russhwolf.settings.get
 import de.hive.gamefinder.BuildKonfig
 import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
-import de.hive.gamefinder.core.domain.IgdbInformation
+import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.GameMode
+import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.utils.levenshteinSimilarity
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -17,15 +19,14 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
 
     companion object {
         const val IGDB_AUTHENTICATION_URL = "https://id.twitch.tv/oauth2/token"
         const val IGDB_GAME_ENDPOINT = "https://api.igdb.com/v4/games"
+        const val IGDB_MULTIPLAYER_MODE_ENDPOINT = "https://api.igdb.com/v4/multiplayer_modes"
+        const val IGDB_MICROSOFT_WINDOWS_PLATFORM = 6
     }
 
     private val client = HttpClient {
@@ -63,9 +64,31 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         }
     }
 
-    override suspend fun getGameDetails(gameName: String): IgdbInformation {
+    private suspend fun getMultiplayerInfos(igdbGameId: Int): MultiplayerMode? {
+        val igdbMultiplayerMode = client.post(IGDB_MULTIPLAYER_MODE_ENDPOINT) {
+            setBody("fields campaigncoop, onlinecoop, onlinecoopmax; where game = $igdbGameId & platform = $IGDB_MICROSOFT_WINDOWS_PLATFORM;")
+            headers {
+                append("Client-Id", BuildKonfig.CLIENT_ID)
+            }
+        }.body<Array<IgdbMultiplayerMode>>()
+
+        if (igdbMultiplayerMode.isEmpty()) {
+            return null
+        }
+
+        return MultiplayerMode(igdbMultiplayerMode[0].campaignCoop, igdbMultiplayerMode[0].onlineCoop, igdbMultiplayerMode[0].onlineCoopMax)
+    }
+
+    override suspend fun getGameDetails(gameName: String): Game {
         val igdbResult = client.post(IGDB_GAME_ENDPOINT) {
-            setBody("fields name, cover.image_id; search \"${gameName}\";")
+            setBody("""
+                fields name, cover.image_id, multiplayer_modes, game_modes;
+                search "$gameName";
+                where version_parent = null;
+                where parent_game = null;
+                limit 20;
+            """.trimIndent()
+            )
             headers {
                 append("Client-Id", BuildKonfig.CLIENT_ID)
             }
@@ -77,29 +100,17 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
 
         val desiredGame = igdbResult.maxBy { levenshteinSimilarity(it.name, gameName) }
 
-        return IgdbInformation(desiredGame.name, desiredGame.gameId, desiredGame.cover.imageId)
+        val gameModes = desiredGame.gameModes?.let { gameModes -> gameModes.map { GameMode.entries[it] } }
+        val multiplayerMode = desiredGame.multiplayerModes?.let { getMultiplayerInfos(desiredGame.gameId) }
+
+        return Game(
+            name = desiredGame.name,
+            igdbGameId = desiredGame.gameId,
+            coverImageId = desiredGame.cover.imageId,
+            gameModes = gameModes,
+            tags = emptyList(),
+            multiplayerMode = multiplayerMode
+        )
     }
 }
-
-@OptIn(ExperimentalSerializationApi::class)
-data class AuthenticationToken(
-    @JsonNames("access_token") val accessToken: String,
-    @JsonNames("expires_in") val exiresIn: Long,
-    @JsonNames("token_type") val tokenType: String
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class IgdbCoverInformationDto(
-    @JsonNames("id") val coverId: Int,
-    @JsonNames("image_id") val imageId: String
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class IgdbGameInformationDto(
-    @JsonNames("id") val gameId: Int,
-    @JsonNames("name") val name: String,
-    @JsonNames("cover") val cover: IgdbCoverInformationDto
-)
 

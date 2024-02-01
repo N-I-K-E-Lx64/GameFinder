@@ -1,3 +1,4 @@
+
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
@@ -12,6 +13,7 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
+    //alias(libs.plugins.multiplatform.resources)
 }
 
 kotlin {
@@ -29,8 +31,7 @@ kotlin {
         val desktopMain by getting
         
         androidMain.dependencies {
-            //implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.compose.ui.tooling.preview.desktop)
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.androidx.activity.compose)
 
@@ -45,6 +46,9 @@ kotlin {
 
             api(libs.multiplatform.noArg)
             api(libs.multiplatform.coroutines)
+
+            //api(libs.moko.resources)
+            //api(libs.moko.resourcesCompose)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -63,13 +67,13 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
 
-            implementation(libs.logback)
             implementation(libs.napier)
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
 
             implementation(libs.sqlDelight.coroutines)
+            implementation(libs.sqlDelight.primitives)
 
             implementation(libs.kamel)
 
@@ -77,6 +81,10 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+
+            implementation(libs.logback)
+
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.ktor.client.desktop)
             implementation(libs.kotlinx.coroutines.swing)
@@ -119,13 +127,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     dependencies {
-        debugImplementation(libs.compose.ui.tooling.preview.desktop)
+        debugImplementation(libs.compose.ui.tooling.preview)
     }
 }
 
 compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
+        //mainClass = "MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
@@ -158,3 +167,8 @@ sqldelight {
         }
     }
 }
+
+
+/*multiplatformResources {
+    multiplatformResourcesPackage = "de.hive.gamefinder"
+}*/

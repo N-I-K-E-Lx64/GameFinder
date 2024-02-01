@@ -1,8 +1,8 @@
 package de.hive.gamefinder.core.application.port.out
 
-import de.hive.gamefinder.core.domain.IgdbInformation
+import de.hive.gamefinder.core.domain.Game
 
 interface IgdbApiPort {
 
-    suspend fun getGameDetails(gameName: String): IgdbInformation
+    suspend fun getGameDetails(gameName: String): Game
 }

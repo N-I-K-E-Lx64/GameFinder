@@ -15,16 +15,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbUseCase: IgdbUseCase) : ScreenModel {
+class LibraryScreenModel(
+    private val gameUseCase: GameUseCase,
+    private val igdbUseCase: IgdbUseCase
+) : ScreenModel {
 
     private val _eventsFlow = Channel<UiEvents>(Channel.UNLIMITED)
     val eventsFlow = _eventsFlow.receiveAsFlow()
 
     private val _searchResult = MutableStateFlow<List<Game>>(emptyList())
     val searchResult = _searchResult.asStateFlow()
-    fun setSearchResult(searchResult: List<Game>) {
-        _searchResult.value = searchResult
-    }
 
     fun addGame(gameName: String, selectedPlatform: Platform) {
         screenModelScope.launch {
@@ -32,12 +32,7 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
                 // Get additional information from IGDB
                 val igdbInformation = igdbUseCase.getGameDetails(gameName)
 
-                val game = Game(
-                    name = igdbInformation.gameName,
-                    platform = selectedPlatform,
-                    igdbGameId = igdbInformation.gameId,
-                    coverImageId = igdbInformation.coverImageId
-                )
+                val game = igdbInformation.copy(platform = selectedPlatform)
                 gameUseCase.createGame(game)
 
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("$gameName has been successfully imported into the library."))
@@ -52,7 +47,15 @@ class LibraryScreenModel(private val gameUseCase: GameUseCase, private val igdbU
         }
     }
 
-    fun searchGames(query: String) {
-        setSearchResult(gameUseCase.searchGames(query))
+    fun searchGames(searchQuery: String) {
+        screenModelScope.launch {
+            gameUseCase.searchGamesByName(searchQuery).collect {
+                _searchResult.value = it
+            }
+        }
+    }
+
+    fun resetSearchResults() {
+        _searchResult.value = emptyList()
     }
 }

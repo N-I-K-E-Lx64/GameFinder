@@ -1,0 +1,108 @@
+import kotlin.Int;
+import kotlin.Boolean;
+import kotlin.String;
+import kotlin.collections.List;
+import de.hive.gamefinder.core.domain.GameMode;
+import de.hive.gamefinder.core.domain.Platform;
+import de.hive.gamefinder.core.domain.Friend;
+
+CREATE TABLE IF NOT EXISTS game_entity (
+    id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    platform INTEGER AS Platform NOT NULL,
+    game_id INTEGER AS Int NOT NULL,
+    cover_image_id TEXT NOT NULL,
+    game_modes TEXT AS List<GameMode>,
+    campaign_coop INTEGER AS Boolean,
+    online_coop INTEGER AS Boolean,
+    online_max_players INTEGER AS Int
+);
+
+CREATE TABLE IF NOT EXISTS friend_entity (
+    id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS game_friends (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER,
+    friend_id INTEGER,
+    FOREIGN KEY(game_id) REFERENCES game_entity(id),
+    FOREIGN KEY(friend_id) REFERENCES friend_entity(id)
+);
+
+CREATE TABLE IF NOT EXISTS tag_entity (
+    id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
+    tag TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS game_tags (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER,
+    tag_id INTEGER,
+    FOREIGN KEY(game_id) REFERENCES game_entity(id),
+    FOREIGN KEY(tag_id) REFERENCES tag_entity(id)
+);
+
+getAllGames:
+SELECT ge.*, te.* FROM game_entity AS ge
+LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
+LEFT JOIN main.tag_entity te ON te.id = gt.tag_id;
+
+getGameById:
+SELECT * FROM game_entity WHERE id = ?;
+
+searchGamesByName:
+SELECT *
+FROM game_entity
+WHERE lower(name) LIKE (:query || '%')
+ORDER BY name;
+
+getGamesByQuery:
+SELECT * FROM game_entity
+WHERE (:platform IS NULL OR platform = :platform)
+AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
+AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
+
+addGame:
+INSERT OR REPLACE INTO game_entity
+(name, platform, game_id, cover_image_id, game_modes, campaign_coop, online_coop, online_max_players)
+VALUES ?;
+
+updateGame:
+UPDATE game_entity SET name = ?, platform = ?;
+
+deleteGameById:
+DELETE FROM game_entity WHERE id = ?;
+
+createFriend:
+INSERT OR REPLACE INTO friend_entity (name) VALUES ?;
+
+getAllFriends:
+SELECT * FROM friend_entity;
+
+getFriendsByGame:
+SELECT DISTINCT fe.id, game_id, name, IIF(game_id = ?, 1, 0) AS owning FROM friend_entity AS fe
+LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
+
+createGameFriendRelation:
+INSERT INTO game_friends (game_id, friend_id) VALUES (:gameId, :friendId);
+
+removeGameFriendRelation:
+DELETE FROM game_friends WHERE game_id = :gameId AND friend_id = :friendId;
+
+createTag:
+INSERT INTO tag_entity (tag) VALUES ?;
+
+getLastInsertedRowId:
+SELECT last_insert_rowid();
+
+searchTags:
+SELECT * FROM tag_entity
+WHERE lower(tag) LIKE (:query || '%');
+
+createGameTagRelation:
+INSERT INTO game_tags (game_id, tag_id) VALUES (:gameId, :tagId);
+
+removeSingleGameTagRelation:
+DELETE FROM game_tags WHERE game_id = :gameId AND tag_id = :tagId;
