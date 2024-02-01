@@ -26,7 +26,7 @@ import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LibrarySideSheet(
-    state: LibraryGameDetailsStateScreenModel.State,
+    state: GameDetailsStateScreenModel.State,
     screenModel: GameDetailsScreenModel,
     onSideSheetClosed: () -> Unit,
     onDeleteGame: () -> Unit,
@@ -38,8 +38,8 @@ fun LibrarySideSheet(
     val predictions by screenModel.searchResults.collectAsState()
 
     when (state) {
-        is LibraryGameDetailsStateScreenModel.State.Loading -> {}
-        is LibraryGameDetailsStateScreenModel.State.Result -> {
+        is GameDetailsStateScreenModel.State.Loading -> {}
+        is GameDetailsStateScreenModel.State.Result -> {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

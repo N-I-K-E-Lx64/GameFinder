@@ -5,8 +5,8 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.GameQuery
 import de.hive.gamefinder.core.domain.MultiplayerMode
-import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.domain.Tag
 import de.hive.gamefinder.database.GameFinderDatabase
 import kotlinx.coroutines.Dispatchers
@@ -63,9 +63,9 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .map { games -> games.map { it.toModel() } }
     }
 
-    override fun getGamesByPlatform(platform: Platform): Flow<List<Game>> {
+    override fun getGamesByQuery(query: GameQuery): Flow<List<Game>> {
         return dbQueries
-            .getGamesByPlatform(platform)
+            .getGamesByQuery(query.platform, query.onlineCoop, query.campaignCoop)
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { games -> games.map { it.toModel() } }

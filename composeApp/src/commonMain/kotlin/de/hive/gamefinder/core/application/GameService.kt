@@ -4,8 +4,6 @@ import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
-import de.hive.gamefinder.core.domain.Platform
-import de.hive.gamefinder.core.domain.QueryType
 import kotlinx.coroutines.flow.Flow
 
 class GameService(private val persistencePort: GamePersistencePort) : GameUseCase {
@@ -21,11 +19,12 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         TODO("Not yet implemented")
     }
 
+    override fun searchGamesByName(name: String): Flow<List<Game>> {
+        return persistencePort.getGamesByName(name)
+    }
+
     override fun getGamesByQuery(query: GameQuery): Flow<List<Game>> {
-        return when (query.queryType) {
-            QueryType.NAME -> persistencePort.getGamesByName(query.value as String)
-            QueryType.PLATFORM -> persistencePort.getGamesByPlatform(query.value as Platform)
-        }
+        return persistencePort.getGamesByQuery(query)
     }
 
     override suspend fun updateGame(game: Game) {
@@ -33,7 +32,6 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
     }
 
     override suspend fun deleteGame(id: Int) {
-        println(id)
         persistencePort.deleteGame(id)
     }
 }

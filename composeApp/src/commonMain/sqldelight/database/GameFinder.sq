@@ -58,11 +58,11 @@ FROM game_entity
 WHERE lower(name) LIKE (:query || '%')
 ORDER BY name;
 
-getGamesByPlatform:
-SELECT *
-FROM game_entity
-WHERE platform = ?
-ORDER BY name;
+getGamesByQuery:
+SELECT * FROM game_entity
+WHERE (:platform IS NULL OR platform = :platform)
+AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
+AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
 addGame:
 INSERT OR REPLACE INTO game_entity

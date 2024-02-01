@@ -1,11 +1,7 @@
 package de.hive.gamefinder.core.domain
 
 data class GameQuery (
-    val queryType: QueryType,
-    val value: Any
+    val platform: Platform?,
+    val onlineCoop: Boolean?,
+    val campaignCoop: Boolean?
 )
-
-enum class QueryType {
-    NAME,
-    PLATFORM
-}

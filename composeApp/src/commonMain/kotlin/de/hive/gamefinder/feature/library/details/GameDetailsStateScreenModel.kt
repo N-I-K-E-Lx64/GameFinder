@@ -7,7 +7,7 @@ import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.domain.Game
 import kotlinx.coroutines.launch
 
-class LibraryGameDetailsStateScreenModel(private val friendUseCase: FriendUseCase) : StateScreenModel<LibraryGameDetailsStateScreenModel.State>(
+class GameDetailsStateScreenModel(private val friendUseCase: FriendUseCase) : StateScreenModel<GameDetailsStateScreenModel.State>(
     State.Loading
 ) {
 

@@ -1,7 +1,7 @@
 package de.hive.gamefinder.core.application.port.out
 
 import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.GameQuery
 import kotlinx.coroutines.flow.Flow
 
 interface GamePersistencePort {
@@ -14,7 +14,7 @@ interface GamePersistencePort {
 
     fun getGamesByName(name: String): Flow<List<Game>>
 
-    fun getGamesByPlatform(platform: Platform): Flow<List<Game>>
+    fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
 
     suspend fun updateGame(game: Game)
 

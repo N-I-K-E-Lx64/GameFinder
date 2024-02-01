@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import cafe.adriel.voyager.core.screen.Screen
-import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.utils.LayoutType
@@ -205,15 +204,7 @@ fun NavigationDrawerContent(
             )
         }
 
-        Divider()
-
-        PLATFORM_FILTERS.forEach {
-            NavigationDrawerItem(
-                selectedRoute = selectedRoute,
-                navElement = it,
-                onDrawerItemClicked = onDrawerItemClicked
-            )
-        }
+        // TODO : Custom filters
     }
 }
 
@@ -233,8 +224,6 @@ fun NavigationDrawerItem(
         },
         icon = {
             Icon(
-                //painter = painterResource("${filter.filter}-logo.svg"),
-                //painter = painterResource(MR.images.Steam),
                 navElement.icon,
                 contentDescription = null
             )
@@ -268,7 +257,7 @@ fun navigationMeasurePolicy(): MeasurePolicy {
             headerPlaceable.placeRelative(0, 0)
 
             // Determine how much space is not taken up by the content
-            val nonContentVerticalSpace = constraints.maxHeight - contentPlaceable.height
+            // val nonContentVerticalSpace = constraints.maxHeight - contentPlaceable.height
 
             // And finally, make sure we don't overlap with the header.
             val contentPlaceableY = 0.coerceAtLeast(headerPlaceable.height)
@@ -291,14 +280,10 @@ data class NavigationElement (
 )
 
 enum class DrawerItemType {
-    NAVIGATION,
-    FILTER
+    NAVIGATION
 }
 
 val SCREEN_NAVIGATION: List<NavigationElement> = listOf(
     NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.LIBRARY, Icons.Filled.VideoLibrary, LibraryScreen(filter = null)),
-    NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.GROUP, Icons.Filled.Groups, GameFinderScreen())
+    NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.GROUP, Icons.Filled.Pageview, GameFinderScreen())
 )
-val PLATFORM_FILTERS: List<NavigationElement> = Platform.entries.map { platform ->
-    NavigationElement(DrawerItemType.FILTER, platform.platform, Icons.Filled.VideogameAsset, LibraryScreen(filter = platform))
-}

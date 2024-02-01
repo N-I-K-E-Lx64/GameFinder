@@ -6,7 +6,6 @@ import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
 import de.hive.gamefinder.core.domain.Platform
-import de.hive.gamefinder.core.domain.QueryType
 import kotlinx.coroutines.launch
 
 class LibraryStateScreenModel(private val gameUseCase: GameUseCase) : StateScreenModel<LibraryStateScreenModel.State>(State.Init) {
@@ -29,11 +28,15 @@ class LibraryStateScreenModel(private val gameUseCase: GameUseCase) : StateScree
         }
     }
 
-    fun loadGamesForPlatform(filter: Platform) {
+    fun filterGamesByQuery(platformOrdinal: Int, online: Boolean, campaign: Boolean) {
         screenModelScope.launch {
             mutableState.value = State.Loading
 
-            val query = GameQuery(QueryType.PLATFORM, filter)
+            val platformFilter = if (platformOrdinal != -1) Platform.entries[platformOrdinal] else null
+            val onlineMultiplayerFilter = if (online) true else null
+            val campaignMultiplayerFilter = if (campaign) true else null
+
+            val query = GameQuery(platformFilter, onlineMultiplayerFilter, campaignMultiplayerFilter)
             gameUseCase.getGamesByQuery(query).collect {
                 mutableState.value = State.Result(games = it)
             }

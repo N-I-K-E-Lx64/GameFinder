@@ -12,6 +12,8 @@ interface GameUseCase {
 
     fun getGame(id: Int): Flow<Game>
 
+    fun searchGamesByName(name: String): Flow<List<Game>>
+
     fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
 
     suspend fun updateGame(game: Game)

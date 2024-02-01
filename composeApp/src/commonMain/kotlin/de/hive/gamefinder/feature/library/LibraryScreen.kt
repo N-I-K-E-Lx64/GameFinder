@@ -8,10 +8,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +31,7 @@ import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
-import de.hive.gamefinder.feature.library.details.LibraryGameDetailsStateScreenModel
+import de.hive.gamefinder.feature.library.details.GameDetailsStateScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
 import de.hive.gamefinder.utils.HorizontalTwoPaneStrategy
 import de.hive.gamefinder.utils.TwoPane
@@ -50,7 +47,6 @@ class LibraryScreen(val filter: Platform?) : Screen {
     }
 
     @OptIn(
-        ExperimentalLayoutApi::class,
         ExperimentalMaterial3Api::class
     )
     @Composable
@@ -62,7 +58,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
         val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
         val state by stateScreenModel.state.collectAsState()
 
-        val gameDetailsStateScreenModel = getScreenModel<LibraryGameDetailsStateScreenModel>()
+        val gameDetailsStateScreenModel = getScreenModel<GameDetailsStateScreenModel>()
         val sideSheetState by gameDetailsStateScreenModel.state.collectAsState()
         val gameDetailsScreenModel = getScreenModel<GameDetailsScreenModel>()
 
@@ -73,15 +69,22 @@ class LibraryScreen(val filter: Platform?) : Screen {
 
         var splitFraction by remember { mutableStateOf(1f) }
 
+        // Filter states
+        var filterPlatform by remember { mutableStateOf(-1) }
+        var filterOnlineMultiplayer by remember { mutableStateOf(false) }
+        var filterCampaignMultiplayer by remember { mutableStateOf(false) }
+
         var gameName by remember { mutableStateOf("") }
         var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
+
+        fun applyFilter() {
+            stateScreenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
+        }
 
         // When the Screen is replaced (due to a navigation event) load the data
         if (navigator.lastEvent == StackEvent.Replace) {
             if (filter == null) {
                 stateScreenModel.loadGames()
-            } else {
-                stateScreenModel.loadGamesForPlatform(filter)
             }
         }
 
@@ -115,10 +118,13 @@ class LibraryScreen(val filter: Platform?) : Screen {
             is LibraryStateScreenModel.State.Result -> {
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) },
-                    topBar = { AppBar(
-                        searchResultState = searchResultState,
-                        onQueryChange = { screenModel.searchGames(it) }
-                    ) },
+                    topBar = {
+                        AppBar(
+                            searchResultState = searchResultState,
+                            onQueryChange = { screenModel.searchGames(it) },
+                            onQueryDismissed = { screenModel.resetSearchResults() }
+                        )
+                    },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
                             onClick = { openDialog = true },
@@ -134,63 +140,181 @@ class LibraryScreen(val filter: Platform?) : Screen {
                         first = {
                             val games = (state as LibraryStateScreenModel.State.Result).games
 
-                            LazyVerticalGrid(
-                                contentPadding = PaddingValues(16.dp),
-                                columns = GridCells.Adaptive(minSize = 200.dp),
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(games) {
-                                    ElevatedCard(
-                                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                        //colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ){
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Filled.RocketLaunch,
+                                        contentDescription = "Launcher Filter Icon"
+                                    )
+                                    Text(
+                                        text = "Launcher",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    stateScreenModel.platforms.forEach {
+                                        FilterChip(
+                                            selected = filterPlatform == it.ordinal,
+                                            onClick = {
+                                                filterPlatform = if (filterPlatform == it.ordinal) -1 else it.ordinal
+                                                applyFilter()
+                                            },
+                                            label = { Text(it.platform) },
+                                            leadingIcon = {
+                                                if (filterPlatform == it.ordinal) {
+                                                    Icon(
+                                                        Icons.Filled.Done,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+
+                                Divider(modifier = Modifier.padding(8.dp))
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Groups,
+                                        contentDescription = "Launcher Filter Icon"
+                                    )
+                                    Text(
+                                        text = "Multiplayer",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    FilterChip(
+                                        selected = filterOnlineMultiplayer,
+                                        onClick = { filterOnlineMultiplayer = !filterOnlineMultiplayer; applyFilter() },
+                                        label = { Text("Online Multiplayer") },
+                                        leadingIcon = {
+                                            if (filterOnlineMultiplayer) {
+                                                Icon(
+                                                    Icons.Filled.Done,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                                )
+                                            }
+                                        }
+                                    )
+                                    FilterChip(
+                                        selected = filterCampaignMultiplayer,
                                         onClick = {
-                                            selectedGame = it.id
-                                            gameDetailsStateScreenModel.loadFriends(it)
-                                            splitFraction = 2f / 3f
+                                            filterCampaignMultiplayer = !filterCampaignMultiplayer; applyFilter()
                                         },
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        label = { Text("Campaign Multiplayer") },
+                                        leadingIcon = {
+                                            if (filterCampaignMultiplayer) {
+                                                Icon(
+                                                    Icons.Filled.Done,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                                )
+                                            }
+                                        }
+                                    )
+                                    /*Box {
+                                        FilterChip(
+                                            selected = filterOnlineMaxPlayers != 0,
+                                            onClick = { filterCampaignMultiplayer = !filterCampaignMultiplayer },
+                                            label = { if (filterOnlineMaxPlayers == 0) Text("Players") else Text(filterOnlineMaxPlayers.toString()) },
+                                            leadingIcon = {
+                                                if (filterCampaignMultiplayer) {
+                                                    Icon(
+                                                        Icons.Filled.Done,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                                    )
+                                                }
+                                            },
+                                            trailingIcon = {
+                                                Icon(
+                                                    Icons.Default.ArrowDropDown,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                                )
+                                            }
+                                        )
+                                    }*/
+                                }
+
+                                LazyVerticalGrid(
+                                    contentPadding = PaddingValues(16.dp),
+                                    columns = GridCells.Adaptive(minSize = 200.dp),
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(games) {
+                                        ElevatedCard(
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                            onClick = {
+                                                selectedGame = it.id
+                                                gameDetailsStateScreenModel.loadFriends(it)
+                                                splitFraction = 2f / 3f
+                                            },
                                         ) {
-                                            KamelImage(
-                                                resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
-                                                contentDescription = "${it.name} - Cover",
-                                                contentScale = ContentScale.Crop,
-                                                onLoading = { progress -> CircularProgressIndicator(progress) },
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(16.dp))
-                                            )
-                                            Text(
-                                                text = it.name,
-                                                modifier = Modifier.padding(horizontal = 16.dp),
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
-                                            Text(
-                                                text = it.platform.platform,
-                                                modifier = Modifier.padding(horizontal = 16.dp),
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
+                                            Column(
+                                                modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                KamelImage(
+                                                    resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
+                                                    contentDescription = "${it.name} - Cover",
+                                                    contentScale = ContentScale.Crop,
+                                                    onLoading = { progress -> CircularProgressIndicator(progress) },
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(16.dp))
+                                                )
+                                                Text(
+                                                    text = it.name,
+                                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                                Text(
+                                                    text = it.platform.platform,
+                                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         },
-                        second = { LibrarySideSheet(
-                            state = sideSheetState,
-                            screenModel = gameDetailsScreenModel,
-                            onSideSheetClosed = { splitFraction = 1f },
-                            onDeleteGame = { stateScreenModel.deleteGame(selectedGame) },
-                            onFriendRelationUpdated = { relation, change ->
-                                gameDetailsStateScreenModel.updateFriendRelations(
-                                    selectedGame,
-                                    relation,
-                                    change
-                                )
-                            }
-                        )
+                        second = {
+                            LibrarySideSheet(
+                                state = sideSheetState,
+                                screenModel = gameDetailsScreenModel,
+                                onSideSheetClosed = { splitFraction = 1f },
+                                onDeleteGame = { stateScreenModel.deleteGame(selectedGame) },
+                                onFriendRelationUpdated = { relation, change ->
+                                    gameDetailsStateScreenModel.updateFriendRelations(
+                                        selectedGame,
+                                        relation,
+                                        change
+                                    )
+                                }
+                            )
                         },
                         strategy = HorizontalTwoPaneStrategy(
                             splitFraction = splitFraction
@@ -304,7 +428,8 @@ private fun CreateGameDialog(
 @Composable
 private fun AppBar(
     searchResultState: List<Game>,
-    onQueryChange: (queryText: String) -> Unit
+    onQueryChange: (queryText: String) -> Unit,
+    onQueryDismissed: () -> Unit = {}
 ) {
     var searchText by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false) }
@@ -328,7 +453,6 @@ private fun AppBar(
             modifier = Modifier
                 .semantics { isTraversalGroup = true }
                 .zIndex(1f)
-                //.align(Alignment.TopEnd)
                 .padding(top = 8.dp, end = 16.dp),
         ) {
             DockedSearchBar(
@@ -344,7 +468,7 @@ private fun AppBar(
                     IconButton(onClick = {
                         active = false
                         searchText = ""
-                        //screenModel.resetSearchResults()
+                        onQueryDismissed()
                     }) {
                         Icon(Icons.Default.Close, contentDescription = null)
                     }
