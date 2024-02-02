@@ -1,9 +1,12 @@
 package de.hive.gamefinder.feature.library
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,9 +60,8 @@ class LibraryScreen(val filter: Platform?) : Screen {
         val state by screenModel.state.collectAsState()
         val searchResultState by screenModel.searchResult.collectAsState()
 
-        val gameDetailsStateScreenModel = getScreenModel<GameDetailsScreenModel>()
-        val sideSheetState by gameDetailsStateScreenModel.state.collectAsState()
         val gameDetailsScreenModel = getScreenModel<GameDetailsScreenModel>()
+        val sideSheetState by gameDetailsScreenModel.state.collectAsState()
 
         // UI relevant state
         val snackbarHostState = remember { SnackbarHostState() }
@@ -240,47 +242,65 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                     }*/
                                 }
 
-                                LazyVerticalGrid(
-                                    contentPadding = PaddingValues(16.dp),
-                                    columns = GridCells.Adaptive(minSize = 200.dp),
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                // TODO : Different card view - https://m3.material.io/foundations/layout/applying-layout/window-size-classes
+                                Box(
+                                    modifier = Modifier.fillMaxSize()
                                 ) {
-                                    items(games) {
-                                        ElevatedCard(
-                                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                            onClick = {
-                                                selectedGame = it.id
-                                                gameDetailsStateScreenModel.loadFriends(it)
-                                                splitFraction = 2f / 3f
-                                            },
-                                        ) {
-                                            Column(
-                                                modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
-                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    val lazyGridState = rememberLazyGridState()
+
+                                    LazyVerticalGrid(
+                                        contentPadding = PaddingValues(16.dp),
+                                        columns = GridCells.Adaptive(minSize = 200.dp),
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        state = lazyGridState
+                                    ) {
+                                        items(games) {
+                                            ElevatedCard(
+                                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                                onClick = {
+                                                    selectedGame = it.id
+                                                    splitFraction = 2f / 3f
+                                                    // Initialize state in the game details screen model
+                                                    gameDetailsScreenModel.loadFriends(it)
+                                                    gameDetailsScreenModel.initializeParameterStates(it)
+                                                },
                                             ) {
-                                                KamelImage(
-                                                    resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
-                                                    contentDescription = "${it.name} - Cover",
-                                                    contentScale = ContentScale.Crop,
-                                                    onLoading = { progress -> CircularProgressIndicator(progress) },
-                                                    modifier = Modifier
-                                                        .clip(RoundedCornerShape(16.dp))
-                                                )
-                                                Text(
-                                                    text = it.name,
-                                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                                    style = MaterialTheme.typography.titleMedium
-                                                )
-                                                Text(
-                                                    text = it.platform.platform,
-                                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                                    style = MaterialTheme.typography.bodyMedium
-                                                )
+                                                Column(
+                                                    modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    KamelImage(
+                                                        resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
+                                                        contentDescription = "${it.name} - Cover",
+                                                        contentScale = ContentScale.Crop,
+                                                        onLoading = { progress -> CircularProgressIndicator(progress) },
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(16.dp))
+                                                    )
+                                                    Text(
+                                                        text = it.name,
+                                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                                        style = MaterialTheme.typography.titleMedium
+                                                    )
+                                                    Text(
+                                                        text = it.platform.platform,
+                                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                }
                                             }
                                         }
                                     }
+
+                                    VerticalScrollbar(
+                                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                                        adapter = rememberScrollbarAdapter(
+                                            scrollState = lazyGridState
+                                        ),
+                                        //style = ScrollbarStyle(unhoverColor = MaterialTheme.colorScheme.primary)
+                                    )
                                 }
                             }
                         },
@@ -289,9 +309,8 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                 state = sideSheetState,
                                 screenModel = gameDetailsScreenModel,
                                 onSideSheetClosed = { splitFraction = 1f },
-                                onDeleteGame = { screenModel.deleteGame(selectedGame) },
                                 onFriendRelationUpdated = { relation, change ->
-                                    gameDetailsStateScreenModel.updateFriendRelations(
+                                    gameDetailsScreenModel.updateFriendRelations(
                                         selectedGame,
                                         relation,
                                         change

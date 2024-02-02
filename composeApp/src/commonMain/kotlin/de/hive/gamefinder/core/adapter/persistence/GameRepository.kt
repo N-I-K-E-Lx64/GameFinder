@@ -83,10 +83,14 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .map { games -> games.map { it.toModel() } }
     }
 
-    override suspend fun updateGame(game: Game) {
-        game.toEntity().let {
-            dbQueries.updateGame(name = it.name, platform = it.platform)
-        }
+    override suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode) {
+        dbQueries
+            .updateMultiplayerParameters(
+                gameId = gameId,
+                onlineCoop = multiplayerMode.hasOnlineCoop,
+                campaignCoop = multiplayerMode.hasCampaignCoop,
+                onlineMaxPlayers = multiplayerMode.onlineCoopMaxPlayers
+            )
     }
 
     override suspend fun deleteGame(id: Int) {

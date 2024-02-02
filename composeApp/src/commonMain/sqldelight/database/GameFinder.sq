@@ -76,11 +76,13 @@ AND gt.tag_id IN ?;
 
 addGame:
 INSERT OR REPLACE INTO game_entity
-(name, platform, game_id, cover_image_id, game_modes, campaign_coop, online_coop, online_max_players)
+(name, platform, game_id, cover_image_id, game_modes, online_coop, campaign_coop, online_max_players)
 VALUES ?;
 
-updateGame:
-UPDATE game_entity SET name = ?, platform = ?;
+updateMultiplayerParameters:
+UPDATE game_entity
+SET online_coop = (:onlineCoop), campaign_coop = (:campaignCoop), online_max_players = (:onlineMaxPlayers)
+WHERE id = (:gameId);
 
 deleteGameById:
 DELETE FROM game_entity WHERE id = ?;
