@@ -10,8 +10,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,25 +20,26 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
+import de.hive.gamefinder.core.domain.Tag
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LibrarySideSheet(
-    state: GameDetailsStateScreenModel.State,
+    state: GameDetailsScreenModel.State,
     screenModel: GameDetailsScreenModel,
     onSideSheetClosed: () -> Unit,
     onDeleteGame: () -> Unit,
     onFriendRelationUpdated: (relation: GameFriendRelation, change: Boolean) -> Unit
 ) {
-    //var text by remember { mutableStateOf("") }
     var tagQuery by rememberSaveable { mutableStateOf("") }
     var selectedTag by remember { mutableStateOf(0) }
     val predictions by screenModel.searchResults.collectAsState()
 
     when (state) {
-        is GameDetailsStateScreenModel.State.Loading -> {}
-        is GameDetailsStateScreenModel.State.Result -> {
+        is GameDetailsScreenModel.State.Loading -> {}
+        is GameDetailsScreenModel.State.Result -> {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -71,9 +71,10 @@ fun LibrarySideSheet(
                     }
                 }
 
-                Text(
-                    text = "Friends",
-                    style = MaterialTheme.typography.titleSmall
+                FormIconHeader(
+                    Icons.Filled.PersonAdd,
+                    contentDescription = "Add Friend Icon",
+                    headerText = "Friends"
                 )
 
                 Column {
@@ -105,9 +106,10 @@ fun LibrarySideSheet(
 
                 Divider(modifier = Modifier.padding(16.dp))
 
-                Text(
-                    text = "Tags",
-                    style = MaterialTheme.typography.titleSmall
+                FormIconHeader(
+                    Icons.Filled.Label,
+                    contentDescription = "Tag List Icon",
+                    headerText = "Tags"
                 )
 
                 FlowRow(
@@ -141,9 +143,7 @@ fun LibrarySideSheet(
                         },
                         predictions = predictions,
                         onItemClick = { screenModel.addTagToGame(state.game.id, it.id) }
-                    ) {
-                        Text(it.tag)
-                    }
+                    )
                 }
             }
         }
@@ -159,7 +159,6 @@ fun <T> AutoCompleteTextView(
     predictions: List<T>,
     onDoneAction: () -> Unit = {},
     onItemClick: (T) -> Unit = {},
-    itemContent: @Composable (T) -> Unit = {}
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -178,14 +177,14 @@ fun <T> AutoCompleteTextView(
 
         if (predictions.isNotEmpty()) {
             items(predictions) {
-                Row(
+                val tag = it as Tag
+                ListItem(
+                    headlineContent = { Text(tag.tag) },
+                    leadingContent = { Icon(Icons.Filled.NewLabel, contentDescription = null) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
                         .clickable { onItemClick(it) }
-                ) {
-                    itemContent(it)
-                }
+                )
             }
         }
     }

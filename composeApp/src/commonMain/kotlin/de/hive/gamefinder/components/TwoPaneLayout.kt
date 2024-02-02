@@ -1,4 +1,4 @@
-package de.hive.gamefinder.utils
+package de.hive.gamefinder.components
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box

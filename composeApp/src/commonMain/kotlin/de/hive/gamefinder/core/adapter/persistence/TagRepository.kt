@@ -45,9 +45,11 @@ class TagRepository(database: GameFinderDatabase) : TagPersistencePort {
 
     override suspend fun createGameTagRelation(gameId: Int, tagId: Int) {
         dbQueries.createGameTagRelation(gameId = gameId.toLong(), tagId = tagId.toLong())
+        Napier.i("Add tag $tagId to game $gameId")
     }
 
     override suspend fun removeGameTagRelation(gameId: Int, tagId: Int) {
         dbQueries.removeSingleGameTagRelation(gameId = gameId.toLong(), tagId = tagId.toLong())
+        Napier.i("Remove tag $tagId from game $gameId")
     }
 }

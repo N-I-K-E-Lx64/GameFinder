@@ -1,4 +1,4 @@
-package de.hive.gamefinder.utils
+package de.hive.gamefinder.components
 
 /**
  * Different type of navigation supported by the app depending on device size and state.

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.offset
 import cafe.adriel.voyager.core.screen.Screen
 import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
-import de.hive.gamefinder.utils.LayoutType
+import de.hive.gamefinder.components.LayoutType
 import io.github.aakira.napier.Napier
 
 @Composable

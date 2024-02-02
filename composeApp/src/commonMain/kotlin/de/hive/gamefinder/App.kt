@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.feature.navigation.NavigationWrapper
-import de.hive.gamefinder.utils.NavigationType
+import de.hive.gamefinder.components.NavigationType
 import org.koin.compose.KoinContext
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

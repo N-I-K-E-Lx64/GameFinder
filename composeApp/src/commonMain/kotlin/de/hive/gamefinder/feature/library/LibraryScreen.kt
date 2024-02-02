@@ -27,14 +27,14 @@ import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import de.hive.gamefinder.components.FormIconHeader
+import de.hive.gamefinder.components.HorizontalTwoPaneStrategy
+import de.hive.gamefinder.components.TwoPane
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
-import de.hive.gamefinder.feature.library.details.GameDetailsStateScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
-import de.hive.gamefinder.utils.HorizontalTwoPaneStrategy
-import de.hive.gamefinder.utils.TwoPane
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
@@ -52,13 +52,12 @@ class LibraryScreen(val filter: Platform?) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
         val screenModel = getScreenModel<LibraryScreenModel>()
+        val state by screenModel.state.collectAsState()
         val searchResultState by screenModel.searchResult.collectAsState()
 
-        val stateScreenModel = getScreenModel<LibraryStateScreenModel>()
-        val state by stateScreenModel.state.collectAsState()
-
-        val gameDetailsStateScreenModel = getScreenModel<GameDetailsStateScreenModel>()
+        val gameDetailsStateScreenModel = getScreenModel<GameDetailsScreenModel>()
         val sideSheetState by gameDetailsStateScreenModel.state.collectAsState()
         val gameDetailsScreenModel = getScreenModel<GameDetailsScreenModel>()
 
@@ -78,19 +77,19 @@ class LibraryScreen(val filter: Platform?) : Screen {
         var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
 
         fun applyFilter() {
-            stateScreenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
+            screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
         }
 
         // When the Screen is replaced (due to a navigation event) load the data
         if (navigator.lastEvent == StackEvent.Replace) {
             if (filter == null) {
-                stateScreenModel.loadGames()
+                screenModel.loadGames()
             }
         }
 
         LaunchedEffect(Unit) {
             // Load the data initially
-            stateScreenModel.loadGames()
+            screenModel.loadGames()
 
             withContext(Dispatchers.Main.immediate) {
                 screenModel.eventsFlow.collect { event ->
@@ -106,16 +105,16 @@ class LibraryScreen(val filter: Platform?) : Screen {
         }
 
         when (state) {
-            is LibraryStateScreenModel.State.Init -> {
+            is LibraryScreenModel.State.Init -> {
                 Text("Init")
             }
 
-            is LibraryStateScreenModel.State.Loading -> {
+            is LibraryScreenModel.State.Loading -> {
                 // TODO : Implement a custom loading animation
                 Text("Loading")
             }
 
-            is LibraryStateScreenModel.State.Result -> {
+            is LibraryScreenModel.State.Result -> {
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                     topBar = {
@@ -138,31 +137,23 @@ class LibraryScreen(val filter: Platform?) : Screen {
                             .fillMaxSize()
                             .padding(innerPadding),
                         first = {
-                            val games = (state as LibraryStateScreenModel.State.Result).games
+                            val games = (state as LibraryScreenModel.State.Result).games
 
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
                             ){
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        Icons.Filled.RocketLaunch,
-                                        contentDescription = "Launcher Filter Icon"
-                                    )
-                                    Text(
-                                        text = "Launcher",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
+                                FormIconHeader(
+                                    Icons.Filled.RocketLaunch,
+                                    contentDescription = "Launcher Filter Icon",
+                                    headerText = "Launcher"
+                                )
 
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 ) {
-                                    stateScreenModel.platforms.forEach {
+                                    screenModel.platforms.forEach {
                                         FilterChip(
                                             selected = filterPlatform == it.ordinal,
                                             onClick = {
@@ -185,19 +176,11 @@ class LibraryScreen(val filter: Platform?) : Screen {
 
                                 Divider(modifier = Modifier.padding(8.dp))
 
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Groups,
-                                        contentDescription = "Launcher Filter Icon"
-                                    )
-                                    Text(
-                                        text = "Multiplayer",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
+                                FormIconHeader(
+                                    Icons.Filled.Groups,
+                                    contentDescription = "Multiplayer Parameter Filter Icon",
+                                    headerText = "Multiplayer"
+                                )
 
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -306,7 +289,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                 state = sideSheetState,
                                 screenModel = gameDetailsScreenModel,
                                 onSideSheetClosed = { splitFraction = 1f },
-                                onDeleteGame = { stateScreenModel.deleteGame(selectedGame) },
+                                onDeleteGame = { screenModel.deleteGame(selectedGame) },
                                 onFriendRelationUpdated = { relation, change ->
                                     gameDetailsStateScreenModel.updateFriendRelations(
                                         selectedGame,
@@ -337,7 +320,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                 onSelectPlatform = { selectedPlatform = it },
                                 gameName = gameName,
                                 selectedPlatform = selectedPlatform,
-                                platforms = stateScreenModel.platforms
+                                platforms = screenModel.platforms
                             )
                         }
                     }

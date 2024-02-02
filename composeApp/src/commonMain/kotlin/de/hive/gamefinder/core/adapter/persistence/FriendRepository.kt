@@ -37,12 +37,12 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
     override suspend fun createGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
             .createGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
-        Napier.v("Add friend $friendId to game $gameId")
+        Napier.i("Add friend $friendId to game $gameId")
     }
 
     override suspend fun deleteGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
             .removeGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
-        Napier.v("Remove friend $friendId from game $gameId")
+        Napier.i("Remove friend $friendId from game $gameId")
     }
 }

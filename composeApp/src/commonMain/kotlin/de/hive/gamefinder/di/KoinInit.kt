@@ -22,9 +22,7 @@ import de.hive.gamefinder.core.application.port.out.TagPersistencePort
 import de.hive.gamefinder.database.GameFinderDatabase
 import de.hive.gamefinder.feature.game_finder.GameFinderScreenModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
-import de.hive.gamefinder.feature.library.LibraryStateScreenModel
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
-import de.hive.gamefinder.feature.library.details.GameDetailsStateScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
@@ -67,17 +65,13 @@ val coreModule = module {
         )
     }
 
-    /*single { GameRepository(database = get()) }
-    single { FriendRepository(database = get()) }*/
     single<Settings> { Settings() }
 
     /**
      * Screen modules
      */
-    single { LibraryStateScreenModel(get()) }
     single { LibraryScreenModel(get(), get()) }
-    single { GameDetailsStateScreenModel(get()) }
-    single { GameDetailsScreenModel(get()) }
+    single { GameDetailsScreenModel(get(), get()) }
     single { NavigationScreenModel(get()) }
     single { GameFinderScreenModel(get(), get(), get()) }
 

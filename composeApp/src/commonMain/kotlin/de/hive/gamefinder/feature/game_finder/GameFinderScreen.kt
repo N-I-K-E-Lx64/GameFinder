@@ -8,8 +8,8 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Label
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.core.utils.UiEvents
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
@@ -37,7 +38,6 @@ class GameFinderScreen : Screen {
         val screenModel = getScreenModel<GameFinderScreenModel>()
         val state = screenModel.state.collectAsState()
 
-        val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
         val selectedFriends = remember { mutableStateListOf<Int>() }
         val deselectedTags = remember { mutableStateListOf<Int>() }
@@ -90,19 +90,11 @@ class GameFinderScreen : Screen {
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Row (
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Icon(
-                                    Icons.Filled.Groups,
-                                    contentDescription = null
-                                )
-                                Text(
-                                    text = "Friends",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                            }
+                            FormIconHeader(
+                                Icons.Filled.Group,
+                                contentDescription = "Friend Selection Header Icon",
+                                headerText = "Friends"
+                            )
 
                             Column {
                                 friends.forEach { friend ->
@@ -131,19 +123,11 @@ class GameFinderScreen : Screen {
                                 }
                             }
 
-                            Row (
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Icon(
-                                    Icons.Filled.Sell,
-                                    contentDescription = null
-                                )
-                                Text(
-                                    text = "Tags",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                            }
+                            FormIconHeader(
+                                Icons.Filled.Label,
+                                contentDescription = "Tag Selection Header Icon",
+                                headerText = "Tags"
+                            )
 
                             FlowRow (
                                 modifier = Modifier.wrapContentHeight(align = Alignment.Top),
