@@ -7,6 +7,8 @@ interface TagPersistencePort {
 
     suspend fun createTag(tag: Tag): Int
 
+    fun getTags(): Flow<List<Tag>>
+
     fun getTagsByValue(value: String): Flow<List<Tag>>
 
     suspend fun deleteTag(id: Int)

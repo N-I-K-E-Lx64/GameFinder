@@ -7,6 +7,8 @@ interface TagUseCase {
 
     suspend fun createTag(gameId: Int, tagValue: String)
 
+    fun getTags(): Flow<List<Tag>>
+
     fun getGamesByQuery(query: String): Flow<List<Tag>>
 
     suspend fun deleteTag(id: Int)

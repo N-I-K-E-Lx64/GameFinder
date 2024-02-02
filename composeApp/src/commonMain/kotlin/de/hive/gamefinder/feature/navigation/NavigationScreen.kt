@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
-import de.hive.gamefinder.utils.NavigationType
+import de.hive.gamefinder.components.NavigationType
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 

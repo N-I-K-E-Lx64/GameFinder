@@ -71,6 +71,18 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .map { games -> games.map { it.toModel() } }
     }
 
+    override fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>> {
+        return dbQueries
+            .findMultiplayerGames(
+                friendCount = friendIds.size,
+                friendIds.map { it.toLong() },
+                tagIds.map { it.toLong() }
+            )
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { games -> games.map { it.toModel() } }
+    }
+
     override suspend fun updateGame(game: Game) {
         game.toEntity().let {
             dbQueries.updateGame(name = it.name, platform = it.platform)

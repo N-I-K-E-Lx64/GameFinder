@@ -11,6 +11,10 @@ class TagService(private val persistencePort: TagPersistencePort) : TagUseCase {
         persistencePort.createGameTagRelation(gameId, tagId)
     }
 
+    override fun getTags(): Flow<List<Tag>> {
+        return persistencePort.getTags()
+    }
+
     override fun getGamesByQuery(query: String): Flow<List<Tag>> {
         return persistencePort.getTagsByValue(query)
     }

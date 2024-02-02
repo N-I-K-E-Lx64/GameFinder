@@ -64,6 +64,16 @@ WHERE (:platform IS NULL OR platform = :platform)
 AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
 AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
+findMultiplayerGames:
+SELECT DISTINCT ge.* FROM game_entity AS ge
+LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
+LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+WHERE ge.online_coop = 1
+AND ge.online_max_players >= (:friendCount)
+AND gf.friend_id IN ?
+AND gt.tag_id IN ?;
+
+
 addGame:
 INSERT OR REPLACE INTO game_entity
 (name, platform, game_id, cover_image_id, game_modes, campaign_coop, online_coop, online_max_players)
@@ -96,6 +106,10 @@ INSERT INTO tag_entity (tag) VALUES ?;
 
 getLastInsertedRowId:
 SELECT last_insert_rowid();
+
+getAllTags:
+SELECT * FROM tag_entity
+ORDER BY tag;
 
 searchTags:
 SELECT * FROM tag_entity
