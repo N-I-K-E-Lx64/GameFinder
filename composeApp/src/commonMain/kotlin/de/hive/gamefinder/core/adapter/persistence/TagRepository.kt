@@ -23,6 +23,14 @@ class TagRepository(database: GameFinderDatabase) : TagPersistencePort {
         return tagId
     }
 
+    override fun getTags(): Flow<List<Tag>> {
+        return dbQueries
+            .getAllTags()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { tags -> tags.map { it.toModel() } }
+    }
+
     override fun getTagsByValue(value: String): Flow<List<Tag>> {
         return dbQueries
             .searchTags(value)

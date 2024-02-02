@@ -20,6 +20,7 @@ import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
 import de.hive.gamefinder.core.application.port.out.TagPersistencePort
 import de.hive.gamefinder.database.GameFinderDatabase
+import de.hive.gamefinder.feature.game_finder.GameFinderScreenModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
 import de.hive.gamefinder.feature.library.LibraryStateScreenModel
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
@@ -78,6 +79,7 @@ val coreModule = module {
     single { GameDetailsStateScreenModel(get()) }
     single { GameDetailsScreenModel(get()) }
     single { NavigationScreenModel(get()) }
+    single { GameFinderScreenModel(get(), get(), get()) }
 
     /**
      * Adapters

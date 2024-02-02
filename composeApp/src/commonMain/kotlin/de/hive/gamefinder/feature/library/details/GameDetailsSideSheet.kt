@@ -113,8 +113,7 @@ fun LibrarySideSheet(
                 FlowRow(
                     modifier = Modifier.wrapContentHeight(align = Alignment.Top),
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-                    verticalArrangement = Arrangement.spacedBy(4.dp
-                    )
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     state.game.tags.forEach {
                         InputChip(
