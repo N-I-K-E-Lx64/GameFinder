@@ -81,12 +81,6 @@ class LibraryScreenModel(
         }
     }
 
-    fun deleteGame(gameId: Int) {
-        screenModelScope.launch {
-            gameUseCase.deleteGame(gameId)
-        }
-    }
-
     fun searchGames(searchQuery: String) {
         screenModelScope.launch {
             gameUseCase.searchGamesByName(searchQuery).collect {

@@ -4,6 +4,7 @@ import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
+import de.hive.gamefinder.core.domain.MultiplayerMode
 import kotlinx.coroutines.flow.Flow
 
 class GameService(private val persistencePort: GamePersistencePort) : GameUseCase {
@@ -31,8 +32,8 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         return persistencePort.findGames(friendIds, tagIds)
     }
 
-    override suspend fun updateGame(game: Game) {
-        TODO("Not yet implemented")
+    override suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode) {
+        persistencePort.updateMultiplayerMode(gameId, multiplayerMode)
     }
 
     override suspend fun deleteGame(id: Int) {

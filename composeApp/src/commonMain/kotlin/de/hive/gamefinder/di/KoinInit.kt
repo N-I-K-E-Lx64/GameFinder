@@ -71,7 +71,7 @@ val coreModule = module {
      * Screen modules
      */
     single { LibraryScreenModel(get(), get()) }
-    single { GameDetailsScreenModel(get(), get()) }
+    single { GameDetailsScreenModel(get(), get(), get()) }
     single { NavigationScreenModel(get()) }
     single { GameFinderScreenModel(get(), get(), get()) }
 

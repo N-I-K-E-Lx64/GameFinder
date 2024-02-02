@@ -2,6 +2,7 @@ package de.hive.gamefinder.core.application.port.`in`
 
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
+import de.hive.gamefinder.core.domain.MultiplayerMode
 import kotlinx.coroutines.flow.Flow
 
 interface GameUseCase {
@@ -18,7 +19,7 @@ interface GameUseCase {
 
     fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>>
 
-    suspend fun updateGame(game: Game)
+    suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode)
 
     suspend fun deleteGame(id: Int)
 }
