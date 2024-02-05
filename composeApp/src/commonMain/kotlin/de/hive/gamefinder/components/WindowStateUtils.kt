@@ -13,3 +13,8 @@ enum class LayoutType {
     HEADER,
     CONTENT
 }
+
+enum class CardOrientation {
+    VERTICAL,
+    HORIZONTAL
+}

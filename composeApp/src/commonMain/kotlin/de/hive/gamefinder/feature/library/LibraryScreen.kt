@@ -1,6 +1,7 @@
 package de.hive.gamefinder.feature.library
 
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,15 +10,15 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -30,16 +31,12 @@ import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import de.hive.gamefinder.components.FormIconHeader
-import de.hive.gamefinder.components.HorizontalTwoPaneStrategy
-import de.hive.gamefinder.components.TwoPane
+import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.Platform
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -50,11 +47,20 @@ class LibraryScreen(val filter: Platform?) : Screen {
     }
 
     @OptIn(
-        ExperimentalMaterial3Api::class
+        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class
     )
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
+        val windowSize = calculateWindowSizeClass()
+        val cardOrientation: CardOrientation =
+            when (windowSize.widthSizeClass) {
+                WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> CardOrientation.VERTICAL
+                //WindowWidthSizeClass.Expanded -> CardOrientation.HORIZONTAL
+                WindowWidthSizeClass.Expanded -> CardOrientation.VERTICAL
+                else -> CardOrientation.VERTICAL
+            }
 
         val screenModel = getScreenModel<LibraryScreenModel>()
         val state by screenModel.state.collectAsState()
@@ -117,10 +123,13 @@ class LibraryScreen(val filter: Platform?) : Screen {
             }
 
             is LibraryScreenModel.State.Result -> {
+                val games = (state as LibraryScreenModel.State.Result).games
+
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                     topBar = {
                         AppBar(
+                            gameCount = games.size,
                             searchResultState = searchResultState,
                             onQueryChange = { screenModel.searchGames(it) },
                             onQueryDismissed = { screenModel.resetSearchResults() }
@@ -139,13 +148,11 @@ class LibraryScreen(val filter: Platform?) : Screen {
                             .fillMaxSize()
                             .padding(innerPadding),
                         first = {
-                            val games = (state as LibraryScreenModel.State.Result).games
-
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
-                            ){
+                            ) {
                                 FormIconHeader(
                                     Icons.Filled.RocketLaunch,
                                     contentDescription = "Launcher Filter Icon",
@@ -250,47 +257,25 @@ class LibraryScreen(val filter: Platform?) : Screen {
 
                                     LazyVerticalGrid(
                                         contentPadding = PaddingValues(16.dp),
-                                        columns = GridCells.Adaptive(minSize = 200.dp),
+                                        columns = GridCells.Adaptive(minSize = 250.dp),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         state = lazyGridState
                                     ) {
                                         items(games) {
-                                            ElevatedCard(
-                                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                                onClick = {
+                                            CoverImageCard(
+                                                game = it,
+                                                orientation = cardOrientation,
+                                                isSelected = selectedGame == it.id,
+                                                onCardClick = {
                                                     selectedGame = it.id
                                                     splitFraction = 2f / 3f
                                                     // Initialize state in the game details screen model
                                                     gameDetailsScreenModel.loadFriends(it)
                                                     gameDetailsScreenModel.initializeParameterStates(it)
-                                                },
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    KamelImage(
-                                                        resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
-                                                        contentDescription = "${it.name} - Cover",
-                                                        contentScale = ContentScale.Crop,
-                                                        onLoading = { progress -> CircularProgressIndicator(progress) },
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(16.dp))
-                                                    )
-                                                    Text(
-                                                        text = it.name,
-                                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                                        style = MaterialTheme.typography.titleMedium
-                                                    )
-                                                    Text(
-                                                        text = it.platform.platform,
-                                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                                        style = MaterialTheme.typography.bodyMedium
-                                                    )
                                                 }
-                                            }
+                                            )
                                         }
                                     }
 
@@ -299,7 +284,10 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                         adapter = rememberScrollbarAdapter(
                                             scrollState = lazyGridState
                                         ),
-                                        //style = ScrollbarStyle(unhoverColor = MaterialTheme.colorScheme.primary)
+                                        style = defaultScrollbarStyle().copy(
+                                            unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            hoverColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     )
                                 }
                             }
@@ -379,7 +367,8 @@ private fun CreateGameDialog(
                     },
                     placeholder = {
                         Text(text = "Anno 1800")
-                    }
+                    },
+                    singleLine = true
                 )
 
                 Text("Platform", style = MaterialTheme.typography.titleMedium)
@@ -429,6 +418,7 @@ private fun CreateGameDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
+    gameCount: Int,
     searchResultState: List<Game>,
     onQueryChange: (queryText: String) -> Unit,
     onQueryDismissed: () -> Unit = {}
@@ -446,7 +436,7 @@ private fun AppBar(
         ) {
             Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
             Text(
-                text = "99 imported games",
+                text = "$gameCount imported games",
                 style = MaterialTheme.typography.titleSmall
             )
         }
