@@ -1,6 +1,7 @@
 package de.hive.gamefinder.feature.library
 
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,15 +10,15 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -30,31 +31,38 @@ import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import de.hive.gamefinder.components.FormIconHeader
-import de.hive.gamefinder.components.HorizontalTwoPaneStrategy
-import de.hive.gamefinder.components.TwoPane
+import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.GameStatus
+import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LibraryScreen(val filter: Platform?) : Screen {
+class LibraryScreen(val filter: Launcher?) : Screen {
 
     companion object {
         const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
     }
 
     @OptIn(
-        ExperimentalMaterial3Api::class
+        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class
     )
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
+        val windowSize = calculateWindowSizeClass()
+        val cardOrientation: CardOrientation =
+            when (windowSize.widthSizeClass) {
+                WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> CardOrientation.VERTICAL
+                //WindowWidthSizeClass.Expanded -> CardOrientation.HORIZONTAL
+                WindowWidthSizeClass.Expanded -> CardOrientation.VERTICAL
+                else -> CardOrientation.VERTICAL
+            }
 
         val screenModel = getScreenModel<LibraryScreenModel>()
         val state by screenModel.state.collectAsState()
@@ -64,9 +72,13 @@ class LibraryScreen(val filter: Platform?) : Screen {
         val sideSheetState by gameDetailsScreenModel.state.collectAsState()
 
         // UI relevant state
+        val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
-        var openDialog by remember { mutableStateOf(false) }
+        val bottomSheetState = rememberModalBottomSheetState()
+        var openImportGameDialog by remember { mutableStateOf(false) }
+        var openChangeStateBottomSheet by remember { mutableStateOf(false) }
         var selectedGame by remember { mutableStateOf(0) }
+        var statusChangeGameId by remember { mutableStateOf(-1) }
 
         var splitFraction by remember { mutableStateOf(1f) }
 
@@ -76,7 +88,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
         var filterCampaignMultiplayer by remember { mutableStateOf(false) }
 
         var gameName by remember { mutableStateOf("") }
-        var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
+        var selectedLauncher by remember { mutableStateOf(Launcher.STEAM) }
 
         fun applyFilter() {
             screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
@@ -117,10 +129,13 @@ class LibraryScreen(val filter: Platform?) : Screen {
             }
 
             is LibraryScreenModel.State.Result -> {
+                val games = (state as LibraryScreenModel.State.Result).games
+
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                     topBar = {
                         AppBar(
+                            gameCount = games.size,
                             searchResultState = searchResultState,
                             onQueryChange = { screenModel.searchGames(it) },
                             onQueryDismissed = { screenModel.resetSearchResults() }
@@ -128,7 +143,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
-                            onClick = { openDialog = true },
+                            onClick = { openImportGameDialog = true },
                             icon = { Icon(Icons.Filled.Add, "Import a new game") },
                             text = { Text(text = "Import Game") }
                         )
@@ -139,13 +154,11 @@ class LibraryScreen(val filter: Platform?) : Screen {
                             .fillMaxSize()
                             .padding(innerPadding),
                         first = {
-                            val games = (state as LibraryScreenModel.State.Result).games
-
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
-                            ){
+                            ) {
                                 FormIconHeader(
                                     Icons.Filled.RocketLaunch,
                                     contentDescription = "Launcher Filter Icon",
@@ -155,7 +168,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 ) {
-                                    screenModel.platforms.forEach {
+                                    screenModel.launchers.forEach {
                                         FilterChip(
                                             selected = filterPlatform == it.ordinal,
                                             onClick = {
@@ -250,47 +263,29 @@ class LibraryScreen(val filter: Platform?) : Screen {
 
                                     LazyVerticalGrid(
                                         contentPadding = PaddingValues(16.dp),
-                                        columns = GridCells.Adaptive(minSize = 200.dp),
+                                        columns = GridCells.Adaptive(minSize = 320.dp),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         state = lazyGridState
                                     ) {
                                         items(games) {
-                                            ElevatedCard(
-                                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                                onClick = {
+                                            CoverImageCard(
+                                                game = it,
+                                                orientation = cardOrientation,
+                                                isSelected = selectedGame == it.id,
+                                                onCardClick = {
                                                     selectedGame = it.id
                                                     splitFraction = 2f / 3f
                                                     // Initialize state in the game details screen model
                                                     gameDetailsScreenModel.loadFriends(it)
                                                     gameDetailsScreenModel.initializeParameterStates(it)
                                                 },
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.fillMaxSize().padding(bottom = 8.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    KamelImage(
-                                                        resource = asyncPainterResource("$IGDB_IMAGE_ENDPOINT${it.coverImageId}.jpg"),
-                                                        contentDescription = "${it.name} - Cover",
-                                                        contentScale = ContentScale.Crop,
-                                                        onLoading = { progress -> CircularProgressIndicator(progress) },
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(16.dp))
-                                                    )
-                                                    Text(
-                                                        text = it.name,
-                                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                                        style = MaterialTheme.typography.titleMedium
-                                                    )
-                                                    Text(
-                                                        text = it.platform.platform,
-                                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                                        style = MaterialTheme.typography.bodyMedium
-                                                    )
-                                                }
-                                            }
+                                                onChangeStateAction = {
+                                                    openChangeStateBottomSheet = true
+                                                    statusChangeGameId = it.id },
+                                                onShortlistAction = { screenModel.addGameToShortlist(it.id) }
+                                            )
                                         }
                                     }
 
@@ -299,7 +294,10 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                         adapter = rememberScrollbarAdapter(
                                             scrollState = lazyGridState
                                         ),
-                                        //style = ScrollbarStyle(unhoverColor = MaterialTheme.colorScheme.primary)
+                                        style = defaultScrollbarStyle().copy(
+                                            unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            hoverColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     )
                                 }
                             }
@@ -323,25 +321,39 @@ class LibraryScreen(val filter: Platform?) : Screen {
                         )
                     )
 
-                    when {
-                        openDialog -> {
-                            CreateGameDialog(
-                                onDismissRequest = { openDialog = false },
-                                onSave = {
-                                    screenModel.addGame(gameName, selectedPlatform)
-                                    // Reset form values
-                                    gameName = ""
-                                    selectedPlatform = Platform.STEAM
-                                    // Close the dialog
-                                    openDialog = false
-                                },
-                                onUpdateName = { gameName = it },
-                                onSelectPlatform = { selectedPlatform = it },
-                                gameName = gameName,
-                                selectedPlatform = selectedPlatform,
-                                platforms = screenModel.platforms
-                            )
-                        }
+                    if (openImportGameDialog) {
+                        ImportGameDialog(
+                            onDismissRequest = { openImportGameDialog = false },
+                            onSave = {
+                                screenModel.addGame(gameName, selectedLauncher)
+                                // Reset form values
+                                gameName = ""
+                                selectedLauncher = Launcher.STEAM
+                                // Close the dialog
+                                openImportGameDialog = false
+                            },
+                            onUpdateName = { gameName = it },
+                            onSelectPlatform = { selectedLauncher = it },
+                            gameName = gameName,
+                            selectedLauncher = selectedLauncher,
+                            launchers = screenModel.launchers
+                        )
+                    }
+
+                    // TODO : Approve design decision (Bottom Sheet)!
+                    if (openChangeStateBottomSheet) {
+                        ChangeStateBottomSheet(
+                            sheetState = bottomSheetState,
+                            onDismissRequest = { openChangeStateBottomSheet = false },
+                            onListItemClick = {
+                                screenModel.updateGameStatus(statusChangeGameId, GameStatus.entries[it])
+                                scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                                    if (!bottomSheetState.isVisible) {
+                                        openChangeStateBottomSheet = false
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -350,14 +362,14 @@ class LibraryScreen(val filter: Platform?) : Screen {
 }
 
 @Composable
-private fun CreateGameDialog(
+private fun ImportGameDialog(
     onDismissRequest: () -> Unit,
     onSave: () -> Unit,
     onUpdateName: (gameName: String) -> Unit,
-    onSelectPlatform: (platform: Platform) -> Unit,
+    onSelectPlatform: (launcher: Launcher) -> Unit,
     gameName: String,
-    selectedPlatform: Platform,
-    platforms: Array<Platform>
+    selectedLauncher: Launcher,
+    launchers: Array<Launcher>
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card {
@@ -379,26 +391,27 @@ private fun CreateGameDialog(
                     },
                     placeholder = {
                         Text(text = "Anno 1800")
-                    }
+                    },
+                    singleLine = true
                 )
 
                 Text("Platform", style = MaterialTheme.typography.titleMedium)
 
                 Column(modifier = Modifier.selectableGroup()) {
-                    platforms.forEach { platform ->
+                    launchers.forEach { platform ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
                                 .selectable(
-                                    selected = (platform == selectedPlatform),
+                                    selected = (platform == selectedLauncher),
                                     onClick = { onSelectPlatform(platform) },
                                     role = Role.RadioButton
                                 ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (platform == selectedPlatform),
+                                selected = (platform == selectedLauncher),
                                 onClick = null
                             )
                             Text(
@@ -429,6 +442,7 @@ private fun CreateGameDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(
+    gameCount: Int,
     searchResultState: List<Game>,
     onQueryChange: (queryText: String) -> Unit,
     onQueryDismissed: () -> Unit = {}
@@ -446,7 +460,7 @@ private fun AppBar(
         ) {
             Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
             Text(
-                text = "99 imported games",
+                text = "$gameCount imported games",
                 style = MaterialTheme.typography.titleSmall
             )
         }
@@ -480,7 +494,7 @@ private fun AppBar(
                 searchResults.forEach { game ->
                     ListItem(
                         headlineContent = { Text(game.name) },
-                        supportingContent = { Text(game.platform.name) },
+                        supportingContent = { Text(game.launcher.name) },
                         leadingContent = { Icon(Icons.Filled.VideogameAsset, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
                     )

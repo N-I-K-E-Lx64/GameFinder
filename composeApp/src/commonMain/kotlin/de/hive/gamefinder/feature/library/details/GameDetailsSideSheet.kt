@@ -1,13 +1,10 @@
 package de.hive.gamefinder.feature.library.details
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -234,6 +231,10 @@ fun LibrarySideSheet(
                         .padding(end = 4.dp),
                     adapter = rememberScrollbarAdapter(
                         scrollState = lazyColumnState
+                    ),
+                    style = defaultScrollbarStyle().copy(
+                        unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
+                        hoverColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
             }

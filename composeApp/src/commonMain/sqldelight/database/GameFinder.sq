@@ -3,19 +3,22 @@ import kotlin.Boolean;
 import kotlin.String;
 import kotlin.collections.List;
 import de.hive.gamefinder.core.domain.GameMode;
-import de.hive.gamefinder.core.domain.Platform;
+import de.hive.gamefinder.core.domain.Launcher;
 import de.hive.gamefinder.core.domain.Friend;
+import de.hive.gamefinder.core.domain.GameStatus;
 
 CREATE TABLE IF NOT EXISTS game_entity (
     id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    platform INTEGER AS Platform NOT NULL,
+    launcher INTEGER AS Launcher NOT NULL,
     game_id INTEGER AS Int NOT NULL,
     cover_image_id TEXT NOT NULL,
     game_modes TEXT AS List<GameMode>,
     campaign_coop INTEGER AS Boolean,
     online_coop INTEGER AS Boolean,
-    online_max_players INTEGER AS Int
+    online_max_players INTEGER AS Int,
+    shortlist INTEGER AS Boolean NOT NULL,
+    game_status INTEGER AS GameStatus NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS friend_entity (
@@ -60,7 +63,7 @@ ORDER BY name;
 
 getGamesByQuery:
 SELECT * FROM game_entity
-WHERE (:platform IS NULL OR platform = :platform)
+WHERE (:launcher IS NULL OR launcher = :launcher)
 AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
 AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
@@ -73,15 +76,24 @@ AND ge.online_max_players >= (:friendCount)
 AND gf.friend_id IN ?
 AND gt.tag_id IN ?;
 
-
 addGame:
 INSERT OR REPLACE INTO game_entity
-(name, platform, game_id, cover_image_id, game_modes, online_coop, campaign_coop, online_max_players)
+(name, launcher, game_id, cover_image_id, game_modes, online_coop, campaign_coop, online_max_players, shortlist, game_status)
 VALUES ?;
 
 updateMultiplayerParameters:
 UPDATE game_entity
 SET online_coop = (:onlineCoop), campaign_coop = (:campaignCoop), online_max_players = (:onlineMaxPlayers)
+WHERE id = (:gameId);
+
+addGameToShortlist:
+UPDATE game_entity
+SET shortlist = 1
+WHERE id = (:gameId);
+
+updateGameStatus:
+UPDATE game_entity
+SET game_status = (:status)
 WHERE id = (:gameId);
 
 deleteGameById:

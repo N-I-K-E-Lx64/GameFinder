@@ -20,9 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import cafe.adriel.voyager.core.screen.Screen
+import de.hive.gamefinder.components.LayoutType
 import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
-import de.hive.gamefinder.components.LayoutType
+import de.hive.gamefinder.feature.shortlist.ShortlistScreen
 import io.github.aakira.napier.Napier
 
 @Composable
@@ -269,7 +270,8 @@ fun navigationMeasurePolicy(): MeasurePolicy {
 
 object NavigationRoutes {
     const val LIBRARY = "Library"
-    const val GROUP = "Group Play (WIP)"
+    const val GROUP = "Group Play (Alpha)"
+    const val SHORTLIST = "Shortlist (WIP)"
 }
 
 data class NavigationElement (
@@ -285,5 +287,6 @@ enum class DrawerItemType {
 
 val SCREEN_NAVIGATION: List<NavigationElement> = listOf(
     NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.LIBRARY, Icons.Filled.VideoLibrary, LibraryScreen(filter = null)),
-    NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.GROUP, Icons.Filled.Pageview, GameFinderScreen())
+    NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.GROUP, Icons.Filled.Pageview, GameFinderScreen()),
+    NavigationElement(DrawerItemType.NAVIGATION, NavigationRoutes.SHORTLIST, Icons.Filled.Bookmarks, ShortlistScreen())
 )

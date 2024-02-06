@@ -51,10 +51,11 @@ val coreModule = module {
             driver = get<DatabaseDriverFactory>().createDriver(),
             game_entityAdapter = Game_entity.Adapter(
                 idAdapter = IntColumnAdapter,
-                platformAdapter = platformAdapter,
+                launcherAdapter = launcherAdapter,
                 game_idAdapter = IntColumnAdapter,
                 game_modesAdapter = gameModeAdapter,
-                online_max_playersAdapter = IntColumnAdapter
+                online_max_playersAdapter = IntColumnAdapter,
+                game_statusAdapter = gameStatusAdapter
             ),
             friend_entityAdapter = Friend_entity.Adapter(
                 idAdapter = IntColumnAdapter
