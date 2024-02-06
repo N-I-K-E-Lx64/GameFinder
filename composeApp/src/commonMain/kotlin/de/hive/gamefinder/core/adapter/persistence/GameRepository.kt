@@ -29,6 +29,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                     Game(
                         id = firstGame.id,
                         name = firstGame.name,
+                        summary = firstGame.summary,
                         launcher = firstGame.launcher,
                         igdbGameId = firstGame.game_id,
                         coverImageId = firstGame.cover_image_id,

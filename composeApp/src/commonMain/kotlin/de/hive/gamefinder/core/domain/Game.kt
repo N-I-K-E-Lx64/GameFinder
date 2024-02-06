@@ -3,6 +3,7 @@ package de.hive.gamefinder.core.domain
 data class Game(
     val id: Int = 0,
     val name: String,
+    val summary: String,
     val launcher: Launcher = Launcher.STEAM,
     val igdbGameId: Int,
     val coverImageId: String,

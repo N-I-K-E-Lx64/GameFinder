@@ -83,7 +83,7 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
     override suspend fun getGameDetails(gameName: String): Game {
         val igdbResult = client.post(IGDB_GAME_ENDPOINT) {
             setBody("""
-                fields name, cover.image_id, multiplayer_modes, game_modes;
+                fields name, summary, cover.image_id, multiplayer_modes, game_modes;
                 search "$gameName";
                 where version_parent = null;
                 where parent_game = null;
@@ -95,11 +95,15 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             }
         }.body<Array<IgdbGameInformationDto>>()
 
+        println(igdbResult)
+
         if (igdbResult.isEmpty()) {
             throw EmptySearchResultException("$gameName could not be found!")
         }
 
         val desiredGame = igdbResult.maxBy { levenshteinSimilarity(it.name, gameName) }
+
+        println(desiredGame)
 
         val gameModes = desiredGame.gameModes?.let { gameModes -> gameModes.map { GameMode.entries[it] } }
         val multiplayerMode = desiredGame.multiplayerModes?.let { getMultiplayerInfos(desiredGame.gameId) }
@@ -107,7 +111,8 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         return Game(
             name = desiredGame.name,
             igdbGameId = desiredGame.gameId,
-            coverImageId = desiredGame.cover.imageId,
+            summary = desiredGame.summary ?: "",
+            coverImageId = desiredGame.cover?.imageId ?: "",
             gameModes = gameModes,
             tags = emptyList(),
             multiplayerMode = multiplayerMode,

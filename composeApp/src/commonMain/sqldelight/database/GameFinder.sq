@@ -10,6 +10,7 @@ import de.hive.gamefinder.core.domain.GameStatus;
 CREATE TABLE IF NOT EXISTS game_entity (
     id INTEGER AS Int NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    summary TEXT NOT NULL,
     launcher INTEGER AS Launcher NOT NULL,
     game_id INTEGER AS Int NOT NULL,
     cover_image_id TEXT NOT NULL,
@@ -78,7 +79,7 @@ AND gt.tag_id IN ?;
 
 addGame:
 INSERT OR REPLACE INTO game_entity
-(name, launcher, game_id, cover_image_id, game_modes, online_coop, campaign_coop, online_max_players, shortlist, game_status)
+(name, summary, launcher, game_id, cover_image_id, game_modes, online_coop, campaign_coop, online_max_players, shortlist, game_status)
 VALUES ?;
 
 updateMultiplayerParameters:

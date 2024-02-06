@@ -11,6 +11,7 @@ import de.hive.gamefinder.core.domain.Tag
 fun Game_entity.toModel() = Game(
     id = id,
     name = name,
+    summary = summary,
     launcher = launcher,
     igdbGameId = game_id,
     coverImageId = cover_image_id,
@@ -23,6 +24,7 @@ fun Game_entity.toModel() = Game(
 fun Game.toEntity() = Game_entity(
     id = id,
     name = name,
+    summary = summary,
     launcher = launcher,
     game_id = igdbGameId,
     cover_image_id = coverImageId,
