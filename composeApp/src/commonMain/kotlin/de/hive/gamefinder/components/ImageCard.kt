@@ -2,6 +2,9 @@ package de.hive.gamefinder.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,6 +16,7 @@ import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.feature.library.LibraryScreen
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlin.text.Typography.middleDot
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -20,7 +24,9 @@ fun CoverImageCard(
     game: Game,
     orientation: CardOrientation,
     isSelected: Boolean,
-    onCardClick: () -> Unit
+    onCardClick: () -> Unit,
+    onChangeStateAction: () -> Unit,
+    onShortlistAction: () -> Unit = {},
 ) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -48,14 +54,64 @@ fun CoverImageCard(
                     )
                     Text(
                         text = game.name,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Text(
-                        text = game.platform.platform,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "${game.launcher.platform} $middleDot ${game.gameStatus.statusValue}",
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         style = MaterialTheme.typography.titleSmall
                     )
+
+                    FlowRow(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        AssistChip(
+                            onClick = { onChangeStateAction() },
+                            label = { Text("Change state") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.ChangeCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(AssistChipDefaults.IconSize)
+                                )
+                            }
+                        )
+
+                        AssistChip(
+                            onClick = { onShortlistAction() },
+                            label = { Text("Add to shortlist") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.BookmarkAdd,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(AssistChipDefaults.IconSize)
+                                )
+                            }
+                        )
+
+                        /*FilterChip(
+                            selected = game.isInstalled,
+                            label = { if (game.isInstalled) Text("Installed") else Text("hashjhjh") },
+                            onClick = { },
+                            leadingIcon = {
+                                if (game.isInstalled) {
+                                    Icon(
+                                        Icons.Default.RemoveFromQueue,
+                                        contentDescription = "Uninstall-Icon",
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.InstallDesktop,
+                                        contentDescription = "Install-Icon",
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
+                            }
+                        )*/
+                    }
                 }
             }
 
@@ -84,7 +140,7 @@ fun CoverImageCard(
                             style = MaterialTheme.typography.headlineMedium
                         )
                         Text(
-                            text = game.platform.platform,
+                            text = game.launcher.platform,
                             style = MaterialTheme.typography.titleMedium
                         )
                         // TODO : Think about adding this text!

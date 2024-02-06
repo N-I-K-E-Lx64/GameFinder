@@ -55,7 +55,7 @@ fun main() {
         ) {
             DecoratedWindow(
                 onCloseRequest = { exitApplication() },
-                state = rememberWindowState(width = 1024.dp, height = 720.dp),
+                state = rememberWindowState(width = 1280.dp, height = 960.dp),
                 title = "GameFinder"
             ) {
                 TitleBarView()

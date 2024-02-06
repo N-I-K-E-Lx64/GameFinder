@@ -4,10 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
-import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.GameQuery
-import de.hive.gamefinder.core.domain.MultiplayerMode
-import de.hive.gamefinder.core.domain.Tag
+import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.database.GameFinderDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +29,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                     Game(
                         id = firstGame.id,
                         name = firstGame.name,
-                        platform = firstGame.platform,
+                        launcher = firstGame.launcher,
                         igdbGameId = firstGame.game_id,
                         coverImageId = firstGame.cover_image_id,
                         tags = games.filter { it.tag != null }.map { Tag(it.id_!!, it.tag!!) },
@@ -41,7 +38,9 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                             hasCampaignCoop = firstGame.campaign_coop ?: false,
                             hasOnlineCoop = firstGame.online_coop ?: false,
                             onlineCoopMaxPlayers = firstGame.online_max_players ?: 0
-                        )
+                        ),
+                        isShortlist = false,
+                        gameStatus = firstGame.game_status
                     )
                 }
             }
@@ -65,7 +64,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
 
     override fun getGamesByQuery(query: GameQuery): Flow<List<Game>> {
         return dbQueries
-            .getGamesByQuery(query.platform, query.onlineCoop, query.campaignCoop)
+            .getGamesByQuery(query.launcher, query.onlineCoop, query.campaignCoop)
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { games -> games.map { it.toModel() } }
@@ -91,6 +90,16 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                 campaignCoop = multiplayerMode.hasCampaignCoop,
                 onlineMaxPlayers = multiplayerMode.onlineCoopMaxPlayers
             )
+    }
+
+    override suspend fun updateGameStatus(gameId: Int, status: GameStatus) {
+        dbQueries
+            .updateGameStatus(gameId = gameId, status = status)
+    }
+
+    override suspend fun addGameToShortlist(gameId: Int) {
+        dbQueries
+            .addGameToShortlist(gameId = gameId)
     }
 
     override suspend fun deleteGame(id: Int) {

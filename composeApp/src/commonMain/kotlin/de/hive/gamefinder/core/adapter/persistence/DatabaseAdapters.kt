@@ -2,14 +2,15 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.ColumnAdapter
 import de.hive.gamefinder.core.domain.GameMode
-import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.GameStatus
+import de.hive.gamefinder.core.domain.Launcher
 
-val platformAdapter = object : ColumnAdapter<Platform, Long> {
-    override fun decode(databaseValue: Long): Platform {
-        return Platform.entries[databaseValue.toInt()]
+val launcherAdapter = object : ColumnAdapter<Launcher, Long> {
+    override fun decode(databaseValue: Long): Launcher {
+        return Launcher.entries[databaseValue.toInt()]
     }
 
-    override fun encode(value: Platform): Long {
+    override fun encode(value: Launcher): Long {
         return value.ordinal.toLong()
     }
 }
@@ -26,6 +27,16 @@ val gameModeAdapter = object : ColumnAdapter<List<GameMode>, String> {
 
     override fun encode(value: List<GameMode>): String {
         return value.map { it.ordinal }.joinToString(separator = ",")
+    }
+}
+
+val gameStatusAdapter = object : ColumnAdapter<GameStatus, Long> {
+    override fun decode(databaseValue: Long): GameStatus {
+        return GameStatus.entries[databaseValue.toInt()]
+    }
+
+    override fun encode(value: GameStatus): Long {
+        return value.ordinal.toLong()
     }
 }
 

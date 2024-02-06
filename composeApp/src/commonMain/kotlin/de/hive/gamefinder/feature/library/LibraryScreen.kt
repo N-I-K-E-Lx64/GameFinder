@@ -33,14 +33,16 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.GameStatus
+import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LibraryScreen(val filter: Platform?) : Screen {
+class LibraryScreen(val filter: Launcher?) : Screen {
 
     companion object {
         const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
@@ -70,9 +72,13 @@ class LibraryScreen(val filter: Platform?) : Screen {
         val sideSheetState by gameDetailsScreenModel.state.collectAsState()
 
         // UI relevant state
+        val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
-        var openDialog by remember { mutableStateOf(false) }
+        val bottomSheetState = rememberModalBottomSheetState()
+        var openImportGameDialog by remember { mutableStateOf(false) }
+        var openChangeStateBottomSheet by remember { mutableStateOf(false) }
         var selectedGame by remember { mutableStateOf(0) }
+        var statusChangeGameId by remember { mutableStateOf(-1) }
 
         var splitFraction by remember { mutableStateOf(1f) }
 
@@ -82,7 +88,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
         var filterCampaignMultiplayer by remember { mutableStateOf(false) }
 
         var gameName by remember { mutableStateOf("") }
-        var selectedPlatform by remember { mutableStateOf(Platform.STEAM) }
+        var selectedLauncher by remember { mutableStateOf(Launcher.STEAM) }
 
         fun applyFilter() {
             screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
@@ -137,7 +143,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
-                            onClick = { openDialog = true },
+                            onClick = { openImportGameDialog = true },
                             icon = { Icon(Icons.Filled.Add, "Import a new game") },
                             text = { Text(text = "Import Game") }
                         )
@@ -162,7 +168,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 ) {
-                                    screenModel.platforms.forEach {
+                                    screenModel.launchers.forEach {
                                         FilterChip(
                                             selected = filterPlatform == it.ordinal,
                                             onClick = {
@@ -257,7 +263,7 @@ class LibraryScreen(val filter: Platform?) : Screen {
 
                                     LazyVerticalGrid(
                                         contentPadding = PaddingValues(16.dp),
-                                        columns = GridCells.Adaptive(minSize = 250.dp),
+                                        columns = GridCells.Adaptive(minSize = 320.dp),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -274,7 +280,11 @@ class LibraryScreen(val filter: Platform?) : Screen {
                                                     // Initialize state in the game details screen model
                                                     gameDetailsScreenModel.loadFriends(it)
                                                     gameDetailsScreenModel.initializeParameterStates(it)
-                                                }
+                                                },
+                                                onChangeStateAction = {
+                                                    openChangeStateBottomSheet = true
+                                                    statusChangeGameId = it.id },
+                                                onShortlistAction = { screenModel.addGameToShortlist(it.id) }
                                             )
                                         }
                                     }
@@ -311,25 +321,39 @@ class LibraryScreen(val filter: Platform?) : Screen {
                         )
                     )
 
-                    when {
-                        openDialog -> {
-                            CreateGameDialog(
-                                onDismissRequest = { openDialog = false },
-                                onSave = {
-                                    screenModel.addGame(gameName, selectedPlatform)
-                                    // Reset form values
-                                    gameName = ""
-                                    selectedPlatform = Platform.STEAM
-                                    // Close the dialog
-                                    openDialog = false
-                                },
-                                onUpdateName = { gameName = it },
-                                onSelectPlatform = { selectedPlatform = it },
-                                gameName = gameName,
-                                selectedPlatform = selectedPlatform,
-                                platforms = screenModel.platforms
-                            )
-                        }
+                    if (openImportGameDialog) {
+                        ImportGameDialog(
+                            onDismissRequest = { openImportGameDialog = false },
+                            onSave = {
+                                screenModel.addGame(gameName, selectedLauncher)
+                                // Reset form values
+                                gameName = ""
+                                selectedLauncher = Launcher.STEAM
+                                // Close the dialog
+                                openImportGameDialog = false
+                            },
+                            onUpdateName = { gameName = it },
+                            onSelectPlatform = { selectedLauncher = it },
+                            gameName = gameName,
+                            selectedLauncher = selectedLauncher,
+                            launchers = screenModel.launchers
+                        )
+                    }
+
+                    // TODO : Approve design decision (Bottom Sheet)!
+                    if (openChangeStateBottomSheet) {
+                        ChangeStateBottomSheet(
+                            sheetState = bottomSheetState,
+                            onDismissRequest = { openChangeStateBottomSheet = false },
+                            onListItemClick = {
+                                screenModel.updateGameStatus(statusChangeGameId, GameStatus.entries[it])
+                                scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                                    if (!bottomSheetState.isVisible) {
+                                        openChangeStateBottomSheet = false
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -338,14 +362,14 @@ class LibraryScreen(val filter: Platform?) : Screen {
 }
 
 @Composable
-private fun CreateGameDialog(
+private fun ImportGameDialog(
     onDismissRequest: () -> Unit,
     onSave: () -> Unit,
     onUpdateName: (gameName: String) -> Unit,
-    onSelectPlatform: (platform: Platform) -> Unit,
+    onSelectPlatform: (launcher: Launcher) -> Unit,
     gameName: String,
-    selectedPlatform: Platform,
-    platforms: Array<Platform>
+    selectedLauncher: Launcher,
+    launchers: Array<Launcher>
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card {
@@ -374,20 +398,20 @@ private fun CreateGameDialog(
                 Text("Platform", style = MaterialTheme.typography.titleMedium)
 
                 Column(modifier = Modifier.selectableGroup()) {
-                    platforms.forEach { platform ->
+                    launchers.forEach { platform ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
                                 .selectable(
-                                    selected = (platform == selectedPlatform),
+                                    selected = (platform == selectedLauncher),
                                     onClick = { onSelectPlatform(platform) },
                                     role = Role.RadioButton
                                 ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (platform == selectedPlatform),
+                                selected = (platform == selectedLauncher),
                                 onClick = null
                             )
                             Text(
@@ -470,7 +494,7 @@ private fun AppBar(
                 searchResults.forEach { game ->
                     ListItem(
                         headlineContent = { Text(game.name) },
-                        supportingContent = { Text(game.platform.name) },
+                        supportingContent = { Text(game.launcher.name) },
                         leadingContent = { Icon(Icons.Filled.VideogameAsset, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
                     )

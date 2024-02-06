@@ -7,6 +7,7 @@ import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameMode
+import de.hive.gamefinder.core.domain.GameStatus
 import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.utils.levenshteinSimilarity
 import io.github.aakira.napier.DebugAntilog
@@ -109,7 +110,9 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             coverImageId = desiredGame.cover.imageId,
             gameModes = gameModes,
             tags = emptyList(),
-            multiplayerMode = multiplayerMode
+            multiplayerMode = multiplayerMode,
+            isShortlist = false,
+            gameStatus = GameStatus.LIBRARY,
         )
     }
 }

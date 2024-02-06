@@ -7,7 +7,8 @@ import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
-import de.hive.gamefinder.core.domain.Platform
+import de.hive.gamefinder.core.domain.GameStatus
+import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
@@ -27,7 +28,7 @@ class LibraryScreenModel(
         data class Result(val games: List<Game>) : State()
     }
 
-    val platforms = Platform.entries.toTypedArray()
+    val launchers = Launcher.entries.toTypedArray()
 
     private val _eventsFlow = Channel<UiEvents>(Channel.UNLIMITED)
     val eventsFlow = _eventsFlow.receiveAsFlow()
@@ -49,24 +50,24 @@ class LibraryScreenModel(
         screenModelScope.launch {
             mutableState.value = State.Loading
 
-            val platformFilter = if (platformOrdinal != -1) Platform.entries[platformOrdinal] else null
+            val launcherFilter = if (platformOrdinal != -1) Launcher.entries[platformOrdinal] else null
             val onlineMultiplayerFilter = if (online) true else null
             val campaignMultiplayerFilter = if (campaign) true else null
 
-            val query = GameQuery(platformFilter, onlineMultiplayerFilter, campaignMultiplayerFilter)
+            val query = GameQuery(launcherFilter, onlineMultiplayerFilter, campaignMultiplayerFilter)
             gameUseCase.getGamesByQuery(query).collect {
                 mutableState.value = State.Result(games = it)
             }
         }
     }
 
-    fun addGame(gameName: String, selectedPlatform: Platform) {
+    fun addGame(gameName: String, selectedLauncher: Launcher) {
         screenModelScope.launch {
             try {
                 // Get additional information from IGDB
                 val igdbInformation = igdbUseCase.getGameDetails(gameName)
 
-                val game = igdbInformation.copy(platform = selectedPlatform)
+                val game = igdbInformation.copy(launcher = selectedLauncher)
                 gameUseCase.createGame(game)
 
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("$gameName has been successfully imported into the library."))
@@ -86,6 +87,18 @@ class LibraryScreenModel(
             gameUseCase.searchGamesByName(searchQuery).collect {
                 _searchResult.value = it
             }
+        }
+    }
+
+    fun addGameToShortlist(gameId: Int) {
+        screenModelScope.launch {
+            gameUseCase.addGameToShortlist(gameId)
+        }
+    }
+
+    fun updateGameStatus(gameId: Int, status: GameStatus) {
+        screenModelScope.launch {
+            gameUseCase.updateGameStatus(gameId, status)
         }
     }
 

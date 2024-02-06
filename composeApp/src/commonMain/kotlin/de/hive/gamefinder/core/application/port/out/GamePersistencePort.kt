@@ -2,6 +2,7 @@ package de.hive.gamefinder.core.application.port.out
 
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
+import de.hive.gamefinder.core.domain.GameStatus
 import de.hive.gamefinder.core.domain.MultiplayerMode
 import kotlinx.coroutines.flow.Flow
 
@@ -20,6 +21,10 @@ interface GamePersistencePort {
     fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>>
 
     suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode)
+
+    suspend fun updateGameStatus(gameId: Int, status: GameStatus)
+
+    suspend fun addGameToShortlist(gameId: Int)
 
     suspend fun deleteGame(id: Int)
 }
