@@ -48,12 +48,12 @@ class GameFinderScreenModel(
         screenModelScope.launch {
             // Subtract the deselected Tags from the tag-list
             tagUseCase.getTags().collect { tags ->
-                val selectedTags = tags.mapNotNull { tag -> tag.id.takeUnless { it in deselectedTags } }
+                val selectedTags = if (tags.isNotEmpty()) {
+                    tags.mapNotNull { tag -> tag.id.takeUnless { it in deselectedTags } }
+                } else null
 
                 if (selectedFriends.isEmpty()) {
                     _eventsFlow.trySend(UiEvents.ShowSnackbar("You must select at least one of your friends!"))
-                } else if (selectedTags.isEmpty()) {
-                    _eventsFlow.trySend(UiEvents.ShowSnackbar("You must select at least one tag!"))
                 } else {
                     gameUseCase.findGames(selectedFriends, selectedTags).collect {
                         mutableState.update { currentState ->
