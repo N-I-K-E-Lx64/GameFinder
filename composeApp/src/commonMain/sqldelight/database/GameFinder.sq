@@ -67,7 +67,7 @@ WHERE (:launcher IS NULL OR launcher = :launcher)
 AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
 AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
-findMultiplayerGames:
+findMultiplayerGamesByFriendsAndTags:
 SELECT DISTINCT ge.* FROM game_entity AS ge
 LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
 LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
@@ -75,6 +75,14 @@ WHERE ge.online_coop = 1
 AND ge.online_max_players >= (:friendCount)
 AND gf.friend_id IN ?
 AND gt.tag_id IN ?;
+
+findMultiplayerGamesByFriends:
+SELECT DISTINCT ge.* FROM game_entity AS ge
+LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
+LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+WHERE ge.online_coop = 1
+AND ge.online_max_players >= (:friendCount)
+AND gf.friend_id IN ?;
 
 addGame:
 INSERT OR REPLACE INTO game_entity

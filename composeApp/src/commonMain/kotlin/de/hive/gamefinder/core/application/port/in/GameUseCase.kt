@@ -18,7 +18,7 @@ interface GameUseCase {
 
     fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
 
-    fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>>
+    fun findGames(friendIds: List<Int>, tagIds: List<Int>?): Flow<List<Game>>
 
     suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode)
 

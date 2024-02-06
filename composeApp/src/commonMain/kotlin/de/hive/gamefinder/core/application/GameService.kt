@@ -29,8 +29,12 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         return persistencePort.getGamesByQuery(query)
     }
 
-    override fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>> {
-        return persistencePort.findGames(friendIds, tagIds)
+    override fun findGames(friendIds: List<Int>, tagIds: List<Int>?): Flow<List<Game>> {
+        return if (tagIds.isNullOrEmpty()) {
+            persistencePort.findGamesByFriends(friendIds)
+        } else {
+            persistencePort.findGamesByFriendsAndTags(friendIds, tagIds)
+        }
     }
 
     override suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode) {
