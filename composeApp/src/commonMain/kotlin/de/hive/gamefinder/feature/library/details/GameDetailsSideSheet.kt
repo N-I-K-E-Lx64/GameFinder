@@ -77,7 +77,9 @@ fun LibrarySideSheet(
                             ) {
                                 Text(
                                     text = game.name,
-                                    style = MaterialTheme.typography.headlineSmall
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    softWrap = true,
+                                    modifier = Modifier.weight(1f)
                                 )
                                 Row {
                                     IconButton(
@@ -142,7 +144,7 @@ fun LibrarySideSheet(
                         FlowRow(
                             modifier = Modifier.wrapContentHeight(align = Alignment.Top),
                             horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             state.game.tags.forEach {
                                 InputChip(
