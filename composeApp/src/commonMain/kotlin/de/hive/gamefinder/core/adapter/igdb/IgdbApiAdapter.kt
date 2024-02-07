@@ -5,10 +5,7 @@ import com.russhwolf.settings.get
 import de.hive.gamefinder.BuildKonfig
 import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
-import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.GameMode
-import de.hive.gamefinder.core.domain.GameStatus
-import de.hive.gamefinder.core.domain.MultiplayerMode
+import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.core.utils.levenshteinSimilarity
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -20,6 +17,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.datetime.Instant
 
 class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
 
@@ -77,17 +75,19 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             return null
         }
 
-        return MultiplayerMode(igdbMultiplayerMode[0].campaignCoop, igdbMultiplayerMode[0].onlineCoop, igdbMultiplayerMode[0].onlineCoopMax)
+        return MultiplayerMode(
+            igdbMultiplayerMode[0].campaignCoop,
+            igdbMultiplayerMode[0].onlineCoop,
+            igdbMultiplayerMode[0].onlineCoopMax
+        )
     }
 
-    override suspend fun getGameDetails(gameName: String): Game {
+    override suspend fun getGameDetails(gameId: Int): Game {
         val igdbResult = client.post(IGDB_GAME_ENDPOINT) {
-            setBody("""
+            setBody(
+                """
                 fields name, cover.image_id, multiplayer_modes, game_modes;
-                search "$gameName";
-                where version_parent = null;
-                where parent_game = null;
-                limit 20;
+                where id=$gameId;
             """.trimIndent()
             )
             headers {
@@ -96,10 +96,9 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         }.body<Array<IgdbGameInformationDto>>()
 
         if (igdbResult.isEmpty()) {
-            throw EmptySearchResultException("$gameName could not be found!")
+            throw EmptySearchResultException("Game with id $gameId could not be found!")
         }
-
-        val desiredGame = igdbResult.maxBy { levenshteinSimilarity(it.name, gameName) }
+        val desiredGame = igdbResult.first()
 
         val gameModes = desiredGame.gameModes?.let { gameModes -> gameModes.map { GameMode.entries[it] } }
         val multiplayerMode = desiredGame.multiplayerModes?.let { getMultiplayerInfos(desiredGame.gameId) }
@@ -114,6 +113,30 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             isShortlist = false,
             gameStatus = GameStatus.LIBRARY,
         )
+    }
+
+    override suspend fun searchForGamesByName(gameName: String): List<GamePrediction> {
+        val gamePredictions = client.post(IGDB_GAME_ENDPOINT) {
+            setBody(
+                """
+                fields name, first_release_date;
+                search "$gameName";
+                where version_parent = null;
+                where parent_game = null;
+                limit 20;
+            """.trimIndent()
+            )
+            headers {
+                append("Client-Id", BuildKonfig.CLIENT_ID)
+            }
+        }.body<Array<IgdbGameImportPredictionDto>>()
+
+        return gamePredictions
+            .filter { it.releaseDateTimeStamp != null }
+            .map {
+                GamePrediction(it.gameId, it.name, Instant.fromEpochSeconds(it.releaseDateTimeStamp!!))
+            }
+            .sortedByDescending { levenshteinSimilarity(it.name, gameName) }
     }
 }
 

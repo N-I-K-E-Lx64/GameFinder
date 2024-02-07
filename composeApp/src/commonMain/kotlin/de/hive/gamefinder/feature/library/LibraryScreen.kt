@@ -33,6 +33,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.GamePrediction
 import de.hive.gamefinder.core.domain.GameStatus
 import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
@@ -41,6 +42,8 @@ import de.hive.gamefinder.feature.library.details.LibrarySideSheet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 class LibraryScreen(val filter: Launcher?) : Screen {
 
@@ -67,6 +70,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
         val screenModel = getScreenModel<LibraryScreenModel>()
         val state by screenModel.state.collectAsState()
         val searchResultState by screenModel.searchResult.collectAsState()
+        val gamePredictionState by screenModel.gamePredictions.collectAsState()
 
         val gameDetailsScreenModel = getScreenModel<GameDetailsScreenModel>()
         val sideSheetState by gameDetailsScreenModel.state.collectAsState()
@@ -283,7 +287,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                                 },
                                                 onChangeStateAction = {
                                                     openChangeStateBottomSheet = true
-                                                    statusChangeGameId = it.id },
+                                                    statusChangeGameId = it.id
+                                                },
                                                 onShortlistAction = { screenModel.addGameToShortlist(it.id) }
                                             )
                                         }
@@ -325,17 +330,19 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                         ImportGameDialog(
                             onDismissRequest = { openImportGameDialog = false },
                             onSave = {
-                                screenModel.addGame(gameName, selectedLauncher)
+                                screenModel.addGame(it, selectedLauncher)
                                 // Reset form values
                                 gameName = ""
                                 selectedLauncher = Launcher.STEAM
                                 // Close the dialog
                                 openImportGameDialog = false
                             },
-                            onUpdateName = { gameName = it },
+                            onUpdateNameQuery = { gameName = it },
                             onSelectPlatform = { selectedLauncher = it },
+                            onSearchForGamesAction = { screenModel.getGamePredictions(gameName) },
                             gameName = gameName,
                             selectedLauncher = selectedLauncher,
+                            gamePredictions = gamePredictionState,
                             launchers = screenModel.launchers
                         )
                     }
@@ -364,36 +371,50 @@ class LibraryScreen(val filter: Launcher?) : Screen {
 @Composable
 private fun ImportGameDialog(
     onDismissRequest: () -> Unit,
-    onSave: () -> Unit,
-    onUpdateName: (gameName: String) -> Unit,
+    onSave: (gameId: Int) -> Unit,
+    onUpdateNameQuery: (gameName: String) -> Unit,
     onSelectPlatform: (launcher: Launcher) -> Unit,
+    onSearchForGamesAction: () -> Unit,
     gameName: String,
     selectedLauncher: Launcher,
+    gamePredictions: List<GamePrediction>,
     launchers: Array<Launcher>
 ) {
+    var desiredGameId by remember { mutableStateOf(0) }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card {
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     "Import a game",
                     style = MaterialTheme.typography.headlineSmall
                 )
 
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = gameName,
-                    onValueChange = { onUpdateName(it) },
-                    label = {
-                        Text(text = "Game name")
-                    },
-                    placeholder = {
-                        Text(text = "Anno 1800")
-                    },
-                    singleLine = true
-                )
+                AutoCompleteTextView(
+                    query = gameName,
+                    queryLabel = "Game name",
+                    queryPlaceholder = "Anno 1800",
+                    onQueryChanged = { onUpdateNameQuery(it) },
+                    predictions = gamePredictions,
+                    onDoneAction = { onSearchForGamesAction() },
+                    onItemClick = {
+                        desiredGameId = it.igdbGameId
+                        onUpdateNameQuery(it.name)
+                    }
+                ) {
+                    val releaseDate = it.releaseDate.toLocalDateTime(TimeZone.UTC).date
+                    ListItem(
+                        headlineContent = { Text(text = it.name) },
+                        supportingContent = { Text(text = "Released $releaseDate") },
+                    )
+                }
 
                 Text("Platform", style = MaterialTheme.typography.titleMedium)
 
@@ -424,13 +445,17 @@ private fun ImportGameDialog(
                 }
 
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     TextButton(onClick = { onDismissRequest() }) {
                         Text("Cancel")
                     }
 
-                    TextButton(onClick = { onSave() }) {
+                    TextButton(
+                        onClick = { onSave(desiredGameId) },
+                        enabled = desiredGameId != 0
+                    ) {
                         Text("Save")
                     }
                 }

@@ -3,12 +3,9 @@ package de.hive.gamefinder.feature.library.details
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -18,14 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import de.hive.gamefinder.components.AutoCompleteTextView
 import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.components.FormSliderRow
 import de.hive.gamefinder.components.FormSwitchRow
 import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
-import de.hive.gamefinder.core.domain.Tag
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -168,6 +163,7 @@ fun LibrarySideSheet(
                             AutoCompleteTextView(
                                 query = tagQuery,
                                 queryLabel = "Tags",
+                                queryPlaceholder = "Survival",
                                 onQueryChanged = { tagQuery = it; screenModel.searchTags(tagQuery) },
                                 onDoneAction = {
                                     screenModel.createTag(state.game.id, tagQuery)
@@ -175,7 +171,12 @@ fun LibrarySideSheet(
                                 },
                                 predictions = predictions,
                                 onItemClick = { screenModel.addTagToGame(state.game.id, it.id) }
-                            )
+                            ) {
+                                ListItem(
+                                    headlineContent = { Text(it.tag) },
+                                    leadingContent = { Icon(Icons.Filled.NewLabel, contentDescription = null) },
+                                )
+                            }
                         }
 
                         Divider(modifier = Modifier.padding(16.dp))
@@ -240,69 +241,4 @@ fun LibrarySideSheet(
             }
         }
     }
-}
-
-@Composable
-fun <T> AutoCompleteTextView(
-    modifier: Modifier = Modifier,
-    query: String,
-    queryLabel: String,
-    onQueryChanged: (String) -> Unit = {},
-    predictions: List<T>,
-    onDoneAction: () -> Unit = {},
-    onItemClick: (T) -> Unit = {},
-) {
-    val lazyListState = rememberLazyListState()
-
-    LazyColumn(
-        state = lazyListState,
-        modifier = modifier.heightIn(max = TextFieldDefaults.MinHeight * 4)
-    ) {
-        item {
-            QuerySearch(
-                query = query,
-                label = queryLabel,
-                onDoneAction = onDoneAction,
-                onQueryChanged = onQueryChanged
-            )
-        }
-
-        if (predictions.isNotEmpty()) {
-            items(predictions) {
-                val tag = it as Tag
-                ListItem(
-                    headlineContent = { Text(tag.tag) },
-                    leadingContent = { Icon(Icons.Filled.NewLabel, contentDescription = null) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(it) }
-                )
-            }
-        }
-    }
-
-}
-
-@Composable
-fun QuerySearch(
-    modifier: Modifier = Modifier,
-    query: String,
-    label: String,
-    onDoneAction: () -> Unit = {},
-    onQueryChanged: (String) -> Unit
-) {
-    TextField(
-        value = query,
-        onValueChange = onQueryChanged,
-        modifier = modifier.fillMaxWidth(),
-        label = { Text(text = label) },
-        singleLine = true,
-        keyboardActions = KeyboardActions(
-            onDone = { onDoneAction() }
-        ),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text
-        )
-    )
 }
