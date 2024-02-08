@@ -18,8 +18,8 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         return persistencePort.getGames()
     }
 
-    override fun getGame(id: Int): Flow<Game> {
-        TODO("Not yet implemented")
+    override fun getGame(id: Int): Flow<Game?> {
+        return persistencePort.getGame(id)
     }
 
     override fun searchGamesByName(name: String): Flow<List<Game>> {
@@ -35,7 +35,7 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
             Napier.d { "Searching games for friends $friendIds" }
             persistencePort.findGamesByFriends(friendIds)
         } else {
-            Napier.d { "Searching games for friends $friendIds and tags $tagIds"}
+            Napier.d { "Searching games for friends $friendIds. Tags $tagIds are deselected"}
             persistencePort.findGamesByFriendsAndTags(friendIds, tagIds)
         }
     }

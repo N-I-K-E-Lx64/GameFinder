@@ -12,7 +12,7 @@ interface GameUseCase {
 
     fun getGames(): Flow<List<Game>>
 
-    fun getGame(id: Int): Flow<Game>
+    fun getGame(id: Int): Flow<Game?>
 
     fun searchGamesByName(name: String): Flow<List<Game>>
 

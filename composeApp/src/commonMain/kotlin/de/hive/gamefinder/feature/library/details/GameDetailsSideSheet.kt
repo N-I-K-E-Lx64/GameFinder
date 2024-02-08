@@ -37,208 +37,213 @@ fun LibrarySideSheet(
     val hasCampaignCoop by screenModel.campaignCoopState.collectAsState()
     val onlineCoopMaxPlayers by screenModel.maxOnlineCoopPlayers.collectAsState()
     val updateButtonVisibility by screenModel.updateButtonVisibility.collectAsState()
+    val game by screenModel.game.collectAsState()
 
     when (state) {
         is GameDetailsScreenModel.State.Loading -> {}
         is GameDetailsScreenModel.State.Result -> {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val game = state.game
-                val friends = state.friends
-                val relations = state.friendsOwningGame
-
-                val lazyColumnState = rememberLazyListState()
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 80.dp)
-                        //.background(MaterialTheme.colorScheme.inverseOnSurface)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentPadding = PaddingValues(8.dp),
-                    state = lazyColumnState
+            game?.let {
+                Box(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    stickyHeader {
-                        Surface(
-                            modifier = Modifier.fillParentMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                    val friends = state.friends
+                    val relations = state.friendsOwningGame
+
+                    val lazyColumnState = rememberLazyListState()
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 80.dp)
+                            //.background(MaterialTheme.colorScheme.inverseOnSurface)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentPadding = PaddingValues(8.dp),
+                        state = lazyColumnState
+                    ) {
+                        stickyHeader {
+                            Surface(
+                                modifier = Modifier.fillParentMaxWidth()
                             ) {
-                                Text(
-                                    text = game.name,
-                                    style = MaterialTheme.typography.headlineSmall
-                                )
-                                Row {
-                                    IconButton(
-                                        onClick = { screenModel.deleteGame(game.id) }
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                                    }
-                                    IconButton(
-                                        onClick = { onSideSheetClosed() }
-                                    ) {
-                                        Icon(Icons.Default.Close, contentDescription = "Close side sheet")
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        FormIconHeader(
-                            Icons.Filled.PersonAdd,
-                            contentDescription = "Add Friend Icon",
-                            headerText = "Friends"
-                        )
-
-                        Column {
-                            friends.forEach {friend ->
-                                val checkboxValue = relations.first{ it.friendId == friend.id }.doesFriendOwnGame
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(56.dp)
-                                        .toggleable(
-                                            value = checkboxValue,
-                                            onValueChange = { onFriendRelationUpdated(friend.id, it) },
-                                            role = Role.Checkbox
-                                        )
-                                        .padding(horizontal = 16.dp),
+                                        .padding(bottom = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Checkbox(
-                                        checked = checkboxValue,
-                                        onCheckedChange = null
-                                    )
                                     Text(
-                                        text = friend.name,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(start = 16.dp)
+                                        text = it.name,
+                                        style = MaterialTheme.typography.headlineSmall
                                     )
+                                    Row {
+                                        IconButton(
+                                            onClick = { screenModel.deleteGame(it.id) }
+                                        ) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                        }
+                                        IconButton(
+                                            onClick = { onSideSheetClosed() }
+                                        ) {
+                                            Icon(Icons.Default.Close, contentDescription = "Close side sheet")
+                                        }
+                                    }
                                 }
                             }
                         }
 
-                        Divider(modifier = Modifier.padding(16.dp))
-                    }
+                        item {
+                            FormIconHeader(
+                                Icons.Filled.PersonAdd,
+                                contentDescription = "Add Friend Icon",
+                                headerText = "Friends"
+                            )
 
-                    item {
-                        FormIconHeader(
-                            Icons.Filled.Label,
-                            contentDescription = "Tag List Icon",
-                            headerText = "Tags"
-                        )
-
-                        FlowRow(
-                            modifier = Modifier.wrapContentHeight(align = Alignment.Top),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            state.game.tags.forEach {
-                                InputChip(
-                                    label = { Text(it.tag) },
-                                    trailingIcon = {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = "Delete Category",
-                                            modifier = Modifier
-                                                .size(InputChipDefaults.AvatarSize)
-                                                .clickable(onClick = {
-                                                    screenModel.removeTagFromGame(
-                                                        state.game.id,
-                                                        it.id
-                                                    )
-                                                }),
+                            Column {
+                                friends.forEach { friend ->
+                                    val checkboxValue = relations.first { it.friendId == friend.id }.doesFriendOwnGame
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(56.dp)
+                                            .toggleable(
+                                                value = checkboxValue,
+                                                onValueChange = { onFriendRelationUpdated(friend.id, it) },
+                                                role = Role.Checkbox
+                                            )
+                                            .padding(horizontal = 16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Checkbox(
+                                            checked = checkboxValue,
+                                            onCheckedChange = null
                                         )
+                                        Text(
+                                            text = friend.name,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            modifier = Modifier.padding(start = 16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Divider(modifier = Modifier.padding(16.dp))
+                        }
+
+                        item {
+                            FormIconHeader(
+                                Icons.Filled.Label,
+                                contentDescription = "Tag List Icon",
+                                headerText = "Tags"
+                            )
+
+                            FlowRow(
+                                modifier = Modifier.wrapContentHeight(align = Alignment.Top),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                it.tags.forEach {
+                                    InputChip(
+                                        label = { Text(it.tag) },
+                                        trailingIcon = {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                contentDescription = "Delete Category",
+                                                modifier = Modifier
+                                                    .size(InputChipDefaults.AvatarSize)
+                                                    .clickable(onClick = {
+                                                        screenModel.removeTagFromGame(
+                                                            game!!.id,
+                                                            it.id
+                                                        )
+                                                    }),
+                                            )
+                                        },
+                                        selected = it.id == selectedTag,
+                                        onClick = { selectedTag = it.id }
+                                    )
+                                }
+                                AutoCompleteTextView(
+                                    query = tagQuery,
+                                    queryLabel = "Tags",
+                                    queryPlaceholder = "Survival",
+                                    onQueryChanged = {
+                                        tagQuery = it
+                                        screenModel.searchTags(tagQuery)
                                     },
-                                    selected = it.id == selectedTag,
-                                    onClick = { selectedTag = it.id }
-                                )
+                                    onDoneAction = {
+                                        screenModel.createTag(it.id, tagQuery)
+                                        tagQuery = ""
+                                    },
+                                    predictions = predictions,
+                                    onItemClick = { screenModel.addTagToGame(it.id, it.id) }
+                                ) {
+                                    ListItem(
+                                        headlineContent = { Text(it.tag) },
+                                        leadingContent = { Icon(Icons.Filled.NewLabel, contentDescription = null) },
+                                    )
+                                }
                             }
-                            AutoCompleteTextView(
-                                query = tagQuery,
-                                queryLabel = "Tags",
-                                queryPlaceholder = "Survival",
-                                onQueryChanged = { tagQuery = it; screenModel.searchTags(tagQuery) },
-                                onDoneAction = {
-                                    screenModel.createTag(state.game.id, tagQuery)
-                                    tagQuery = ""
-                                },
-                                predictions = predictions,
-                                onItemClick = { screenModel.addTagToGame(state.game.id, it.id) }
-                            ) {
-                                ListItem(
-                                    headlineContent = { Text(it.tag) },
-                                    leadingContent = { Icon(Icons.Filled.NewLabel, contentDescription = null) },
-                                )
-                            }
+
+                            Divider(modifier = Modifier.padding(16.dp))
                         }
 
-                        Divider(modifier = Modifier.padding(16.dp))
-                    }
+                        item {
+                            FormIconHeader(
+                                Icons.Filled.ConnectWithoutContact,
+                                contentDescription = "Multiplayer Options Icon",
+                                headerText = "Multiplayer"
+                            )
 
-                    item {
-                        FormIconHeader(
-                            Icons.Filled.ConnectWithoutContact,
-                            contentDescription = "Multiplayer Options Icon",
-                            headerText = "Multiplayer"
-                        )
+                            FormSwitchRow(
+                                headlineText = "Online Coop",
+                                switchValue = hasOnlineCoop,
+                                onSwitchValueChange = { screenModel.updateOnlineCoopState(it) }
+                            )
 
-                        FormSwitchRow(
-                            headlineText = "Online Coop",
-                            switchValue = hasOnlineCoop,
-                            onSwitchValueChange = { screenModel.updateOnlineCoopState(it) }
-                        )
+                            FormSwitchRow(
+                                headlineText = "Campaign Coop",
+                                switchValue = hasCampaignCoop,
+                                switchEnabled = hasOnlineCoop,
+                                onSwitchValueChange = { screenModel.updateCampaignCoopState(it) }
+                            )
 
-                        FormSwitchRow(
-                            headlineText = "Campaign Coop",
-                            switchValue = hasCampaignCoop,
-                            switchEnabled = hasOnlineCoop,
-                            onSwitchValueChange = { screenModel.updateCampaignCoopState(it) }
-                        )
+                            FormSliderRow(
+                                headlineText = "Online Coop Max. Players",
+                                sliderValue = onlineCoopMaxPlayers,
+                                sliderSteps = 13,
+                                sliderValueRange = 2f..16f,
+                                onSliderValueChangeFinished = { screenModel.updateMaxOnlineCoopPlayers(it) },
+                                sliderEnabled = hasOnlineCoop
+                            )
 
-                        FormSliderRow(
-                            headlineText = "Online Coop Max. Players",
-                            sliderValue = onlineCoopMaxPlayers,
-                            sliderSteps = 13,
-                            sliderValueRange = 2f..16f,
-                            onSliderValueChangeFinished = { screenModel.updateMaxOnlineCoopPlayers(it) },
-                            sliderEnabled = hasOnlineCoop
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            FilledTonalButton(
-                                onClick = { screenModel.updateMultiplayerParameters(game.id) },
-                                enabled = updateButtonVisibility
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Text("Update")
+                                FilledTonalButton(
+                                    onClick = { screenModel.updateMultiplayerParameters(it.id) },
+                                    enabled = updateButtonVisibility
+                                ) {
+                                    Text("Update")
+                                }
                             }
                         }
                     }
-                }
 
-                VerticalScrollbar(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(end = 4.dp),
-                    adapter = rememberScrollbarAdapter(
-                        scrollState = lazyColumnState
-                    ),
-                    style = defaultScrollbarStyle().copy(
-                        unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
-                        hoverColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    VerticalScrollbar(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                            .padding(end = 4.dp),
+                        adapter = rememberScrollbarAdapter(
+                            scrollState = lazyColumnState
+                        ),
+                        style = defaultScrollbarStyle().copy(
+                            unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
+                            hoverColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
-                )
+                }
             }
         }
     }

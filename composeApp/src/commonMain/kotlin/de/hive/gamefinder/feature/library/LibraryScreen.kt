@@ -36,6 +36,7 @@ import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -104,6 +105,27 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                             snackbarHostState.showSnackbar(
                                 message = event.message
                             )
+                        }
+
+                        is UiEvents.ShowSnackbarWithAction -> {
+                            val result = snackbarHostState.showSnackbar(
+                                message = event.message,
+                                actionLabel = event.actionLabel,
+                                withDismissAction = true
+                            )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {
+                                    val gameId = event.additionalData as Int
+                                    // Open side sheet
+                                    selectedGame = gameId
+                                    splitFraction = 2f / 3f
+                                    // Initialize state in the game details screen model
+                                    gameDetailsScreenModel.loadState(gameId)
+                                }
+                                SnackbarResult.Dismissed -> {
+                                    Napier.d { "Snackbar dismissed" }
+                                }
+                            }
                         }
                     }
                 }
@@ -267,11 +289,11 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                                 orientation = cardOrientation,
                                                 isSelected = selectedGame == it.id,
                                                 onCardClick = {
+                                                    // Initialize state in the game details screen model
+                                                    gameDetailsScreenModel.loadState(it.id)
+                                                    // Open the side sheet
                                                     selectedGame = it.id
                                                     splitFraction = 2f / 3f
-                                                    // Initialize state in the game details screen model
-                                                    gameDetailsScreenModel.loadFriends(it)
-                                                    gameDetailsScreenModel.initializeParameterStates(it)
                                                 },
                                                 onChangeStateAction = {
                                                     openChangeStateBottomSheet = true

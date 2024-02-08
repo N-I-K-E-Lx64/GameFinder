@@ -23,8 +23,11 @@ class GameDetailsScreenModel(
 
     sealed class State {
         data object Loading : State()
-        data class Result(val game: Game, val friends: List<Friend>, val friendsOwningGame: List<GameFriendRelation>) : State()
+        data class Result(val friends: List<Friend>, val friendsOwningGame: List<GameFriendRelation>) : State()
     }
+
+    private val _game = MutableStateFlow<Game?>(null)
+    val game = _game.asStateFlow()
 
     private val _searchResults = MutableStateFlow<List<Tag>>(emptyList())
     val searchResults = _searchResults.asStateFlow()
@@ -53,7 +56,7 @@ class GameDetailsScreenModel(
         _updateButtonVisibility.value = true
     }
 
-    fun initializeParameterStates(game: Game) {
+    private fun initializeParameterStates(game: Game) {
         // If IGDB has no data about multiplayer modes they are initialized as false / 0
         _onlineCoopState.value = game.multiplayerMode?.hasOnlineCoop ?: false
         _campaignCoopState.value = game.multiplayerMode?.hasCampaignCoop ?: false
@@ -62,13 +65,20 @@ class GameDetailsScreenModel(
         _updateButtonVisibility.value = false
     }
 
-    fun loadFriends(game: Game) {
+    fun loadState(gameId: Int) {
         screenModelScope.launch {
             val friendFlow = friendUseCase.getFriends()
-            val gameFriendRelationFlow = friendUseCase.getFriendByGame(game.id)
+            val gameFriendRelationFlow = friendUseCase.getFriendByGame(gameId)
+
+            launch {
+                gameUseCase.getGame(gameId).collect {
+                    _game.value = it
+                    it?.let { initializeParameterStates(it) }
+                }
+            }
 
             friendFlow.combine(gameFriendRelationFlow) { friends, relations ->
-                State.Result(game, friends, relations)
+                State.Result(friends, relations)
             }.collect { combinedState ->
                 mutableState.value = combinedState
             }

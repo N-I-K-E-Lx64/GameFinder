@@ -46,7 +46,6 @@ class GameFinderScreenModel(
     }
 
     fun findGames(selectedFriends: List<Int>, deselectedTags: List<Int>) {
-        println(deselectedTags)
         screenModelScope.launch {
             if (selectedFriends.isEmpty()) {
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("You must select at least one of your friends!"))

@@ -53,7 +53,10 @@ LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
 LEFT JOIN main.tag_entity te ON te.id = gt.tag_id;
 
 getGameById:
-SELECT * FROM game_entity WHERE id = ?;
+SELECT ge.*, te.* FROM game_entity AS ge
+LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
+LEFT JOIN main.tag_entity te ON te.id = gt.tag_id
+WHERE ge.id = ?;
 
 searchGamesByName:
 SELECT *
@@ -74,7 +77,7 @@ LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
 WHERE ge.online_coop = 1
 AND ge.online_max_players >= (:friendCount)
 AND gf.friend_id IN ?
-AND gt.tag_id NOT IN ? OR gt.tag_id IS NULL;
+AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL);
 
 findMultiplayerGamesByFriends:
 SELECT DISTINCT ge.* FROM game_entity AS ge
