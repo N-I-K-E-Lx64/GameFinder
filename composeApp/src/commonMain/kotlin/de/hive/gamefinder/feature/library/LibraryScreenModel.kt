@@ -36,7 +36,7 @@ class LibraryScreenModel(
     private val _gamePredictions = MutableStateFlow<List<GamePrediction>>(emptyList())
     val gamePredictions = _gamePredictions.asStateFlow()
 
-    fun loadGames() {
+    fun loadState() {
         screenModelScope.launch {
             mutableState.value = State.Loading
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -38,13 +39,15 @@ fun <T> AutoCompleteTextView(
         modifier = modifier.heightIn(max = TextFieldDefaults.MinHeight * 4)
     ) {
         stickyHeader {
-            QuerySearch(
-                query = query,
-                label = queryLabel,
-                placeholder = queryPlaceholder,
-                onDoneAction = onDoneAction,
-                onQueryChanged = onQueryChanged
-            )
+            Surface {
+                QuerySearch(
+                    query = query,
+                    label = queryLabel,
+                    placeholder = queryPlaceholder,
+                    onDoneAction = onDoneAction,
+                    onQueryChanged = onQueryChanged
+                )
+            }
         }
 
         if (predictions.isNotEmpty()) {

@@ -27,10 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.koin.getScreenModel
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GamePrediction
@@ -56,8 +53,6 @@ class LibraryScreen(val filter: Launcher?) : Screen {
     )
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-
         val windowSize = calculateWindowSizeClass()
         val cardOrientation: CardOrientation =
             when (windowSize.widthSizeClass) {
@@ -98,16 +93,9 @@ class LibraryScreen(val filter: Launcher?) : Screen {
             screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
         }
 
-        // When the Screen is replaced (due to a navigation event) load the data
-        if (navigator.lastEvent == StackEvent.Replace) {
-            if (filter == null) {
-                screenModel.loadGames()
-            }
-        }
-
         LaunchedEffect(Unit) {
             // Load the data initially
-            screenModel.loadGames()
+            screenModel.loadState()
 
             withContext(Dispatchers.Main.immediate) {
                 screenModel.eventsFlow.collect { event ->
@@ -312,10 +300,10 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                 state = sideSheetState,
                                 screenModel = gameDetailsScreenModel,
                                 onSideSheetClosed = { splitFraction = 1f },
-                                onFriendRelationUpdated = { relation, change ->
+                                onFriendRelationUpdated = { friendId, change ->
                                     gameDetailsScreenModel.updateFriendRelations(
                                         selectedGame,
-                                        relation,
+                                        friendId,
                                         change
                                     )
                                 }
@@ -413,6 +401,12 @@ private fun ImportGameDialog(
                     ListItem(
                         headlineContent = { Text(text = it.name) },
                         supportingContent = { Text(text = "Released $releaseDate") },
+                        leadingContent = {
+                            Icon(
+                                if (it.igdbGameId == desiredGameId) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
+                                contentDescription = "is game selected for import"
+                            )
+                        }
                     )
                 }
 

@@ -6,11 +6,13 @@ import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.TagUseCase
+import de.hive.gamefinder.core.domain.Friend
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.domain.Tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class GameDetailsScreenModel(
@@ -21,7 +23,7 @@ class GameDetailsScreenModel(
 
     sealed class State {
         data object Loading : State()
-        data class Result(val game: Game, val friendsOwningGame: List<GameFriendRelation>) : State()
+        data class Result(val game: Game, val friends: List<Friend>, val friendsOwningGame: List<GameFriendRelation>) : State()
     }
 
     private val _searchResults = MutableStateFlow<List<Tag>>(emptyList())
@@ -62,15 +64,20 @@ class GameDetailsScreenModel(
 
     fun loadFriends(game: Game) {
         screenModelScope.launch {
-            friendUseCase.getFriendByGame(game.id).collect {
-                mutableState.value = State.Result(game = game, friendsOwningGame = it)
+            val friendFlow = friendUseCase.getFriends()
+            val gameFriendRelationFlow = friendUseCase.getFriendByGame(game.id)
+
+            friendFlow.combine(gameFriendRelationFlow) { friends, relations ->
+                State.Result(game, friends, relations)
+            }.collect { combinedState ->
+                mutableState.value = combinedState
             }
         }
     }
 
-    fun updateFriendRelations(gameId: Int, relation: GameFriendRelation, change: Boolean) {
+    fun updateFriendRelations(gameId: Int, friendId: Int, change: Boolean) {
         screenModelScope.launch {
-            friendUseCase.changeGameFriendRelation(gameId, relation.friendId, change)
+            friendUseCase.changeGameFriendRelation(gameId, friendId, change)
         }
     }
 

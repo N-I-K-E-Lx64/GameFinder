@@ -20,7 +20,6 @@ import de.hive.gamefinder.components.AutoCompleteTextView
 import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.components.FormSliderRow
 import de.hive.gamefinder.components.FormSwitchRow
-import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -28,7 +27,7 @@ fun LibrarySideSheet(
     state: GameDetailsScreenModel.State,
     screenModel: GameDetailsScreenModel,
     onSideSheetClosed: () -> Unit,
-    onFriendRelationUpdated: (relation: GameFriendRelation, change: Boolean) -> Unit
+    onFriendRelationUpdated: (friendId: Int, change: Boolean) -> Unit
 ) {
     var tagQuery by rememberSaveable { mutableStateOf("") }
     var selectedTag by remember { mutableStateOf(0) }
@@ -46,7 +45,8 @@ fun LibrarySideSheet(
                 modifier = Modifier.fillMaxSize()
             ) {
                 val game = state.game
-                val friends = state.friendsOwningGame
+                val friends = state.friends
+                val relations = state.friendsOwningGame
 
                 val lazyColumnState = rememberLazyListState()
 
@@ -98,25 +98,26 @@ fun LibrarySideSheet(
                         )
 
                         Column {
-                            friends.forEach { relation ->
+                            friends.forEach {friend ->
+                                val checkboxValue = relations.first{ it.friendId == friend.id }.doesFriendOwnGame
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(56.dp)
                                         .toggleable(
-                                            value = relation.doesFriendOwnGame,
-                                            onValueChange = { onFriendRelationUpdated(relation, it) },
+                                            value = checkboxValue,
+                                            onValueChange = { onFriendRelationUpdated(friend.id, it) },
                                             role = Role.Checkbox
                                         )
                                         .padding(horizontal = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Checkbox(
-                                        checked = relation.doesFriendOwnGame,
+                                        checked = checkboxValue,
                                         onCheckedChange = null
                                     )
                                     Text(
-                                        text = relation.name,
+                                        text = friend.name,
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(start = 16.dp)
                                     )
