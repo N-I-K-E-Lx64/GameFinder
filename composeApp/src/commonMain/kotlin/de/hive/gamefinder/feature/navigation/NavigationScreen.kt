@@ -73,7 +73,7 @@ fun NavigationWrapper(
         AddFriendDialog(
             onDismissRequest = { openDialog = false },
             onDialogClosed = { openDialog = false },
-            onSave = { screenModel.saveFriend(); openDialog = false },
+            onSave = { screenModel.saveFriend() },
             onUpdateName = { screenModel.setFriendName(it) },
             friendName = friendName
         )
@@ -139,6 +139,17 @@ private fun AddFriendDialog(
                     label = {
                         Text(text = "Friend name")
                     },
+                    singleLine = true,
+                    /*keyboardActions = KeyboardActions(
+                        onDone = {
+                            onSave()
+                            onDialogClosed()
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Text
+                    )*/
                 )
 
                 Row(

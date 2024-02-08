@@ -68,6 +68,8 @@ class GameFinderScreen : Screen {
                                 message = it.message
                             )
                         }
+
+                        is UiEvents.ShowSnackbarWithAction -> { }
                     }
                 }
             }

@@ -2,7 +2,6 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import app.cash.sqldelight.coroutines.mapToOneOrNull
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.database.GameFinderDatabase
@@ -39,7 +38,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                             hasOnlineCoop = firstGame.online_coop ?: false,
                             onlineCoopMaxPlayers = firstGame.online_max_players ?: 0
                         ),
-                        isShortlist = false,
+                        isShortlist = firstGame.shortlist,
                         gameStatus = firstGame.game_status
                     )
                 }
@@ -50,8 +49,28 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
         return dbQueries
             .getGameById(id)
             .asFlow()
-            .mapToOneOrNull(Dispatchers.IO)
-            .map { it?.toModel() }
+            .mapToList(Dispatchers.IO)
+            .map { rows ->
+                rows.groupBy { it.id }.firstNotNullOfOrNull { entry ->
+                    val gameInformation = entry.value.first()
+                    Game(
+                        id = gameInformation.id,
+                        name = gameInformation.name,
+                        launcher = gameInformation.launcher,
+                        igdbGameId = gameInformation.game_id,
+                        coverImageId = gameInformation.cover_image_id,
+                        tags = entry.value.filter { it.id_ != null }.map { Tag(it.id_!!, it.tag!!) },
+                        gameModes = gameInformation.game_modes,
+                        multiplayerMode = MultiplayerMode(
+                            hasCampaignCoop = gameInformation.campaign_coop ?: false,
+                            hasOnlineCoop = gameInformation.online_coop ?: false,
+                            onlineCoopMaxPlayers = gameInformation.online_max_players ?: 0
+                        ),
+                        isShortlist = gameInformation.shortlist,
+                        gameStatus = gameInformation.game_status
+                    )
+                }
+            }
     }
 
     override fun getGamesByName(name: String): Flow<List<Game>> {

@@ -36,7 +36,7 @@ class LibraryScreenModel(
     private val _gamePredictions = MutableStateFlow<List<GamePrediction>>(emptyList())
     val gamePredictions = _gamePredictions.asStateFlow()
 
-    fun loadGames() {
+    fun loadState() {
         screenModelScope.launch {
             mutableState.value = State.Loading
 
@@ -74,8 +74,11 @@ class LibraryScreenModel(
                 _gamePredictions.value = emptyList()
 
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("${game.name} has been successfully imported into the library."))
-
                 Napier.i { "${game.name} has been successfully imported into the library." }
+
+                if (game.multiplayerMode == null) {
+                    _eventsFlow.trySend(UiEvents.ShowSnackbarWithAction("${game.name} has no information about multiplayer.", "Update", game.id))
+                }
             } catch (ex: EmptySearchResultException) {
                 ex.message?.let {
                     _eventsFlow.trySend(UiEvents.ShowSnackbar(it))
