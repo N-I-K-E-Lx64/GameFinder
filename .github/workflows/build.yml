@@ -44,5 +44,8 @@ jobs:
           which java
 
       - name: Build Multiplatform project-desktop
+        env:
+          client_id: ${{ secrets.client_id }}
+          client_secret: ${{ secrets.client_secret }}
         shell: bash
         run: ./gradlew createReleaseDistributable
