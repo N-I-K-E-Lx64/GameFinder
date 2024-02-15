@@ -10,6 +10,6 @@ data class Game(
     val tags: List<Tag> = emptyList(),
     val gameModes: List<GameMode>?,
     val multiplayerMode: MultiplayerMode?,
-    val isShortlist: Boolean,
-    val gameStatus: GameStatus
+    val isShortlist: Boolean = false,
+    val gameStatus: GameStatus = GameStatus.LIBRARY
 )

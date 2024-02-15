@@ -37,3 +37,11 @@ data class IgdbGameInformationDto(
     @JsonNames("game_modes") val gameModes: List<Int>? = null,
     @JsonNames("multiplayer_modes") val multiplayerModes: List<Int>? = null
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class IgdbGameImportPredictionDto(
+    @JsonNames("id") val gameId: Int,
+    @JsonNames("name") val name: String,
+    @JsonNames("first_release_date") val releaseDateTimeStamp: Long? = null
+)

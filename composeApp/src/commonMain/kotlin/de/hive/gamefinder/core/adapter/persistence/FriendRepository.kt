@@ -31,7 +31,7 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
             .getFriendsByGame(gameId.toLong())
             .asFlow()
             .mapToList(Dispatchers.IO)
-            .map { result -> result.map { GameFriendRelation(it.id, it.game_id?.toInt(), it.name, it.owning.toBoolean()) } }
+            .map { result -> result.map { GameFriendRelation(it.id, gameId, it.name, it.owning.toBoolean()) } }
     }
 
     override suspend fun createGameFriendRelation(gameId: Int, friendId: Int) {

@@ -5,10 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
-import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.core.domain.GameQuery
-import de.hive.gamefinder.core.domain.GameStatus
-import de.hive.gamefinder.core.domain.Launcher
+import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.core.utils.UiEvents
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
@@ -36,7 +33,10 @@ class LibraryScreenModel(
     private val _searchResult = MutableStateFlow<List<Game>>(emptyList())
     val searchResult = _searchResult.asStateFlow()
 
-    fun loadGames() {
+    private val _gamePredictions = MutableStateFlow<List<GamePrediction>>(emptyList())
+    val gamePredictions = _gamePredictions.asStateFlow()
+
+    fun loadState() {
         screenModelScope.launch {
             mutableState.value = State.Loading
 
@@ -61,24 +61,36 @@ class LibraryScreenModel(
         }
     }
 
-    fun addGame(gameName: String, selectedLauncher: Launcher) {
+    fun addGame(gameId: Int, selectedLauncher: Launcher) {
         screenModelScope.launch {
             try {
                 // Get additional information from IGDB
-                val igdbInformation = igdbUseCase.getGameDetails(gameName)
+                val igdbInformation = igdbUseCase.getGameDetails(gameId)
 
                 val game = igdbInformation.copy(launcher = selectedLauncher)
                 gameUseCase.createGame(game)
 
-                _eventsFlow.trySend(UiEvents.ShowSnackbar("$gameName has been successfully imported into the library."))
+                // Reset predictions
+                _gamePredictions.value = emptyList()
 
-                Napier.i { "$gameName has been successfully imported into the library." }
+                _eventsFlow.trySend(UiEvents.ShowSnackbar("${game.name} has been successfully imported into the library."))
+                Napier.i { "${game.name} has been successfully imported into the library." }
+
+                if (game.multiplayerMode == null) {
+                    _eventsFlow.trySend(UiEvents.ShowSnackbarWithAction("${game.name} has no information about multiplayer.", "Update", game.id))
+                }
             } catch (ex: EmptySearchResultException) {
                 ex.message?.let {
                     _eventsFlow.trySend(UiEvents.ShowSnackbar(it))
                     Napier.e { it }
                 }
             }
+        }
+    }
+
+    fun getGamePredictions(searchQuery: String) {
+        screenModelScope.launch {
+            _gamePredictions.value = igdbUseCase.searchGamesByName(searchQuery)
         }
     }
 

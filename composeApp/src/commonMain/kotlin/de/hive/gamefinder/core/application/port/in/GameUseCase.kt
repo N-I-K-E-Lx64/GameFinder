@@ -12,13 +12,13 @@ interface GameUseCase {
 
     fun getGames(): Flow<List<Game>>
 
-    fun getGame(id: Int): Flow<Game>
+    fun getGame(id: Int): Flow<Game?>
 
     fun searchGamesByName(name: String): Flow<List<Game>>
 
     fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
 
-    fun findGames(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>>
+    fun findGames(friendIds: List<Int>, tagIds: List<Int>?): Flow<List<Game>>
 
     suspend fun updateMultiplayerMode(gameId: Int, multiplayerMode: MultiplayerMode)
 

@@ -31,12 +31,14 @@ fun NavigationWrapper(
     var selectedRoute by remember { mutableStateOf(NavigationRoutes.LIBRARY) }
     var openDialog by remember { mutableStateOf(false) }
 
+    // TODO : Update the selected route when we go back!
+
     if (navigationType == NavigationType.PERMANENT_NAVIGATION_DRAWER) {
         PermanentNavigationDrawer(
             drawerContent = {
                 PermanentNavigationDrawerContent(
                     selectedRoute = selectedRoute,
-                    onDrawerItemClicked = { selectedRoute = it.name; navigator.replaceAll(it.destination) }
+                    onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) }
                 )
             },
         ) {
@@ -50,7 +52,7 @@ fun NavigationWrapper(
                     onDrawerClicked = {
                         scope.launch { drawerState.close() }
                     },
-                    onDrawerItemClicked = { selectedRoute = it.name; navigator.replaceAll(it.destination) },
+                    onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) },
                     onActionButtonClicked = { openDialog = true }
                 )
             },
@@ -60,7 +62,7 @@ fun NavigationWrapper(
                 navigationType = navigationType,
                 selectedRoute = selectedRoute,
                 onActionButtonClicked = { openDialog = true },
-                onDrawerItemClicked = { selectedRoute = it.name; navigator.replaceAll(it.destination) }
+                onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) }
             ) {
                 scope.launch { drawerState.open() }
             }
@@ -71,7 +73,7 @@ fun NavigationWrapper(
         AddFriendDialog(
             onDismissRequest = { openDialog = false },
             onDialogClosed = { openDialog = false },
-            onSave = { screenModel.saveFriend(); openDialog = false },
+            onSave = { screenModel.saveFriend() },
             onUpdateName = { screenModel.setFriendName(it) },
             friendName = friendName
         )
@@ -137,6 +139,17 @@ private fun AddFriendDialog(
                     label = {
                         Text(text = "Friend name")
                     },
+                    singleLine = true,
+                    /*keyboardActions = KeyboardActions(
+                        onDone = {
+                            onSave()
+                            onDialogClosed()
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Text
+                    )*/
                 )
 
                 Row(

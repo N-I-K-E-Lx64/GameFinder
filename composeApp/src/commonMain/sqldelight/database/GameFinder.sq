@@ -54,7 +54,10 @@ LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
 LEFT JOIN main.tag_entity te ON te.id = gt.tag_id;
 
 getGameById:
-SELECT * FROM game_entity WHERE id = ?;
+SELECT ge.*, te.* FROM game_entity AS ge
+LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
+LEFT JOIN main.tag_entity te ON te.id = gt.tag_id
+WHERE ge.id = ?;
 
 searchGamesByName:
 SELECT *
@@ -68,14 +71,22 @@ WHERE (:launcher IS NULL OR launcher = :launcher)
 AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
 AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
-findMultiplayerGames:
+findMultiplayerGamesByFriendsAndTags:
 SELECT DISTINCT ge.* FROM game_entity AS ge
 LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
 LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
 WHERE ge.online_coop = 1
 AND ge.online_max_players >= (:friendCount)
 AND gf.friend_id IN ?
-AND gt.tag_id IN ?;
+AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL);
+
+findMultiplayerGamesByFriends:
+SELECT DISTINCT ge.* FROM game_entity AS ge
+LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
+LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+WHERE ge.online_coop = 1
+AND ge.online_max_players >= (:friendCount)
+AND gf.friend_id IN ?;
 
 addGame:
 INSERT OR REPLACE INTO game_entity
@@ -107,7 +118,8 @@ getAllFriends:
 SELECT * FROM friend_entity;
 
 getFriendsByGame:
-SELECT DISTINCT fe.id, game_id, name, IIF(game_id = ?, 1, 0) AS owning FROM friend_entity AS fe
+SELECT DISTINCT fe.id, fe.name, IIF(gf.game_id = ?, 1, 0) AS owning
+FROM friend_entity AS fe
 LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
 
 createGameFriendRelation:
