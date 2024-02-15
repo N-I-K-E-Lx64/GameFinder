@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
 
+            implementation(libs.sqlDelight.runtime)
             implementation(libs.sqlDelight.coroutines)
             implementation(libs.sqlDelight.primitives)
 
@@ -134,12 +135,29 @@ android {
 compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
-        //mainClass = "MainKt"
+
+        val iconsRoot = project.file("src/desktopMain/resources")
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.hive.gamefinder"
-            packageVersion = "1.0.0"
+            packageVersion = "0.1.0"
+            macOS {
+                packageVersion = "1.0.0"
+            }
+            windows {
+                iconFile.set(iconsRoot.resolve("icons/appIcon.ico"))
+            }
+            linux {
+                iconFile.set(iconsRoot.resolve("icons/appIcon.png"))
+            }
+
+            modules("java.sql")
+
+            buildTypes.release.proguard {
+                obfuscate.set(true)
+                configurationFiles.from(project.file("compose-desktop.pro"))
+            }
         }
     }
 }
@@ -147,9 +165,10 @@ compose.desktop {
 buildkonfig {
     packageName = "de.hive.gamefinder"
 
+    val secrets = project.rootProject.file("secrets.properties")
     val props = Properties()
     try {
-        props.load(file("secrets.properties").inputStream())
+        props.load(secrets.inputStream())
     } catch (e: Exception) {
         println(e)
     }

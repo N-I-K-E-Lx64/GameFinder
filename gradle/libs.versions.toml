@@ -76,6 +76,7 @@ multiplatform-Coroutines = { module = "com.russhwolf:multiplatform-settings-coro
 # moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko-resources" }
 # moko-resourcesCompose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko-resources"}
 
+sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
 sqlDelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 sqlDelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight"}
