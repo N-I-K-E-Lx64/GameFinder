@@ -32,7 +32,8 @@ data class IgdbCoverInformationDto(
 data class IgdbGameInformationDto(
     @JsonNames("id") val gameId: Int,
     @JsonNames("name") val name: String,
-    @JsonNames("cover") val cover: IgdbCoverInformationDto,
+    @JsonNames("summary") val summary: String? = null,
+    @JsonNames("cover") val cover: IgdbCoverInformationDto? = null,
     @JsonNames("game_modes") val gameModes: List<Int>? = null,
     @JsonNames("multiplayer_modes") val multiplayerModes: List<Int>? = null
 )

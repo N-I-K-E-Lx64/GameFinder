@@ -58,8 +58,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
         val cardOrientation: CardOrientation =
             when (windowSize.widthSizeClass) {
                 WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> CardOrientation.VERTICAL
-                //WindowWidthSizeClass.Expanded -> CardOrientation.HORIZONTAL
-                WindowWidthSizeClass.Expanded -> CardOrientation.VERTICAL
+                WindowWidthSizeClass.Expanded -> CardOrientation.HORIZONTAL
                 else -> CardOrientation.VERTICAL
             }
 
@@ -189,7 +188,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                                 filterPlatform = if (filterPlatform == it.ordinal) -1 else it.ordinal
                                                 applyFilter()
                                             },
-                                            label = { Text(it.platform) },
+                                            label = { Text(it.launcher) },
                                             leadingIcon = {
                                                 if (filterPlatform == it.ordinal) {
                                                     Icon(
@@ -274,10 +273,11 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     val lazyGridState = rememberLazyGridState()
+                                    val columnMinSize = if (cardOrientation == CardOrientation.VERTICAL) 300.dp else 500.dp
 
                                     LazyVerticalGrid(
                                         contentPadding = PaddingValues(16.dp),
-                                        columns = GridCells.Adaptive(minSize = 320.dp),
+                                        columns = GridCells.Adaptive(minSize = columnMinSize),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),

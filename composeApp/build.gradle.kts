@@ -13,8 +13,12 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
-    //alias(libs.plugins.multiplatform.resources)
+    // alias(libs.plugins.multiplatform.resources)
+
+    // id("dev.hydraulic.conveyor") version "1.8"
 }
+
+// version = "0.1.0"
 
 kotlin {
     androidTarget {
@@ -72,6 +76,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
 
+            implementation(libs.sqlDelight.runtime)
             implementation(libs.sqlDelight.coroutines)
             implementation(libs.sqlDelight.primitives)
 
@@ -134,22 +139,39 @@ android {
 compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
-        //mainClass = "MainKt"
+
+        val iconsRoot = project.file("src/desktopMain/resources")
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.hive.gamefinder"
-            packageVersion = "1.0.0"
+            packageVersion = "0.1.0"
+            macOS {
+                packageVersion = "1.0.0"
+            }
+            windows {
+                iconFile.set(iconsRoot.resolve("icons/appIcon.ico"))
+            }
+            linux {
+                iconFile.set(iconsRoot.resolve("icons/appIcon.png"))
+            }
+
+            modules("java.sql")
+
+            buildTypes.release.proguard {
+                //obfuscate.set(true)
+                configurationFiles.from(project.file("compose-desktop.pro"))
+            }
         }
     }
 }
 
 buildkonfig {
     packageName = "de.hive.gamefinder"
-
+    val secrets = project.rootProject.file("secrets.properties")
     val props = Properties()
     try {
-        props.load(file("secrets.properties").inputStream())
+        props.load(secrets.inputStream())
     } catch (e: Exception) {
         println(e)
     }
@@ -168,7 +190,22 @@ sqldelight {
     }
 }
 
+/*dependencies {
+    linuxAmd64(compose.desktop.linux_x64)
+    macAarch64(compose.desktop.macos_arm64)
+    windowsAmd64(compose.desktop.windows_x64)
+}*/
+
 
 /*multiplatformResources {
     multiplatformResourcesPackage = "de.hive.gamefinder"
 }*/
+
+/*// region Work around temporary Compose bugs.
+configurations.all {
+    attributes {
+        // https://github.com/JetBrains/compose-jb/issues/1404#issuecomment-1146894731
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
+}
+// endregion*/

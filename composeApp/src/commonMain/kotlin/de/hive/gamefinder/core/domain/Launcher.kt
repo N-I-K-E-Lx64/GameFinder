@@ -1,6 +1,6 @@
 package de.hive.gamefinder.core.domain
 
-enum class Launcher(val platform: String) {
+enum class Launcher(val launcher: String) {
     STEAM("Steam"),
     XBOX("XBOX"),
     XBOX_GAMEPASS("XBOX-Gamepass"),
