@@ -35,7 +35,7 @@ logback = "1.4.14"
 napier = "2.7.1"
 kamel = "0.9.1"
 
-jewel = "0.13.2"
+jewel = "0.14.1"
 
 material3WindowSizeClassMultiplatform = "0.3.2"
 

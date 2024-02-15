@@ -13,8 +13,12 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
-    //alias(libs.plugins.multiplatform.resources)
+    // alias(libs.plugins.multiplatform.resources)
+
+    // id("dev.hydraulic.conveyor") version "1.8"
 }
+
+// version = "0.1.0"
 
 kotlin {
     androidTarget {
@@ -155,7 +159,7 @@ compose.desktop {
             modules("java.sql")
 
             buildTypes.release.proguard {
-                obfuscate.set(true)
+                //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
             }
         }
@@ -164,7 +168,6 @@ compose.desktop {
 
 buildkonfig {
     packageName = "de.hive.gamefinder"
-
     val secrets = project.rootProject.file("secrets.properties")
     val props = Properties()
     try {
@@ -187,7 +190,22 @@ sqldelight {
     }
 }
 
+/*dependencies {
+    linuxAmd64(compose.desktop.linux_x64)
+    macAarch64(compose.desktop.macos_arm64)
+    windowsAmd64(compose.desktop.windows_x64)
+}*/
+
 
 /*multiplatformResources {
     multiplatformResourcesPackage = "de.hive.gamefinder"
 }*/
+
+/*// region Work around temporary Compose bugs.
+configurations.all {
+    attributes {
+        // https://github.com/JetBrains/compose-jb/issues/1404#issuecomment-1146894731
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
+}
+// endregion*/
