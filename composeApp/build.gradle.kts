@@ -2,7 +2,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -168,17 +167,10 @@ compose.desktop {
 
 buildkonfig {
     packageName = "de.hive.gamefinder"
-    val secrets = project.rootProject.file("secrets.properties")
-    val props = Properties()
-    try {
-        props.load(secrets.inputStream())
-    } catch (e: Exception) {
-        println(e)
-    }
 
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", props.getProperty("client_id"))
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", props.getProperty("client_secret"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", System.getProperty("CLIENT_ID"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", System.getProperty("CLIENT_SECRET"))
     }
 }
 
