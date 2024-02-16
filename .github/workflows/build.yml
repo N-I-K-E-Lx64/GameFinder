@@ -44,8 +44,9 @@ jobs:
           which java
 
       - name: Build Multiplatform project-desktop
+        # Loads the necessary environment variables from the secret store
         env:
-          client_id: ${{ secrets.client_id }}
-          client_secret: ${{ secrets.client_secret }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         shell: bash
         run: ./gradlew createReleaseDistributable

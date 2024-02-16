@@ -169,8 +169,8 @@ buildkonfig {
     packageName = "de.hive.gamefinder"
 
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", System.getProperty("CLIENT_ID"))
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", System.getProperty("CLIENT_SECRET"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", System.getenv("CLIENT_ID"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", System.getenv("CLIENT_SECRET"))
     }
 }
 

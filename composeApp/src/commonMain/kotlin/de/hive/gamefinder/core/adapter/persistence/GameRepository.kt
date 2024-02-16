@@ -68,7 +68,8 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                             onlineCoopMaxPlayers = gameInformation.online_max_players ?: 0
                         ),
                         isShortlist = gameInformation.shortlist,
-                        gameStatus = gameInformation.game_status
+                        gameStatus = gameInformation.game_status,
+                        summary = gameInformation.summary
                     )
                 }
             }
