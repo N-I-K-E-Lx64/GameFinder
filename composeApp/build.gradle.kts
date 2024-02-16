@@ -2,6 +2,7 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -19,6 +20,13 @@ plugins {
 
 // version = "0.1.0"
 
+java {
+    toolchain {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 kotlin {
     androidTarget {
         compilations.all {
@@ -28,7 +36,12 @@ kotlin {
         }
     }
     
-    jvm("desktop")
+    jvm("desktop") {
+        jvmToolchain {
+            vendor = JvmVendorSpec.JETBRAINS
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
     
     sourceSets {
         val desktopMain by getting
@@ -95,7 +108,7 @@ kotlin {
 
             implementation(libs.sqlDelight.jvm)
 
-            implementation(libs.jewel.int.ui.standalone)
+            //implementation(libs.jewel.int.ui.standalone)
             implementation(libs.jewel.int.ui.decoratedWindow)
         }
     }
@@ -157,6 +170,8 @@ compose.desktop {
 
             modules("java.sql")
 
+            //javaHome = "/Users/niklasschunemann/Library/Java/JavaVirtualMachines/jbrsdk-17.0.9/Contents/Home"
+
             buildTypes.release.proguard {
                 //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
@@ -168,9 +183,20 @@ compose.desktop {
 buildkonfig {
     packageName = "de.hive.gamefinder"
 
+    val secretProperties = rootProject.file("secrets.properties")
+    val props = Properties()
+    try {
+        props.load(secretProperties.inputStream())
+    } catch (ex: Exception) {
+        println(ex)
+    }
+
+    val clientId = if (props.getProperty("CLIENT_ID") != null) props.getProperty("CLIENT_ID") else System.getenv("CLIENT_ID")
+    val clientSecret = if (props.getProperty("CLIENT_SECRET") != null) props.getProperty("CLIENT_SECRET") else System.getenv("CLIENT_SECRET")
+
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", System.getenv("CLIENT_ID"))
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", System.getenv("CLIENT_SECRET"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", clientId)
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", clientSecret)
     }
 }
 
@@ -178,6 +204,20 @@ sqldelight {
     databases {
         create("GameFinderDatabase") {
             packageName.set("de.hive.gamefinder.database")
+        }
+    }
+}
+
+tasks {
+    withType<JavaExec> {
+        // afterEvaluate is needed because the Compose Gradle Plugin
+        // register the task in the afterEvaluate block
+        afterEvaluate {
+            javaLauncher = project.javaToolchains.launcherFor {
+                languageVersion = JavaLanguageVersion.of(17)
+                vendor = JvmVendorSpec.JETBRAINS
+            }
+            setExecutable(javaLauncher.map { it.executablePath.asFile.absolutePath }.get())
         }
     }
 }

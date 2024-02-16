@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,8 @@ import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.Tooltip
+import org.jetbrains.jewel.ui.painter.hints.Size
+import org.jetbrains.jewel.ui.painter.rememberResourcePainterProvider
 import org.jetbrains.jewel.window.DecoratedWindowScope
 import org.jetbrains.jewel.window.TitleBar
 import org.jetbrains.jewel.window.newFullscreenControls
@@ -34,16 +37,20 @@ fun DecoratedWindowScope.TitleBarView() {
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    "icons/kotlin.svg",
-                    "Logo",
-                    StandaloneSampleIcons.javaClass
-                )
+                val painterProvider = rememberResourcePainterProvider(
+                        path = "icons/kotlin.svg",
+                        StandaloneSampleIcons::class.java,
+                    )
+                val painter by painterProvider.getPainter(Size(20))
+                Icon(painter, "icon")
+
                 Text("GameFinder", fontSize = 16.sp)
             }
         }
 
-        Row(Modifier.align(Alignment.End)) {
+        Row(
+            modifier = Modifier.align(Alignment.End)
+        ) {
             Tooltip({
                 when (DesktopViewModel.theme) {
                     IntUiThemes.Light -> Text("Switch to light theme with light header")
