@@ -28,9 +28,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
           
-      - name: Install Jetbrains Runtime
+      - name: Install Jetbrains Runtime-Linux
         if: runner.os == 'Linux'
         uses: ./.github/workflows/jbr-setup_linux.yml
+
+      - name: Install Jetbrains Runtime-Windows
+        if: runner.os == 'Windows'
+        uses: ./.github/workflows/jbr-setup-windows.yml
 
       - name: Verify Java Setup
         shell: bash
