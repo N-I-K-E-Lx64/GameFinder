@@ -170,8 +170,6 @@ compose.desktop {
 
             modules("java.sql")
 
-            //javaHome = "/Users/niklasschunemann/Library/Java/JavaVirtualMachines/jbrsdk-17.0.9/Contents/Home"
-
             buildTypes.release.proguard {
                 //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
@@ -183,12 +181,15 @@ compose.desktop {
 buildkonfig {
     packageName = "de.hive.gamefinder"
 
-    val secretProperties = rootProject.file("secrets.properties")
     val props = Properties()
-    try {
-        props.load(secretProperties.inputStream())
-    } catch (ex: Exception) {
-        println(ex)
+    if (rootProject.file("secrets.properties").exists()) {
+        val secretProperties = rootProject.file("secrets.properties")
+
+        try {
+            props.load(secretProperties.inputStream())
+        } catch (ex: Exception) {
+            println(ex)
+        }
     }
 
     val clientId = if (props.getProperty("CLIENT_ID") != null) props.getProperty("CLIENT_ID") else System.getenv("CLIENT_ID")
