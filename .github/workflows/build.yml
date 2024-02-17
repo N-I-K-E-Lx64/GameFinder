@@ -27,21 +27,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
-      - name: Checkout Jetbrains Setup
-        uses: actions/checkout@v4
-        with:
-          repository: jansorg/github-actions-jbr-setup
-          path: .github/shared_actions/jbr
           
       - name: Install Jetbrains Runtime
-        uses: ./.github/shared_actions/jbr/setup_jbr17
-
-      - name: Verify Java Setup
-        shell: bash
-        run: |
-          java --version
-          which java
+        uses: ./.github/workflows/jbr-setup.yml
 
       - name: Build Multiplatform project-desktop
         # Loads the necessary environment variables from the secret store
