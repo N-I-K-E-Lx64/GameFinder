@@ -30,7 +30,7 @@ jobs:
           
       - name: Install Jetbrains Runtime
         if: runner.os == 'Linux'
-        uses: ./.github/workflows/jbr-setup_linux.yml@main
+        uses: ./.github/workflows/jbr-setup_linux.yml
 
       - name: Verify Java Setup
         shell: bash
