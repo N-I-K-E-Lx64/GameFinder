@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 jobs:
-  build-windows-release:
+  build-macOs-release:
     # The type of runner that the job will run on
     runs-on: macos-latest
 
@@ -29,13 +29,6 @@ jobs:
           echo "JAVA_HOME=$HOME/.jdks/jbr17/Contents/Home" >> $GITHUB_ENV
           echo "PATH=$HOME/.jdks/jbr17/Contents/Home/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Setup JAVA_HOME and PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          echo "JAVA_HOME=$HOME\.jdks\jbr17" >> $env:GITHUB_ENV
-          echo "PATH=$HOME\.jdks\jbr17\bin;$env:PATH" >> $env:GITHUB_ENV
-
       - name: Verify Java Setup
         shell: bash
         run: |
@@ -48,7 +41,7 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         shell: bash
-        run: ./gradlew packageReleaseMsi
+        run: ./gradlew packageReleaseDmg
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1
@@ -61,7 +54,7 @@ jobs:
           # warn: Output a warning but do not fail the action
           # error: Fail the action with an error message
           # ignore: Do not output any warnings or errors, the action does not fail
-          if-no-files-found: warn
+          if-no-files-found: error
 
           # Duration after which artifact will expire in days. 0 means using default retention
           retention-days: 0

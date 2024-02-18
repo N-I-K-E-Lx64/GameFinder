@@ -2,7 +2,7 @@ name: Release Build Artifacts on Github
 
 on:
   workflow_run:
-    workflows: [Build]
+    workflows: [Build Multiplatform Project]
     types: [completed]
 
   # Allows you to run this workflow manually from the Actions tab
