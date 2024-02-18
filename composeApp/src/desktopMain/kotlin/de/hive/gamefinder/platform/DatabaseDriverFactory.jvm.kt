@@ -6,7 +6,9 @@ import de.hive.gamefinder.database.GameFinderDatabase
 
 actual class DatabaseDriverFactory {
     actual fun createDriver(): SqlDriver {
-        return JdbcSqliteDriver("jdbc:sqlite:gamefinder.db")
+        return JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
             .also { GameFinderDatabase.Schema.create(it) }
+        /*return JdbcSqliteDriver("jdbc:sqlite:gamefinder.db")
+            .also { GameFinderDatabase.Schema.create(it) }*/
     }
 }

@@ -20,6 +20,13 @@ plugins {
 
 // version = "0.1.0"
 
+java {
+    toolchain {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 kotlin {
     androidTarget {
         compilations.all {
@@ -29,7 +36,12 @@ kotlin {
         }
     }
     
-    jvm("desktop")
+    jvm("desktop") {
+        jvmToolchain {
+            vendor = JvmVendorSpec.JETBRAINS
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
     
     sourceSets {
         val desktopMain by getting
@@ -96,7 +108,7 @@ kotlin {
 
             implementation(libs.sqlDelight.jvm)
 
-            implementation(libs.jewel.int.ui.standalone)
+            //implementation(libs.jewel.int.ui.standalone)
             implementation(libs.jewel.int.ui.decoratedWindow)
         }
     }
@@ -168,17 +180,24 @@ compose.desktop {
 
 buildkonfig {
     packageName = "de.hive.gamefinder"
-    val secrets = project.rootProject.file("secrets.properties")
+
     val props = Properties()
-    try {
-        props.load(secrets.inputStream())
-    } catch (e: Exception) {
-        println(e)
+    if (rootProject.file("secrets.properties").exists()) {
+        val secretProperties = rootProject.file("secrets.properties")
+
+        try {
+            props.load(secretProperties.inputStream())
+        } catch (ex: Exception) {
+            println(ex)
+        }
     }
 
+    val clientId = if (props.getProperty("CLIENT_ID") != null) props.getProperty("CLIENT_ID") else System.getenv("CLIENT_ID")
+    val clientSecret = if (props.getProperty("CLIENT_SECRET") != null) props.getProperty("CLIENT_SECRET") else System.getenv("CLIENT_SECRET")
+
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", props.getProperty("client_id"))
-        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", props.getProperty("client_secret"))
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", clientId)
+        buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", clientSecret)
     }
 }
 
@@ -186,6 +205,20 @@ sqldelight {
     databases {
         create("GameFinderDatabase") {
             packageName.set("de.hive.gamefinder.database")
+        }
+    }
+}
+
+tasks {
+    withType<JavaExec> {
+        // afterEvaluate is needed because the Compose Gradle Plugin
+        // register the task in the afterEvaluate block
+        afterEvaluate {
+            javaLauncher = project.javaToolchains.launcherFor {
+                languageVersion = JavaLanguageVersion.of(17)
+                vendor = JvmVendorSpec.JETBRAINS
+            }
+            setExecutable(javaLauncher.map { it.executablePath.asFile.absolutePath }.get())
         }
     }
 }

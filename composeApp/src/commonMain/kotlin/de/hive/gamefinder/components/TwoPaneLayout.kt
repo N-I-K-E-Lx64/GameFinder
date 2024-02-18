@@ -115,26 +115,28 @@ fun HorizontalTwoPaneStrategy(
 fun FractionHorizontalTwoPaneStrategy(
     splitFraction: Float,
     gapWidth: Dp = 0.dp,
-): TwoPaneStrategy = TwoPaneStrategy { density, layoutDirection, layoutCoordinates ->
-    val splitX = layoutCoordinates.size.width * when (layoutDirection) {
-        LayoutDirection.Ltr -> splitFraction
-        LayoutDirection.Rtl -> 1 - splitFraction
-    }
-    val splitWidthPixel = with(density) { gapWidth.toPx() }
+): TwoPaneStrategy = object : TwoPaneStrategy {
+    override fun calculateSplitResult(density: Density, layoutDirection: LayoutDirection, layoutCoordinates: LayoutCoordinates): SplitResult {
+        val splitX = layoutCoordinates.size.width * when (layoutDirection) {
+            LayoutDirection.Ltr -> splitFraction
+            LayoutDirection.Rtl -> 1 - splitFraction
+        }
+        val splitWidthPixel = with(density) { gapWidth.toPx() }
 
-    SplitResult(
-        gapOrientation = Orientation.Vertical,
-        gapBounds = Rect(
-            left = splitX - splitWidthPixel / 2f,
-            top = 0f,
-            right = splitX + splitWidthPixel / 2f,
-            bottom = layoutCoordinates.size.height.toFloat(),
+        return SplitResult(
+            gapOrientation = Orientation.Vertical,
+            gapBounds = Rect(
+                left = splitX - splitWidthPixel / 2f,
+                top = 0f,
+                right = splitX + splitWidthPixel / 2f,
+                bottom = layoutCoordinates.size.height.toFloat(),
+            )
         )
-    )
+    }
 }
 
 fun interface TwoPaneStrategy {
-    public fun calculateSplitResult(
+    fun calculateSplitResult(
         density: Density,
         layoutDirection: LayoutDirection,
         layoutCoordinates: LayoutCoordinates

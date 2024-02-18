@@ -95,8 +95,6 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             }
         }.body<Array<IgdbGameInformationDto>>()
 
-        println(igdbResult)
-
         if (igdbResult.isEmpty()) {
             throw EmptySearchResultException("Game with id $gameId could not be found!")
         }

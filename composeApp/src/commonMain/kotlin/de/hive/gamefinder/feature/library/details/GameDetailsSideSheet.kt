@@ -64,15 +64,15 @@ fun LibrarySideSheet(
                             Surface(
                                 modifier = Modifier.fillParentMaxWidth()
                             ) {
-                                Text(
-                                    text = game.name,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    softWrap = true,
-                                    modifier = Modifier.weight(1f)
-                                )
                                 Row {
+                                    Text(
+                                        text = it.name,
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        softWrap = true,
+                                        modifier = Modifier.weight(1f)
+                                    )
                                     IconButton(
-                                        onClick = { screenModel.deleteGame(game.id) }
+                                        onClick = { screenModel.deleteGame(it.id) }
                                     ) {
                                         Icon(Icons.Default.Delete, contentDescription = "Delete")
                                     }
@@ -80,43 +80,6 @@ fun LibrarySideSheet(
                                         onClick = { onSideSheetClosed() }
                                     ) {
                                         Icon(Icons.Default.Close, contentDescription = "Close side sheet")
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        FormIconHeader(
-                            Icons.Filled.PersonAdd,
-                            contentDescription = "Add Friend Icon",
-                            headerText = "Friends"
-                        )
-
-                        Column {
-                            friends.forEach { relation ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = it.name,
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-                                    Row {
-                                        IconButton(
-                                            onClick = { screenModel.deleteGame(it.id) }
-                                        ) {
-                                            Icon(Icons.Default.Delete, contentDescription = "Delete")
-                                        }
-                                        IconButton(
-                                            onClick = { onSideSheetClosed() }
-                                        ) {
-                                            Icon(Icons.Default.Close, contentDescription = "Close side sheet")
-                                        }
                                     }
                                 }
                             }

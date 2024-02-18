@@ -1,6 +1,7 @@
 package de.hive.gamefinder.di
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
+import app.cash.sqldelight.db.SqlDriver
 import com.russhwolf.settings.Settings
 import database.Friend_entity
 import database.Game_entity
@@ -45,26 +46,31 @@ class KoinInit {
     }
 }
 
-val coreModule = module {
-    single<GameFinderDatabase> {
-        GameFinderDatabase(
-            driver = get<DatabaseDriverFactory>().createDriver(),
-            game_entityAdapter = Game_entity.Adapter(
-                idAdapter = IntColumnAdapter,
-                launcherAdapter = launcherAdapter,
-                game_idAdapter = IntColumnAdapter,
-                game_modesAdapter = gameModeAdapter,
-                online_max_playersAdapter = IntColumnAdapter,
-                game_statusAdapter = gameStatusAdapter
-            ),
-            friend_entityAdapter = Friend_entity.Adapter(
-                idAdapter = IntColumnAdapter
-            ),
-            tag_entityAdapter = Tag_entity.Adapter(
-                idAdapter = IntColumnAdapter
-            )
+fun createDatabase(driver: SqlDriver): GameFinderDatabase {
+    //val driver = driverFactory.createDriver()
+    val database = GameFinderDatabase(
+        driver = driver,
+        game_entityAdapter = Game_entity.Adapter(
+            idAdapter = IntColumnAdapter,
+            launcherAdapter = launcherAdapter,
+            game_idAdapter = IntColumnAdapter,
+            game_modesAdapter = gameModeAdapter,
+            online_max_playersAdapter = IntColumnAdapter,
+            game_statusAdapter = gameStatusAdapter
+        ),
+        friend_entityAdapter = Friend_entity.Adapter(
+            idAdapter = IntColumnAdapter
+        ),
+        tag_entityAdapter = Tag_entity.Adapter(
+            idAdapter = IntColumnAdapter
         )
-    }
+    )
+
+    return database
+}
+
+val coreModule = module {
+    single<GameFinderDatabase> { createDatabase(get<DatabaseDriverFactory>().createDriver()) }
 
     single<Settings> { Settings() }
 

@@ -299,7 +299,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                                     openChangeStateBottomSheet = true
                                                     statusChangeGameId = it.id
                                                 },
-                                                onShortlistAction = { screenModel.addGameToShortlist(it.id) }
+                                                onAddToShortlistAction = { screenModel.addGameToShortlist(it.id) }
                                             )
                                         }
                                     }

@@ -10,3 +10,21 @@
 
 -dontwarn javax.imageio.metadata.**
 -dontwarn javax.xml.catalog.**
+
+-keep class com.jetbrains.JBR* { *; }
+-dontnote com.jetbrains.JBR*
+#-keep class sun.misc.Unsafe { *; }
+#-dontnote sun.misc.Unsafe
+-keep class com.sun.jna** { *; }
+-dontnote com.sun.jna**
+
+# Keep Sqlite driver classes
+-keep class org.sqlite.** { *; }
+
+-keep class io.ktor.client.engine.cio.** { *; }
+
+-keep class io.ktor.serialization.kotlinx.json.** { *; }
+
+-keep class kotlinx.coroutines.swing.** { *; }
+
+-keep class ch.qos.logback.classic.spi.** { *; }
