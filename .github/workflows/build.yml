@@ -14,71 +14,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+  createWindowsRelease:
+    uses: ./.github/workflows/build-windows.yml
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-          
-      - name: Install and Setup JetBrains (Linux)
-        if: runner.os == 'Linux'
-        shell: bash
-        env:
-          JBR_URL_Linux_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-linux-x86-b1000.48.tar.gz'
-        run: |
-          mkdir -p "$HOME/.jdks/jbr17"
-          wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
-          echo "JAVA_HOME=$HOME/.jdks/jbr17" >> $GITHUB_ENV
-          echo "PATH=$HOME/.jdks/jbr17/bin:$PATH" >> $GITHUB_ENV
-
-      # Install JBR for Windows
-      - name: Install and Setup JetBrains Runtime (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        env:
-          JBR_URL_Windows_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-windows-x64-b1000.48.tar.gz'
-        run: |
-          choco install wget -y
-          mkdir -p "$HOME/.jdks/jbr17"
-          wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
-
-      - name: Setup JAVA_HOME and PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          echo "JAVA_HOME=$HOME\.jdks\jbr17" >> $env:GITHUB_ENV
-          echo "PATH=$HOME\.jdks\jbr17\bin;$env:PATH" >> $env:GITHUB_ENV
-
-      - name: Install and Setup JetBrains Runtime (macOS)
-        if: runner.os == 'macOS'
-        shell: bash
-        env:
-          JBR_URL_macOS_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-osx-x64-b1000.48.tar.gz'
-          JBR_URL_macOS_ARM64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-osx-aarch64-b1000.48.tar.gz'
-        run: |
-          mkdir -p "$HOME/.jdks/jbr17"
-          wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
-          echo "JAVA_HOME=$HOME/.jdks/jbr17/Contents/Home" >> $GITHUB_ENV
-          echo "PATH=$HOME/.jdks/jbr17/Contents/Home/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Verify Java Setup
-        shell: bash
-        run: |
-          java --version
-          which java
-
-      - name: Build Multiplatform project-desktop
-        # Loads the necessary environment variables from the secret store
-        env:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        shell: bash
-        run: ./gradlew createReleaseDistributable
+  createMacOsRelease:
+    uses: ./.github/workflows/build-macOS.yml
