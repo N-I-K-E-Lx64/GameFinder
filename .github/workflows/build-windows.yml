@@ -19,7 +19,7 @@ jobs:
       - name: Install wget
         uses: crazy-max/ghaction-chocolatey@v3
         with:
-          args: install wget -y
+          args: install wget
 
       # Install JBR for Windows
       - name: Install and Setup JetBrains Runtime (Windows)
