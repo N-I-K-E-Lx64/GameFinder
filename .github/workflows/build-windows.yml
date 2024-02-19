@@ -16,14 +16,19 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: Install wget
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install wget -y
+
       # Install JBR for Windows
       - name: Install and Setup JetBrains Runtime (Windows)
         if: runner.os == 'Windows'
         shell: bash
         env:
           JBR_URL_Windows_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-windows-x64-b1000.48.tar.gz'
+        # choco install wget -y
         run: |
-          choco install wget -y
           mkdir -p "$HOME/.jdks/jbr17"
           wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
 
