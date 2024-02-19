@@ -33,10 +33,11 @@ jobs:
       - name: Get Build Artifacts
         uses: actions/download-artifact@v4
 
-      - name: Upload to Github releases
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-1.0.0.dmg
-            composeApp/build/compose/binaries/main-release/app/msi/de.hive.gamefinder-0.1.0.msi
-          fail_on_unmatched_files: true
+      - name: Upload release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v0.1.0-alpha composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-1.0.0.dmg
+          gh release upload v0.1.0-alpha composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-0.1.0.msi
+
+
