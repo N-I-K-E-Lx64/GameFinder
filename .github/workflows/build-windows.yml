@@ -29,7 +29,9 @@ jobs:
           JBR_URL_Windows_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-windows-x64-b1000.48.tar.gz'
         run: |
           mkdir -p "$HOME/.jdks/jbr17"
+          echo "Folder created"
           Invoke-WebRequest -Uri "$env:JBR_URL_Windows_X64" -OutFile "jbr.tar.gz"
+          echo "$env:JBR_URL_Windows_X64"
           tar -xzf "jbr.tar.gz" --strip-components=1 -C "$HOME/.jdks/jbr17"
           Remove-Item "jbr.tar.gz"
 
