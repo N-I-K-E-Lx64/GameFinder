@@ -27,10 +27,11 @@ jobs:
         shell: powershell
         env:
           JBR_URL_Windows_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-windows-x64-b1000.48.tar.gz'
-        # choco install wget -y
         run: |
           mkdir -p "$HOME/.jdks/jbr17"
-          wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
+          Invoke-WebRequest -Uri "$env:JBR_URL_Windows_X64" -OutFile "jbr.tar.gz"
+          tar -xzf "jbr.tar.gz" --strip-components=1 -C "$HOME/.jdks/jbr17"
+          Remove-Item "jbr.tar.gz"
 
       - name: Setup JAVA_HOME and PATH (Windows)
         if: runner.os == 'Windows'
