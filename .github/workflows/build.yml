@@ -30,14 +30,18 @@ jobs:
       - createWindowsRelease
       - createMacOsRelease
     steps:
-      - name: Get Build Artifacts
+      - name: Download artifacts from all build-targets
         uses: actions/download-artifact@v4
+        with:
+          path: gamefinder
+          pattern: gamefinder-*
+          merge-multiple: true
 
-      - name: Upload release assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload v0.1.0-alpha composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-1.0.0.dmg
-          gh release upload v0.1.0-alpha composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-0.1.0.msi
+      - run: ls -R my-artifact
 
-
+#      - name: Upload release assets
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          gh release upload v0.1.0-alpha gamefinder/
+#          gh release upload v0.1.0-alpha composeApp/build/compose/binaries/main-release/app/dmg/de.hive.gamefinder-0.1.0.msi
