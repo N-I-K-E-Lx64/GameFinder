@@ -30,6 +30,10 @@ jobs:
       - createWindowsRelease
       - createMacOsRelease
     steps:
+      - uses: actions/checkout@v4#
+
+      - run: which git
+
       - name: Download artifacts from all build-targets
         uses: actions/download-artifact@v4
         with:
