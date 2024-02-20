@@ -30,9 +30,7 @@ jobs:
         # Invoke-WebRequest -Uri "$env:JBR_URL_Windows_X64" -OutFile "jbr.tar.gz"
         run: |
           mkdir -p "$HOME/.jdks/jbr17"
-          echo "Folder created"
           Start-BitsTransfer -Source "$env:JBR_URL_Windows_X64" -Destination "jbr.tar.gz"
-          echo "$env:JBR_URL_Windows_X64"
           tar -xzf "jbr.tar.gz" --strip-components=1 -C "$HOME/.jdks/jbr17"
           Remove-Item "jbr.tar.gz"
 
