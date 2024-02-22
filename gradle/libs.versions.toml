@@ -35,6 +35,7 @@ napier = "2.7.1"
 kamel = "0.9.1"
 
 jewel = "0.14.1"
+compose-shimmer = "1.2.0"
 
 material3WindowSizeClassMultiplatform = "0.3.2"
 
@@ -90,8 +91,8 @@ voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voy
 
 material3-window-size-multiplatform = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "material3WindowSizeClassMultiplatform" }
 
-jewel-int-ui-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone", version.ref = "jewel" }
 jewel-int-ui-decoratedWindow = { module = "org.jetbrains.jewel:jewel-int-ui-decorated-window", version.ref = "jewel" }
+compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "compose-shimmer" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

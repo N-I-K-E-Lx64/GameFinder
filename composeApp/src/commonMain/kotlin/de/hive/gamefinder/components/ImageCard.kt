@@ -1,5 +1,6 @@
 package de.hive.gamefinder.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.valentinilk.shimmer.shimmer
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.feature.library.LibraryScreen
 import io.kamel.image.KamelImage
@@ -48,7 +50,11 @@ fun CoverImageCard(
                         resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { progress -> CircularProgressIndicator(progress) },
+                        onLoading = {
+                            Box(
+                                modifier = Modifier.fillMaxSize().shimmer().background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                            )
+                        },
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
                     )
