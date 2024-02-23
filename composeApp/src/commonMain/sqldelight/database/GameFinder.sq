@@ -59,6 +59,11 @@ LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
 LEFT JOIN main.tag_entity te ON te.id = gt.tag_id
 WHERE ge.id = ?;
 
+getGamesOnShortlist:
+SELECT *
+FROM game_entity
+WHERE shortlist = 1;
+
 searchGamesByName:
 SELECT *
 FROM game_entity

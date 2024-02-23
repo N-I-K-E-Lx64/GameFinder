@@ -45,10 +45,6 @@ import kotlinx.datetime.toLocalDateTime
 
 class LibraryScreen(val filter: Launcher?) : Screen {
 
-    companion object {
-        const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
-    }
-
     @OptIn(
         ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class
     )

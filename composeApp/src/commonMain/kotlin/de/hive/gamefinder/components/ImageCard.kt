@@ -15,7 +15,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.shimmer
 import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.feature.library.LibraryScreen
+import de.hive.gamefinder.core.utils.ImageSize
+import de.hive.gamefinder.core.utils.getImageEndpoint
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlin.text.Typography.middleDot
@@ -47,12 +48,15 @@ fun CoverImageCard(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     KamelImage(
-                        resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
+                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
                         onLoading = {
                             Box(
-                                modifier = Modifier.fillMaxSize().shimmer().background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .shimmer()
+                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
                             )
                         },
                         modifier = Modifier
@@ -90,7 +94,7 @@ fun CoverImageCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     KamelImage(
-                        resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
+                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
                         onLoading = { progress -> CircularProgressIndicator(progress) },

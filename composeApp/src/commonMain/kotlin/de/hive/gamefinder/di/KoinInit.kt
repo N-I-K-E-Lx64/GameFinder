@@ -25,6 +25,7 @@ import de.hive.gamefinder.feature.game_finder.GameFinderScreenModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
+import de.hive.gamefinder.feature.shortlist.ShortlistScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -81,6 +82,7 @@ val coreModule = module {
     single { GameDetailsScreenModel(get(), get(), get()) }
     single { NavigationScreenModel(get()) }
     single { GameFinderScreenModel(get(), get(), get()) }
+    single { ShortlistScreenModel(get()) }
 
     /**
      * Adapters

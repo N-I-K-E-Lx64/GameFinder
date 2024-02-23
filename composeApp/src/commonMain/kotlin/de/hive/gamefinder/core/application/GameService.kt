@@ -22,6 +22,10 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         return persistencePort.getGame(id)
     }
 
+    override fun getGamesOnShortlist(): Flow<List<Game>> {
+        return persistencePort.getGamesOnShortlist()
+    }
+
     override fun searchGamesByName(name: String): Flow<List<Game>> {
         return persistencePort.getGamesByName(name)
     }

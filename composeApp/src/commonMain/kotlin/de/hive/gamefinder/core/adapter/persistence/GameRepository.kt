@@ -91,6 +91,14 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
             .map { games -> games.map { it.toModel() } }
     }
 
+    override fun getGamesOnShortlist(): Flow<List<Game>> {
+        return dbQueries
+            .getGamesOnShortlist()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { games -> games.map { it.toModel() } }
+    }
+
     override fun findGamesByFriendsAndTags(friendIds: List<Int>, tagIds: List<Int>): Flow<List<Game>> {
         return dbQueries
             .findMultiplayerGamesByFriendsAndTags(

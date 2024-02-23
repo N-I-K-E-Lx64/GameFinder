@@ -14,6 +14,8 @@ interface GameUseCase {
 
     fun getGame(id: Int): Flow<Game?>
 
+    fun getGamesOnShortlist(): Flow<List<Game>>
+
     fun searchGamesByName(name: String): Flow<List<Game>>
 
     fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
