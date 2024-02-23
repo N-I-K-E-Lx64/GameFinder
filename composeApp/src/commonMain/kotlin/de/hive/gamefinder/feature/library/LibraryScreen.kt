@@ -81,6 +81,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
 
         var splitFraction by remember { mutableStateOf(1f) }
 
+        var gameCount by remember { mutableStateOf(0) }
+
         // Filter states
         var filterPlatform by remember { mutableStateOf(-1) }
         var filterOnlineMultiplayer by remember { mutableStateOf(false) }
@@ -131,37 +133,33 @@ class LibraryScreen(val filter: Launcher?) : Screen {
             }
         }
 
-        when (state) {
-            is LibraryScreenModel.State.Init -> {
-                Text("Init")
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                AppBar(
+                    gameCount = gameCount,
+                    searchResultState = searchResultState,
+                    onQueryChange = { screenModel.searchGames(it) },
+                    onQueryDismissed = { screenModel.resetSearchResults() }
+                )
+            },
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { openImportGameDialog = true },
+                    icon = { Icon(Icons.Filled.Add, "Import a new game") },
+                    text = { Text(text = "Import Game") }
+                )
             }
+        ) { innerPadding ->
+            when (state) {
+                is LibraryScreenModel.State.Init -> {
+                }
+                is LibraryScreenModel.State.Loading -> {
+                }
+                is LibraryScreenModel.State.Result -> {
+                    val games = (state as LibraryScreenModel.State.Result).games
+                    gameCount = games.size
 
-            is LibraryScreenModel.State.Loading -> {
-                // TODO : Implement a custom loading animation
-                Text("Loading")
-            }
-
-            is LibraryScreenModel.State.Result -> {
-                val games = (state as LibraryScreenModel.State.Result).games
-
-                Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) },
-                    topBar = {
-                        AppBar(
-                            gameCount = games.size,
-                            searchResultState = searchResultState,
-                            onQueryChange = { screenModel.searchGames(it) },
-                            onQueryDismissed = { screenModel.resetSearchResults() }
-                        )
-                    },
-                    floatingActionButton = {
-                        ExtendedFloatingActionButton(
-                            onClick = { openImportGameDialog = true },
-                            icon = { Icon(Icons.Filled.Add, "Import a new game") },
-                            text = { Text(text = "Import Game") }
-                        )
-                    }
-                ) { innerPadding ->
                     TwoPane(
                         modifier = Modifier
                             .fillMaxSize()

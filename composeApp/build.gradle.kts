@@ -93,6 +93,7 @@ kotlin {
             implementation(libs.sqlDelight.primitives)
 
             implementation(libs.kamel)
+            implementation(libs.compose.shimmer)
 
             implementation(libs.material3.window.size.multiplatform)
         }
