@@ -57,7 +57,8 @@ fun createDatabase(driver: SqlDriver): GameFinderDatabase {
             game_idAdapter = IntColumnAdapter,
             game_modesAdapter = gameModeAdapter,
             online_max_playersAdapter = IntColumnAdapter,
-            game_statusAdapter = gameStatusAdapter
+            game_statusAdapter = gameStatusAdapter,
+            shortlist_positionAdapter = IntColumnAdapter
         ),
         friend_entityAdapter = Friend_entity.Adapter(
             idAdapter = IntColumnAdapter

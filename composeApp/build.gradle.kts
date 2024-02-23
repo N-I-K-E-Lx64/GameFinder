@@ -92,10 +92,11 @@ kotlin {
             implementation(libs.sqlDelight.coroutines)
             implementation(libs.sqlDelight.primitives)
 
+            implementation(libs.material3.window.size.multiplatform)
+
             implementation(libs.kamel)
             implementation(libs.compose.shimmer)
-
-            implementation(libs.material3.window.size.multiplatform)
+            implementation(libs.reorderable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
