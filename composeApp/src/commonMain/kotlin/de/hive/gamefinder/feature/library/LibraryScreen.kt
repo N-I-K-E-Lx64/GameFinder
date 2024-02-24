@@ -347,7 +347,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                 // Close the dialog
                                 openImportGameDialog = false
                             },
-                            onUpdateNameQuery = { gameName = it },
+                            onUpdateNameQuery = { gameName = it; screenModel.getGamePredictions(gameName) },
                             onSelectPlatform = { selectedLauncher = it },
                             onSearchForGamesAction = { screenModel.getGamePredictions(gameName) },
                             gameName = gameName,
@@ -411,6 +411,7 @@ private fun ImportGameDialog(
                     query = gameName,
                     queryLabel = "Game name",
                     queryPlaceholder = "Anno 1800",
+                    querySupportingText = "Select the correct version of the game!",
                     onQueryChanged = { onUpdateNameQuery(it) },
                     predictions = gamePredictions,
                     onDoneAction = { onSearchForGamesAction() },
