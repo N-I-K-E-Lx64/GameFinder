@@ -18,7 +18,8 @@ fun Game_entity.toModel() = Game(
     gameModes = game_modes,
     multiplayerMode = if (online_coop != null && campaign_coop != null && online_max_players != null) MultiplayerMode(campaign_coop, online_coop, online_max_players) else null,
     isShortlist = shortlist,
-    gameStatus = game_status
+    gameStatus = game_status,
+    shortlistPosition = shortlist_position
 )
 
 fun Game.toEntity() = Game_entity(
@@ -33,7 +34,8 @@ fun Game.toEntity() = Game_entity(
     campaign_coop = multiplayerMode?.hasCampaignCoop,
     online_max_players = multiplayerMode?.onlineCoopMaxPlayers,
     shortlist = isShortlist,
-    game_status = gameStatus
+    game_status = gameStatus,
+    shortlist_position = shortlistPosition
 )
 
 fun Friend_entity.toModel() = Friend(

@@ -26,6 +26,8 @@ interface GameUseCase {
 
     suspend fun updateGameStatus(gameId: Int, status: GameStatus)
 
+    suspend fun updateShortlistPosition(shortlistUpdate: List<Game>)
+
     suspend fun addGameToShortlist(gameId: Int)
 
     suspend fun deleteGame(id: Int)

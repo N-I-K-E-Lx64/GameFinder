@@ -46,12 +46,10 @@ class ShortlistScreen : Screen {
                 is ShortlistScreenModel.State.Result -> {
                     val gamesOnShortlist = (state as ShortlistScreenModel.State.Result).gamesOnShortlist
 
-                    // TODO : Optimize this!
-                    var list by remember { mutableStateOf(gamesOnShortlist) }
+                    var shortlist by remember { mutableStateOf(gamesOnShortlist) }
                     val reorderableLazyColumnState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
-                        list = list.toMutableList().apply {
+                        shortlist = shortlist.toMutableList().apply {
                             add(to.index, removeAt(from.index))
-                            // TODO : Update Shortlist position
                         }
                     }
 
@@ -62,7 +60,7 @@ class ShortlistScreen : Screen {
                         state = lazyListState,
                         contentPadding = PaddingValues(16.dp)
                     ) {
-                        items(list, key = { it.id }) { game ->
+                        items(shortlist, key = { it.id }) { game ->
                             ReorderableItem(reorderableLazyColumnState, game.id) {
                                 val interactionSource = remember { MutableInteractionSource() }
 
@@ -94,6 +92,7 @@ class ShortlistScreen : Screen {
                                         IconButton(
                                             onClick = {},
                                             modifier = Modifier.draggableHandle(
+                                                onDragStopped = { screenModel.updateShortlistPosition(shortlist) },
                                                 interactionSource = interactionSource
                                             )
                                         ) {

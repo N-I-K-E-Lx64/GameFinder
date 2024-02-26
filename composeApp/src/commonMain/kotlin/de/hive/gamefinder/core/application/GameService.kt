@@ -52,6 +52,12 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         persistencePort.updateGameStatus(gameId, status)
     }
 
+    override suspend fun updateShortlistPosition(shortlistUpdate: List<Game>) {
+        shortlistUpdate
+            .filterIndexed { index, game -> game.shortlistPosition != index }
+            .forEach { persistencePort.updateShortlistPosition(it.id, shortlistUpdate.indexOf(it)) }
+    }
+
     override suspend fun addGameToShortlist(gameId: Int) {
         persistencePort.addGameToShortlist(gameId)
     }

@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.database.GameFinderDatabase
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -40,7 +41,8 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                             onlineCoopMaxPlayers = firstGame.online_max_players ?: 0
                         ),
                         isShortlist = firstGame.shortlist,
-                        gameStatus = firstGame.game_status
+                        gameStatus = firstGame.game_status,
+                        shortlistPosition = firstGame.shortlist_position
                     )
                 }
             }
@@ -57,6 +59,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                     Game(
                         id = gameInformation.id,
                         name = gameInformation.name,
+                        summary = gameInformation.summary,
                         launcher = gameInformation.launcher,
                         igdbGameId = gameInformation.game_id,
                         coverImageId = gameInformation.cover_image_id,
@@ -69,7 +72,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
                         ),
                         isShortlist = gameInformation.shortlist,
                         gameStatus = gameInformation.game_status,
-                        summary = gameInformation.summary
+                        shortlistPosition = gameInformation.shortlist_position
                     )
                 }
             }
@@ -138,8 +141,16 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
     }
 
     override suspend fun addGameToShortlist(gameId: Int) {
+        // Place the new element at the end of the list
+        val position = dbQueries.getGamesOnShortlist().executeAsList().size + 1
         dbQueries
-            .addGameToShortlist(gameId = gameId)
+            .addGameToShortlist(gameId = gameId, position = position)
+    }
+
+    override suspend fun updateShortlistPosition(gameId: Int, shortlistPosition: Int) {
+        dbQueries
+            .updateShortListPosition(gameId = gameId, position = shortlistPosition)
+        Napier.i("Update shortlist position of game $gameId to $shortlistPosition")
     }
 
     override suspend fun deleteGame(id: Int) {

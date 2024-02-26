@@ -24,4 +24,10 @@ class ShortlistScreenModel(
             }
         }
     }
+
+    fun updateShortlistPosition(update: List<Game>) {
+        screenModelScope.launch {
+            gameUseCase.updateShortlistPosition(update)
+        }
+    }
 }
