@@ -110,6 +110,11 @@ UPDATE game_entity
 SET shortlist = 1, shortlist_position = (:position)
 WHERE id = (:gameId);
 
+removeGameFromShortlist:
+UPDATE game_entity
+SET shortlist = 0, shortlist_position = NULL
+WHERE id = (:gameId);
+
 updateShortListPosition:
 UPDATE game_entity
 SET shortlist_position = (:position)

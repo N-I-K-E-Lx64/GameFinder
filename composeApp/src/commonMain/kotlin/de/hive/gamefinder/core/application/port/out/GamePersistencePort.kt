@@ -30,6 +30,8 @@ interface GamePersistencePort {
 
     suspend fun addGameToShortlist(gameId: Int)
 
+    suspend fun removeGameFromShortlist(gameId: Int)
+
     suspend fun updateShortlistPosition(gameId: Int, shortlistPosition: Int)
 
     suspend fun deleteGame(id: Int)

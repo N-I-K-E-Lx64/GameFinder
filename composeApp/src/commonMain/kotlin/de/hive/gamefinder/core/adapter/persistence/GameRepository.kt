@@ -145,6 +145,12 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
         val position = dbQueries.getGamesOnShortlist().executeAsList().size + 1
         dbQueries
             .addGameToShortlist(gameId = gameId, position = position)
+        Napier.i { "Add game $gameId to shortlist on position $position" }
+    }
+
+    override suspend fun removeGameFromShortlist(gameId: Int) {
+        dbQueries
+            .removeGameFromShortlist(gameId)
     }
 
     override suspend fun updateShortlistPosition(gameId: Int, shortlistPosition: Int) {

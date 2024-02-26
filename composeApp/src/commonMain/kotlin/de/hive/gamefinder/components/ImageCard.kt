@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ fun CoverImageCard(
     isSelected: Boolean,
     onCardClick: () -> Unit,
     onChangeStateAction: () -> Unit,
-    onAddToShortlistAction: () -> Unit = {}
+    onUpdateShortlistStatus: (addToShortlist: Boolean) -> Unit
 ) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -78,8 +79,9 @@ fun CoverImageCard(
                         )
 
                         LibraryEntryAssistantChipRow(
+                            isGameOnShortlist = game.isShortlist,
                             onChangeStateAction = { onChangeStateAction() },
-                            onAddToShortlistAction = { onAddToShortlistAction() }
+                            onUpdateShortlistStatus = { onUpdateShortlistStatus(it) }
                         )
                     }
                 }
@@ -127,8 +129,9 @@ fun CoverImageCard(
                         }
 
                         LibraryEntryAssistantChipRow(
+                            isGameOnShortlist = game.isShortlist,
                             onChangeStateAction = { onChangeStateAction() },
-                            onAddToShortlistAction = { onAddToShortlistAction() }
+                            onUpdateShortlistStatus = { onUpdateShortlistStatus(it) }
                         )
                     }
                 }
@@ -140,8 +143,9 @@ fun CoverImageCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LibraryEntryAssistantChipRow(
+    isGameOnShortlist: Boolean,
     onChangeStateAction: () -> Unit,
-    onAddToShortlistAction: () -> Unit
+    onUpdateShortlistStatus: (addToShortlist: Boolean) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
@@ -159,16 +163,30 @@ fun LibraryEntryAssistantChipRow(
             }
         )
 
-        AssistChip(
-            onClick = { onAddToShortlistAction() },
-            label = { Text("Add to shortlist") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.BookmarkAdd,
-                    contentDescription = null,
-                    modifier = Modifier.size(AssistChipDefaults.IconSize)
-                )
-            }
-        )
+        if (!isGameOnShortlist) {
+            AssistChip(
+                onClick = { onUpdateShortlistStatus(true) },
+                label = { Text("Add to shortlist") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.BookmarkAdd,
+                        contentDescription = "Add game to shortlist",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
+        } else {
+            AssistChip(
+                onClick = { onUpdateShortlistStatus(false) },
+                label = { Text("Remove from shortlist") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.BookmarkRemove,
+                        contentDescription = "Remove game from shortlist",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
+        }
     }
 }

@@ -270,30 +270,30 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     val columnMinSize = if (cardOrientation == CardOrientation.VERTICAL) 300.dp else 500.dp
 
                                     LazyVerticalGrid(
-                                        contentPadding = PaddingValues(16.dp),
+                                        contentPadding = PaddingValues(8.dp),
                                         columns = GridCells.Adaptive(minSize = columnMinSize),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         state = lazyGridState
                                     ) {
-                                        items(games) {
+                                        items(games) {game ->
                                             CoverImageCard(
-                                                game = it,
+                                                game = game,
                                                 orientation = cardOrientation,
-                                                isSelected = selectedGame == it.id,
+                                                isSelected = selectedGame == game.id,
                                                 onCardClick = {
                                                     // Initialize state in the game details screen model
-                                                    gameDetailsScreenModel.loadState(it.id)
+                                                    gameDetailsScreenModel.loadState(game.id)
                                                     // Open the side sheet
-                                                    selectedGame = it.id
+                                                    selectedGame = game.id
                                                     splitFraction = 2f / 3f
                                                 },
                                                 onChangeStateAction = {
                                                     openChangeStateBottomSheet = true
-                                                    statusChangeGameId = it.id
+                                                    statusChangeGameId = game.id
                                                 },
-                                                onAddToShortlistAction = { screenModel.addGameToShortlist(it.id) }
+                                                onUpdateShortlistStatus = { screenModel.updateShortlistStatus(game.id, it) },
                                             )
                                         }
                                     }
