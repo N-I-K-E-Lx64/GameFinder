@@ -493,7 +493,7 @@ private fun AppBar(
             modifier = Modifier.padding(top = 8.dp, start = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Library", style = MaterialTheme.typography.headlineLarge)
             Text(
                 text = "$gameCount imported games",
                 style = MaterialTheme.typography.titleSmall

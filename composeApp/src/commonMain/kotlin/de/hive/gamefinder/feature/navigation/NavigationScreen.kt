@@ -31,6 +31,11 @@ fun NavigationWrapper(
     var selectedRoute by remember { mutableStateOf(NavigationRoutes.LIBRARY) }
     var openDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        // Load badge values
+        screenModel.getBadgeValues()
+    }
+
     // TODO : Update the selected route when we go back!
 
     if (navigationType == NavigationType.PERMANENT_NAVIGATION_DRAWER) {

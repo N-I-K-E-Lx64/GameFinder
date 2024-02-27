@@ -83,7 +83,7 @@ class GameFinderScreen : Screen {
             ) {
                 Text(
                     text = "GameFinder",
-                    style = MaterialTheme.typography.displayMedium
+                    style = MaterialTheme.typography.headlineLarge
                 )
 
                 when (state.value) {
