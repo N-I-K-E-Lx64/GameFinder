@@ -5,7 +5,10 @@ import com.russhwolf.settings.get
 import de.hive.gamefinder.BuildKonfig
 import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.out.IgdbApiPort
-import de.hive.gamefinder.core.domain.*
+import de.hive.gamefinder.core.domain.Game
+import de.hive.gamefinder.core.domain.GameMode
+import de.hive.gamefinder.core.domain.GamePrediction
+import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.utils.levenshteinSimilarity
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -100,8 +103,6 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         }
         val desiredGame = igdbResult.first()
 
-        println(desiredGame)
-
         val gameModes = desiredGame.gameModes?.let { gameModes -> gameModes.map { GameMode.entries[it] } }
         val multiplayerMode = desiredGame.multiplayerModes?.let { getMultiplayerInfos(desiredGame.gameId) }
 
@@ -114,7 +115,7 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
             tags = emptyList(),
             multiplayerMode = multiplayerMode,
             isShortlist = false,
-            gameStatus = GameStatus.LIBRARY,
+            shortlistPosition = null,
         )
     }
 

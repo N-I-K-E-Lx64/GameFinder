@@ -25,6 +25,7 @@ import de.hive.gamefinder.feature.game_finder.GameFinderScreenModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
+import de.hive.gamefinder.feature.shortlist.ShortlistScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -56,7 +57,8 @@ fun createDatabase(driver: SqlDriver): GameFinderDatabase {
             game_idAdapter = IntColumnAdapter,
             game_modesAdapter = gameModeAdapter,
             online_max_playersAdapter = IntColumnAdapter,
-            game_statusAdapter = gameStatusAdapter
+            game_statusAdapter = gameStatusAdapter,
+            shortlist_positionAdapter = IntColumnAdapter
         ),
         friend_entityAdapter = Friend_entity.Adapter(
             idAdapter = IntColumnAdapter
@@ -79,8 +81,9 @@ val coreModule = module {
      */
     single { LibraryScreenModel(get(), get()) }
     single { GameDetailsScreenModel(get(), get(), get()) }
-    single { NavigationScreenModel(get()) }
+    single { NavigationScreenModel(get(), get()) }
     single { GameFinderScreenModel(get(), get(), get()) }
+    single { ShortlistScreenModel(get()) }
 
     /**
      * Adapters

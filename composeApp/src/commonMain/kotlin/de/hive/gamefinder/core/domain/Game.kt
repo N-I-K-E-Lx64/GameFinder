@@ -11,5 +11,6 @@ data class Game(
     val gameModes: List<GameMode>?,
     val multiplayerMode: MultiplayerMode?,
     val isShortlist: Boolean = false,
+    val shortlistPosition: Int?,
     val gameStatus: GameStatus = GameStatus.LIBRARY
 )

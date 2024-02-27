@@ -102,9 +102,9 @@ class LibraryScreenModel(
         }
     }
 
-    fun addGameToShortlist(gameId: Int) {
+    fun updateShortlistStatus(gameId: Int, addToShortlist: Boolean) {
         screenModelScope.launch {
-            gameUseCase.addGameToShortlist(gameId)
+            gameUseCase.updateShortlistStatus(gameId, addToShortlist)
         }
     }
 
