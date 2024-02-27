@@ -59,7 +59,8 @@ class ShortlistScreen : Screen {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(text = "Shortlist", style = MaterialTheme.typography.headlineLarge)
 
@@ -67,7 +68,6 @@ class ShortlistScreen : Screen {
                             modifier = Modifier
                                 .fillMaxSize(2/3f),
                             state = lazyListState,
-                            contentPadding = PaddingValues(16.dp)
                         ) {
                             items(shortlist, key = { it.id }) { game ->
                                 ReorderableItem(reorderableLazyColumnState, game.id) {
@@ -79,14 +79,14 @@ class ShortlistScreen : Screen {
                                         leadingContent = {
                                             Box(
                                                 modifier = Modifier
-                                                    .width(64.dp)
+                                                    .width(100.dp)
                                                     .height(56.dp)
                                                     .clip(RoundedCornerShape(8.dp))
                                             ) {
                                                 KamelImage(
-                                                    resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_SMALL)),
+                                                    resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.LOGO_MED)),
                                                     contentDescription = "${game.name} - Thumb",
-                                                    contentScale = ContentScale.Fit,
+                                                    contentScale = ContentScale.Crop,
                                                     onLoading = {
                                                         Box(
                                                             modifier = Modifier
