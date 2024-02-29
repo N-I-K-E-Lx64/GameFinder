@@ -10,8 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import gamefinder.composeapp.generated.resources.Res
+import gamefinder.composeapp.generated.resources.state_selection_body
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun ChangeStateBottomSheet(
     sheetState: SheetState,
@@ -25,7 +29,7 @@ fun ChangeStateBottomSheet(
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            Text("Change state to", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(Res.string.state_selection_body), style = MaterialTheme.typography.titleLarge)
 
             CHANGE_STATE_ITEMS.forEachIndexed { index, item ->
                 ListItem(
@@ -36,7 +40,7 @@ fun ChangeStateBottomSheet(
                     },
                     modifier = Modifier.clickable { onListItemClick(index) }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
     }

@@ -36,17 +36,20 @@ import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
+import gamefinder.composeapp.generated.resources.*
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 class LibraryScreen(val filter: Launcher?) : Screen {
 
     @OptIn(
-        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class
+        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalResourceApi::class
     )
     @Composable
     override fun Content() {
@@ -108,7 +111,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                             val result = snackbarHostState.showSnackbar(
                                 message = event.message,
                                 actionLabel = event.actionLabel,
-                                withDismissAction = true
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long
                             )
                             when (result) {
                                 SnackbarResult.ActionPerformed -> {
@@ -169,7 +173,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                 FormIconHeader(
                                     Icons.Filled.RocketLaunch,
                                     contentDescription = "Launcher Filter Icon",
-                                    headerText = "Launcher"
+                                    headerText = stringResource(Res.string.launcher_form_header)
                                 )
 
                                 Row(
@@ -196,12 +200,12 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     }
                                 }
 
-                                Divider(modifier = Modifier.padding(8.dp))
+                                HorizontalDivider(modifier = Modifier.padding(8.dp))
 
                                 FormIconHeader(
                                     Icons.Filled.Groups,
                                     contentDescription = "Multiplayer Parameter Filter Icon",
-                                    headerText = "Multiplayer"
+                                    headerText = stringResource(Res.string.multiplayer_form_header)
                                 )
 
                                 Row(
@@ -210,7 +214,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     FilterChip(
                                         selected = filterOnlineMultiplayer,
                                         onClick = { filterOnlineMultiplayer = !filterOnlineMultiplayer; applyFilter() },
-                                        label = { Text("Online Multiplayer") },
+                                        label = { Text(stringResource(Res.string.library_online_multiplayer_chip_label)) },
                                         leadingIcon = {
                                             if (filterOnlineMultiplayer) {
                                                 Icon(
@@ -226,7 +230,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                         onClick = {
                                             filterCampaignMultiplayer = !filterCampaignMultiplayer; applyFilter()
                                         },
-                                        label = { Text("Campaign Multiplayer") },
+                                        label = { Text(stringResource(Res.string.library_campaign_multiplayer_chip_label)) },
                                         leadingIcon = {
                                             if (filterCampaignMultiplayer) {
                                                 Icon(
@@ -262,7 +266,6 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     }*/
                                 }
 
-                                // TODO : Different card view - https://m3.material.io/foundations/layout/applying-layout/window-size-classes
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
@@ -372,6 +375,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun ImportGameDialog(
     onDismissRequest: () -> Unit,
@@ -396,14 +400,16 @@ private fun ImportGameDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Icon(Icons.Filled.CloudDownload, contentDescription = "Game import header icon")
+
                 Text(
-                    "Import a game",
+                    stringResource(Res.string.import_game_dialog_headline),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
                 AutoCompleteTextView(
                     query = gameName,
-                    queryLabel = "Game name",
+                    queryLabel = stringResource(Res.string.import_game_dialog_headline),
                     queryPlaceholder = "Anno 1800",
                     onQueryChanged = { onUpdateNameQuery(it) },
                     predictions = gamePredictions,
@@ -426,7 +432,7 @@ private fun ImportGameDialog(
                     )
                 }
 
-                Text("Platform", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.import_game_dialog_launcher_selection), style = MaterialTheme.typography.titleMedium)
 
                 Column(modifier = Modifier.selectableGroup()) {
                     launchers.forEach { platform ->
@@ -459,14 +465,14 @@ private fun ImportGameDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     TextButton(onClick = { onDismissRequest() }) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.import_game_dialog_cancel))
                     }
 
                     TextButton(
                         onClick = { onSave(desiredGameId) },
                         enabled = desiredGameId != 0
                     ) {
-                        Text("Save")
+                        Text(stringResource(Res.string.import_game_dialog_save))
                     }
                 }
             }
@@ -474,7 +480,7 @@ private fun ImportGameDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 private fun AppBar(
     gameCount: Int,
@@ -493,7 +499,7 @@ private fun AppBar(
             modifier = Modifier.padding(top = 8.dp, start = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "Library", style = MaterialTheme.typography.headlineLarge)
+            Text(text = stringResource(Res.string.library_headline), style = MaterialTheme.typography.headlineLarge)
             Text(
                 text = "$gameCount imported games",
                 style = MaterialTheme.typography.titleSmall
@@ -513,7 +519,7 @@ private fun AppBar(
                 onSearch = { active = false },
                 active = active,
                 onActiveChange = { active = it },
-                placeholder = { Text("Search") },
+                placeholder = { Text(stringResource(Res.string.library_appbar_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     IconButton(onClick = {

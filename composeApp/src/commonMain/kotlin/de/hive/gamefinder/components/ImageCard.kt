@@ -18,11 +18,16 @@ import com.valentinilk.shimmer.shimmer
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.getImageEndpoint
+import gamefinder.composeapp.generated.resources.Res
+import gamefinder.composeapp.generated.resources.game_action_addToShortlist
+import gamefinder.composeapp.generated.resources.game_action_changeState
+import gamefinder.composeapp.generated.resources.game_action_removeFromShortlist
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import kotlin.text.Typography.middleDot
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoverImageCard(
     game: Game,
@@ -99,7 +104,7 @@ fun CoverImageCard(
                         resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { progress -> CircularProgressIndicator(progress) },
+                        onLoading = { progress -> CircularProgressIndicator(progress = {progress}) },
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .clip(RoundedCornerShape(16.dp))
@@ -140,7 +145,7 @@ fun CoverImageCard(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
 @Composable
 fun LibraryEntryAssistantChipRow(
     isGameOnShortlist: Boolean,
@@ -153,7 +158,7 @@ fun LibraryEntryAssistantChipRow(
     ) {
         AssistChip(
             onClick = { onChangeStateAction() },
-            label = { Text("Change state") },
+            label = { Text(stringResource(Res.string.game_action_changeState)) },
             leadingIcon = {
                 Icon(
                     Icons.Default.ChangeCircle,
@@ -166,7 +171,7 @@ fun LibraryEntryAssistantChipRow(
         if (!isGameOnShortlist) {
             AssistChip(
                 onClick = { onUpdateShortlistStatus(true) },
-                label = { Text("Add to shortlist") },
+                label = { Text(stringResource(Res.string.game_action_addToShortlist)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.BookmarkAdd,
@@ -178,7 +183,7 @@ fun LibraryEntryAssistantChipRow(
         } else {
             AssistChip(
                 onClick = { onUpdateShortlistStatus(false) },
-                label = { Text("Remove from shortlist") },
+                label = { Text(stringResource(Res.string.game_action_removeFromShortlist)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.BookmarkRemove,
