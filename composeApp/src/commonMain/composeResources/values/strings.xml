@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="library_headline">Library</string>
+    <string name="library_appbar_search_placeholder">Search</string>
+
+    <string name="import_game_dialog_headline">Import a game</string>
+    <string name="import_game_dialog_name_query_label">Game name</string>
+    <string name="import_game_dialog_launcher_selection">Launcher</string>
+    <string name="import_game_dialog_cancel">Cancel</string>
+    <string name="import_game_dialog_save">Save</string>
+</resources>
