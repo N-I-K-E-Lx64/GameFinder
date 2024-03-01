@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -138,7 +138,7 @@ class GameFinderScreen : Screen {
 
                             if (tags.isNotEmpty()) {
                                 FormIconHeader(
-                                    Icons.Filled.Label,
+                                    Icons.AutoMirrored.Filled.Label,
                                     contentDescription = "Tag Selection Header Icon",
                                     headerText = "Tags"
                                 )
@@ -191,7 +191,9 @@ class GameFinderScreen : Screen {
                                         resource = asyncPainterResource(getImageEndpoint(it.coverImageId, ImageSize.COVER_BIG)),
                                         contentDescription = "${it.name} - Cover",
                                         contentScale = ContentScale.FillWidth,
-                                        onLoading = { progress -> CircularProgressIndicator(progress) }
+                                        onLoading = { progress ->
+                                            CircularProgressIndicator(progress = { progress })
+                                        }
                                     )
                                 }
                             }
@@ -201,8 +203,7 @@ class GameFinderScreen : Screen {
             }
 
             if (showNoFilterOptionsAlertDialog) {
-                // TODO : Replace this with BasicAlertDialog if compose multiplatform 1.6 arrives
-                AlertDialog(
+                BasicAlertDialog(
                     onDismissRequest = {
                         // Dismiss the dialog when the user clicks outside the dialog or on the back
                         // button. If you want to disable that functionality, simply use an empty

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="launcher_form_header">Launcher</string>
+    <string name="friends_form_header">Friends</string>
+    <string name="tags_form_header">Tags</string>
+    <string name="multiplayer_form_header">Multiplayer</string>
+    <string name="online_coop_form_header">Online Coop</string>
+    <string name="campaign_coop_form_header">Campaign Coop</string>
+    <string name="maxplayers_form_header">Online Coop Max. Players</string>
+
+    <string name="library_headline">Library</string>
+    <string name="library_appbar_search_placeholder">Search</string>
+    <string name="library_online_multiplayer_chip_label">Online Multiplayer</string>
+    <string name="library_campaign_multiplayer_chip_label">Campaign Multiplayer</string>
+
+    <string name="import_game_dialog_headline">Import a game</string>
+    <string name="import_game_dialog_name_query_label">Game name</string>
+    <string name="import_game_dialog_launcher_selection">Launcher</string>
+    <string name="import_game_dialog_cancel">Cancel</string>
+    <string name="import_game_dialog_save">Save</string>
+
+    <string name="gamefinder_headline">GameFinder</string>
+    <string name="gamefinder_button_label">Find Game</string>
+    <string name="gamefinder_dialog_headline">No filter options</string>
+    <string name="gamefinder_dialog_body">Since you haven't added any friends yet, I can't help you find the right games.</string>
+    <string name="gamefinder_dialog_button_label">Confirm</string>
+
+    <string name="details_tag_textview_label">Tags</string>
+    <string name="details_update_button_label">Update</string>
+
+    <string name="state_selection_body">Change state to</string>
+
+    <string name="game_action_addToShortlist">Add to shortlist</string>
+    <string name="game_action_changeState">Change state</string>
+    <string name="game_action_removeFromShortlist">Remove from shortlist</string>
+</resources>
