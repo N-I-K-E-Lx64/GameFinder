@@ -42,9 +42,10 @@ fun FormSwitchRow(
             )
         }
     )
-    Divider(modifier = Modifier.padding(horizontal = 8.dp))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormSliderRow(
     headlineText: String,
@@ -68,17 +69,26 @@ fun FormSliderRow(
             valueRange = sliderValueRange,
             onValueChangeFinished = { onSliderValueChangeFinished(sliderPosition.toInt()) },
             enabled = sliderEnabled,
-            // TODO : With a newer version of compose update thumb
             /*thumb = {
-                PlainTooltipBox()
+                Label(
+                    label = {
+                        PlainTooltip(
+                            modifier = Modifier
+                                .requiredSize(45.dp, 25.dp)
+                                .wrapContentWidth()
+                        ) {
+                            Text("%.2f".format(sliderPosition))
+                        }
+                    },
+                    interactionSource = interactionSource
+                ) {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                    )
+                }
             }*/
-        )
-
-        // TODO : Remove this with a newer version of Compose
-        Text(
-            text = sliderPosition.toInt().toString(),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

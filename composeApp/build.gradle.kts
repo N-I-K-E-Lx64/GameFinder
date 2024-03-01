@@ -1,6 +1,5 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.konan.properties.Properties
 
@@ -13,7 +12,6 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
-    // alias(libs.plugins.multiplatform.resources)
 
     // id("dev.hydraulic.conveyor") version "1.8"
 }
@@ -63,14 +61,10 @@ kotlin {
             api(libs.multiplatform.noArg)
             api(libs.multiplatform.coroutines)
 
-            //api(libs.moko.resources)
-            //api(libs.moko.resourcesCompose)
-
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
@@ -229,11 +223,6 @@ tasks {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
     windowsAmd64(compose.desktop.windows_x64)
-}*/
-
-
-/*multiplatformResources {
-    multiplatformResourcesPackage = "de.hive.gamefinder"
 }*/
 
 /*// region Work around temporary Compose bugs.
