@@ -30,7 +30,6 @@ import de.hive.gamefinder.feature.shortlist.ShortlistScreen
 import io.github.aakira.napier.Napier
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigationRail(
     screenModel: NavigationScreenModel = koinInject(),
@@ -41,7 +40,7 @@ fun AppNavigationRail(
 ) {
     NavigationRail(
         modifier = Modifier.fillMaxHeight(),
-        containerColor = MaterialTheme.colorScheme.inverseOnSurface
+        containerColor = MaterialTheme.colorScheme.surfaceDim
     ) {
         Column(
             modifier = Modifier.layoutId(LayoutType.HEADER),
@@ -157,7 +156,7 @@ fun ModalNavigationDrawerContent(
     ModalDrawerSheet {
         Layout(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.inverseOnSurface)
+                .background(MaterialTheme.colorScheme.surfaceDim)
                 .padding(16.dp),
             measurePolicy = navigationMeasurePolicy(),
             content = {

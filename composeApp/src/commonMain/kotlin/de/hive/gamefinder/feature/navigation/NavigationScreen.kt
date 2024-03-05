@@ -93,16 +93,20 @@ fun AppContent(
     onDrawerItemClicked: (NavigationElement) -> Unit = {},
     onDrawerClicked: () -> Unit = {}
 ) {
-    Row(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(visible = navigationType == NavigationType.NAVIGATION_RAIL) {
-            AppNavigationRail(
-                selectedRoute = selectedRoute,
-                onDrawerClicked = onDrawerClicked,
-                onActionButtonClicked = onActionButtonClicked,
-                onDrawerItemClicked = onDrawerItemClicked
-            )
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceDim
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(visible = navigationType == NavigationType.NAVIGATION_RAIL) {
+                AppNavigationRail(
+                    selectedRoute = selectedRoute,
+                    onDrawerClicked = onDrawerClicked,
+                    onActionButtonClicked = onActionButtonClicked,
+                    onDrawerItemClicked = onDrawerItemClicked
+                )
+            }
+            CurrentScreen()
         }
-        CurrentScreen()
     }
 }
 

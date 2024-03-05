@@ -106,7 +106,7 @@ fun TwoPane(
 
 fun HorizontalTwoPaneStrategy(
     splitFraction: Float,
-    gapWidth: Dp = 0.dp
+    gapWidth: Dp = 24.dp
 ): TwoPaneStrategy = FractionHorizontalTwoPaneStrategy(
     splitFraction = splitFraction,
     gapWidth = gapWidth
@@ -114,7 +114,7 @@ fun HorizontalTwoPaneStrategy(
 
 fun FractionHorizontalTwoPaneStrategy(
     splitFraction: Float,
-    gapWidth: Dp = 0.dp,
+    gapWidth: Dp = 24.dp,
 ): TwoPaneStrategy = object : TwoPaneStrategy {
     override fun calculateSplitResult(density: Density, layoutDirection: LayoutDirection, layoutCoordinates: LayoutCoordinates): SplitResult {
         val splitX = layoutCoordinates.size.width * when (layoutDirection) {

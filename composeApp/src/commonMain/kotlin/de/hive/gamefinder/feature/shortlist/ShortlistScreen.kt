@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.valentinilk.shimmer.shimmer
+import de.hive.gamefinder.components.HorizontalTwoPaneStrategy
+import de.hive.gamefinder.components.TopBar
+import de.hive.gamefinder.components.TwoPane
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.getImageEndpoint
 import io.kamel.image.KamelImage
@@ -41,10 +44,17 @@ class ShortlistScreen : Screen {
             screenModel.loadState()
         }
 
-        Scaffold { innerPadding ->
+        Scaffold(
+            topBar = { TopBar() },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp))
+        ) { innerPadding ->
             when (state) {
                 is ShortlistScreenModel.State.Loading -> {
                 }
+
                 is ShortlistScreenModel.State.Result -> {
                     val gamesOnShortlist = (state as ShortlistScreenModel.State.Result).gamesOnShortlist
 
@@ -55,66 +65,81 @@ class ShortlistScreen : Screen {
                         }
                     }
 
-                    Column (
+                    TwoPane(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(text = "Shortlist", style = MaterialTheme.typography.headlineLarge)
+                            .padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+                        first = {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(text = "Shortlist", style = MaterialTheme.typography.titleLarge)
 
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize(2/3f),
-                            state = lazyListState,
-                        ) {
-                            items(shortlist, key = { it.id }) { game ->
-                                ReorderableItem(reorderableLazyColumnState, game.id) {
-                                    val interactionSource = remember { MutableInteractionSource() }
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    state = lazyListState,
+                                ) {
+                                    items(shortlist, key = { it.id }) { game ->
+                                        ReorderableItem(reorderableLazyColumnState, game.id) {
+                                            val interactionSource = remember { MutableInteractionSource() }
 
-                                    ListItem(
-                                        headlineContent = { Text(text = game.name) },
-                                        supportingContent = { Text(text = game.launcher.launcher) },
-                                        leadingContent = {
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(100.dp)
-                                                    .height(56.dp)
-                                                    .clip(RoundedCornerShape(8.dp))
-                                            ) {
-                                                KamelImage(
-                                                    resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.LOGO_MED)),
-                                                    contentDescription = "${game.name} - Thumb",
-                                                    contentScale = ContentScale.Crop,
-                                                    onLoading = {
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .fillMaxSize()
-                                                                .shimmer()
-                                                                .background(MaterialTheme.colorScheme.inverseOnSurface)
+                                            ListItem(
+                                                headlineContent = { Text(text = game.name) },
+                                                supportingContent = { Text(text = game.launcher.launcher) },
+                                                leadingContent = {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .width(100.dp)
+                                                            .height(56.dp)
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                    ) {
+                                                        KamelImage(
+                                                            resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.LOGO_MED)),
+                                                            contentDescription = "${game.name} - Thumb",
+                                                            contentScale = ContentScale.Crop,
+                                                            onLoading = {
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .fillMaxSize()
+                                                                        .shimmer()
+                                                                        .background(MaterialTheme.colorScheme.inverseOnSurface)
+                                                                )
+                                                            }
                                                         )
                                                     }
-                                                )
-                                            }
-                                        },
-                                        trailingContent = {
-                                            IconButton(
-                                                onClick = {},
-                                                modifier = Modifier.draggableHandle(
-                                                    onDragStopped = { screenModel.updateShortlistPosition(shortlist) },
-                                                    interactionSource = interactionSource
-                                                )
-                                            ) {
-                                                Icon(Icons.Default.DragHandle, contentDescription = "Reorder")
-                                            }
+                                                },
+                                                trailingContent = {
+                                                    IconButton(
+                                                        onClick = {},
+                                                        modifier = Modifier.draggableHandle(
+                                                            onDragStopped = { screenModel.updateShortlistPosition(shortlist) },
+                                                            interactionSource = interactionSource
+                                                        )
+                                                    ) {
+                                                        Icon(Icons.Default.DragHandle, contentDescription = "Reorder")
+                                                    }
+                                                }
+                                            )
+                                            HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                                         }
-                                    )
-                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+                                    }
                                 }
                             }
-                        }
-                    }
+                        },
+                        second = {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(16.dp)),
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh
+                            ) { }
+                        },
+                        strategy = HorizontalTwoPaneStrategy(
+                            splitFraction = 2 / 3f
+                        )
+                    )
                 }
             }
         }

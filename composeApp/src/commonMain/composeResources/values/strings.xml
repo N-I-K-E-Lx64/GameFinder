@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
+    <string name="app_name">gamefinder</string>
+
     <string name="launcher_form_header">Launcher</string>
     <string name="friends_form_header">Friends</string>
     <string name="tags_form_header">Tags</string>

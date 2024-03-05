@@ -149,7 +149,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                     icon = { Icon(Icons.Filled.Add, "Import a new game") },
                     text = { Text(text = "Import Game") }
                 )
-            }
+            },
+            //containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ) { innerPadding ->
             when (state) {
                 is LibraryScreenModel.State.Init -> {
