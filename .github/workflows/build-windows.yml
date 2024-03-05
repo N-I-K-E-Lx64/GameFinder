@@ -48,7 +48,8 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         shell: bash
-        run: ./gradlew packageReleaseMsi
+        #run: ./gradlew packageReleaseMsi
+        run: ./gradlew packageMsi
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1

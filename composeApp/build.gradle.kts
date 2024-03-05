@@ -1,7 +1,6 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -15,14 +14,13 @@ plugins {
     alias(libs.plugins.buildKonfig)
     // alias(libs.plugins.multiplatform.resources)
 
-    // id("dev.hydraulic.conveyor") version "1.8"
+    id("dev.hydraulic.conveyor") version "1.8"
 }
 
-// version = "0.1.0"
+version = "0.1.0"
 
 java {
     toolchain {
-        vendor = JvmVendorSpec.JETBRAINS
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
@@ -35,16 +33,22 @@ kotlin {
             }
         }
     }
-    
-    jvm("desktop") {
+
+    jvm {
         jvmToolchain {
-            vendor = JvmVendorSpec.JETBRAINS
             languageVersion = JavaLanguageVersion.of(17)
         }
     }
     
+    /*jvm("desktop") {
+        jvmToolchain {
+            vendor = JvmVendorSpec.JETBRAINS
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }*/
+    
     sourceSets {
-        val desktopMain by getting
+        //val desktopMain by getting
         
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
@@ -96,7 +100,21 @@ kotlin {
 
             implementation(libs.material3.window.size.multiplatform)
         }
-        desktopMain.dependencies {
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+
+            implementation(libs.logback)
+
+            implementation(libs.compose.ui.tooling.preview)
+
+            implementation(libs.ktor.client.desktop)
+            implementation(libs.kotlinx.coroutines.swing)
+
+            implementation(libs.sqlDelight.jvm)
+
+            implementation(libs.jewel.int.ui.decoratedWindow)
+        }
+        /*desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
 
             implementation(libs.logback)
@@ -110,7 +128,7 @@ kotlin {
 
             //implementation(libs.jewel.int.ui.standalone)
             implementation(libs.jewel.int.ui.decoratedWindow)
-        }
+        }*/
     }
 }
 
@@ -152,20 +170,23 @@ compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
 
-        val iconsRoot = project.file("src/desktopMain/resources")
+        //val iconsRoot = project.file("src/desktopMain/resources")
+        /*val iconRoot = project.file("src/jvmMain/resources")
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "de.hive.gamefinder"
-            packageVersion = "0.1.0"
+            packageName = "game-finder"
+            // packageVersion = "0.1.0"
+            copyright = "© 2024 Niklas Schünemann. All rights reserved."
             macOS {
                 packageVersion = "1.0.0"
             }
             windows {
-                iconFile.set(iconsRoot.resolve("icons/appIcon.ico"))
+                iconFile.set(iconRoot.resolve("icons/appIcon.ico"))
+                upgradeUuid = "31f38659-2d21-44d6-9023-7b20efcc081b"
             }
             linux {
-                iconFile.set(iconsRoot.resolve("icons/appIcon.png"))
+                iconFile.set(iconRoot.resolve("icons/appIcon.png"))
             }
 
             modules("java.sql")
@@ -174,7 +195,7 @@ compose.desktop {
                 //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
             }
-        }
+        }*/
     }
 }
 
@@ -209,7 +230,7 @@ sqldelight {
     }
 }
 
-tasks {
+/*tasks {
     withType<JavaExec> {
         // afterEvaluate is needed because the Compose Gradle Plugin
         // register the task in the afterEvaluate block
@@ -221,24 +242,22 @@ tasks {
             setExecutable(javaLauncher.map { it.executablePath.asFile.absolutePath }.get())
         }
     }
-}
+}*/
 
-/*dependencies {
+dependencies {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
     windowsAmd64(compose.desktop.windows_x64)
-}*/
+}
+
+// Temporary fix for "Cannot choose between the following variants of org.jetbrains.skiko:skiko:$version" - https://github.com/JetBrains/compose-multiplatform/issues/1404#issuecomment-1146894731
+configurations.all {
+    attributes {
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
+}
 
 
 /*multiplatformResources {
     multiplatformResourcesPackage = "de.hive.gamefinder"
 }*/
-
-/*// region Work around temporary Compose bugs.
-configurations.all {
-    attributes {
-        // https://github.com/JetBrains/compose-jb/issues/1404#issuecomment-1146894731
-        attribute(Attribute.of("ui", String::class.java), "awt")
-    }
-}
-// endregion*/

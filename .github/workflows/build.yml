@@ -21,8 +21,8 @@ jobs:
   createWindowsRelease:
     uses: ./.github/workflows/build-windows.yml
 
-  createMacOsRelease:
-    uses: ./.github/workflows/build-macOS.yml
+#  createMacOsRelease:
+#    uses: ./.github/workflows/build-macOS.yml
 
   releaseArtifactsOnGithubRelease:
     runs-on: ubuntu-latest
