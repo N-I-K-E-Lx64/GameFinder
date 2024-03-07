@@ -50,7 +50,9 @@ jobs:
           name: gamefinder-macos
           # A file, directory or wildcard pattern that describes what to upload
           # path: composeApp/build/compose/binaries/main-release/dmg/de.hive.gamefinder-1.0.0.dmg
-          path: composeApp/build/compose/jars/gamefinder-macos-arm64-1.0.0.jar
+          path: |
+            composeApp/build/compose/jars/gamefinder-macos-arm64-1.0.0.jar
+            composeApp/build/libs/composeApp-jvm-1.0.0.jar
           # The desired behavior if no files are found using the provided path. Available Options:
           # warn: Output a warning but do not fail the action
           # error: Fail the action with an error message
