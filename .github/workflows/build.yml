@@ -21,14 +21,14 @@ jobs:
   createWindowsRelease:
     uses: ./.github/workflows/build-windows.yml
 
-  createMacOsRelease:
-    uses: ./.github/workflows/build-macOS.yml
+#  createMacOsRelease:
+#    uses: ./.github/workflows/build-macOS.yml
 
   releaseArtifactsOnGithubRelease:
     runs-on: ubuntu-latest
     needs:
       - createWindowsRelease
-      - createMacOsRelease
+      # - createMacOsRelease
     steps:
       - uses: actions/checkout@v4
 
