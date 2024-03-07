@@ -39,7 +39,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-
       - name: Download artifacts from build-targets
         uses: actions/download-artifact@v4
         with:
@@ -51,13 +50,7 @@ jobs:
           # Optional. Default is 'false'
           merge-multiple: true
 
-      # The generic artifact is used for the non-specific build targets (like mac.amd64)
-      - name: Download generic artifact
-        uses: actions/download-artifact@v4
-        with:
-          path: composeApp
-          pattern: composeApp-*
-          merge-multiple: true
+      - run: ls -R gamefinder
 
 #      - name: Upload release assets
 #        env:
