@@ -65,6 +65,7 @@ jobs:
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          CONVEYOR_TOKEN: ${{ secrets.CONVEYOR_TOKEN }}
         with:
           command: make copied-site
           signing_key: ${{ secrets.SIGNING_KEY }}
