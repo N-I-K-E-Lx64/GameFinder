@@ -34,6 +34,12 @@ jobs:
 
       - run: which git
 
+      - name: Verify Java Setup
+        shell: bash
+        run: |
+          java --version
+          which java
+
       - name: Download artifacts from all build-targets
         uses: actions/download-artifact@v4
         with:
