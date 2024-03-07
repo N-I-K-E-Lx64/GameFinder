@@ -12,16 +12,16 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
-    // alias(libs.plugins.multiplatform.resources)
 
     id("dev.hydraulic.conveyor") version "1.8"
 }
 
-version = "0.1.0"
+version = "1.0.0"
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+        vendor = JvmVendorSpec.JETBRAINS
     }
 }
 
@@ -37,19 +37,11 @@ kotlin {
     jvm {
         jvmToolchain {
             languageVersion = JavaLanguageVersion.of(17)
+            vendor = JvmVendorSpec.JETBRAINS
         }
     }
     
-    /*jvm("desktop") {
-        jvmToolchain {
-            vendor = JvmVendorSpec.JETBRAINS
-            languageVersion = JavaLanguageVersion.of(17)
-        }
-    }*/
-    
     sourceSets {
-        //val desktopMain by getting
-        
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
 
@@ -66,9 +58,6 @@ kotlin {
 
             api(libs.multiplatform.noArg)
             api(libs.multiplatform.coroutines)
-
-            //api(libs.moko.resources)
-            //api(libs.moko.resourcesCompose)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -114,21 +103,6 @@ kotlin {
 
             implementation(libs.jewel.int.ui.decoratedWindow)
         }
-        /*desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-
-            implementation(libs.logback)
-
-            implementation(libs.compose.ui.tooling.preview)
-
-            implementation(libs.ktor.client.desktop)
-            implementation(libs.kotlinx.coroutines.swing)
-
-            implementation(libs.sqlDelight.jvm)
-
-            //implementation(libs.jewel.int.ui.standalone)
-            implementation(libs.jewel.int.ui.decoratedWindow)
-        }*/
     }
 }
 
@@ -170,32 +144,17 @@ compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
 
-        //val iconsRoot = project.file("src/desktopMain/resources")
-        /*val iconRoot = project.file("src/jvmMain/resources")
-
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "game-finder"
-            // packageVersion = "0.1.0"
+            packageName = "gamefinder"
             copyright = "© 2024 Niklas Schünemann. All rights reserved."
-            macOS {
-                packageVersion = "1.0.0"
-            }
-            windows {
-                iconFile.set(iconRoot.resolve("icons/appIcon.ico"))
-                upgradeUuid = "31f38659-2d21-44d6-9023-7b20efcc081b"
-            }
-            linux {
-                iconFile.set(iconRoot.resolve("icons/appIcon.png"))
-            }
 
             modules("java.sql")
 
-            buildTypes.release.proguard {
+            /*buildTypes.release.proguard {
                 //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
-            }
-        }*/
+            }*/
+        }
     }
 }
 
@@ -230,20 +189,6 @@ sqldelight {
     }
 }
 
-/*tasks {
-    withType<JavaExec> {
-        // afterEvaluate is needed because the Compose Gradle Plugin
-        // register the task in the afterEvaluate block
-        afterEvaluate {
-            javaLauncher = project.javaToolchains.launcherFor {
-                languageVersion = JavaLanguageVersion.of(17)
-                vendor = JvmVendorSpec.JETBRAINS
-            }
-            setExecutable(javaLauncher.map { it.executablePath.asFile.absolutePath }.get())
-        }
-    }
-}*/
-
 dependencies {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
@@ -256,8 +201,3 @@ configurations.all {
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
 }
-
-
-/*multiplatformResources {
-    multiplatformResourcesPackage = "de.hive.gamefinder"
-}*/

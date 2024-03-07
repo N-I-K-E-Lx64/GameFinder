@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - createWindowsRelease
-      - createMacOsRelease
+      # - createMacOsRelease
     steps:
       - uses: actions/checkout@v4
 
@@ -47,9 +47,16 @@ jobs:
 
       - run: ls -R gamefinder
 
-      - name: Upload release assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-1.0.0.dmg
-          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-0.1.0.msi
+#      - name: Upload release assets
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-1.0.0.dmg
+#          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-0.1.0.msi
+
+      - name: Run Conveyor
+        uses: hydraulic-software/conveyor/actions/build@v12.0
+        with:
+          command: make copied-site
+          signing_key: ${{ secrets.SIGNING_KEY }}
+          agree_to_license: 1

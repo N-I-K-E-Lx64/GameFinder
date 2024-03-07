@@ -48,8 +48,7 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         shell: bash
-        #run: ./gradlew packageReleaseMsi
-        run: ./gradlew packageMsi
+        run: ./gradlew packageUberJarForCurrentOS
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1
@@ -57,7 +56,8 @@ jobs:
           # Artifact name
           name: gamefinder-windows
           # A file, directory or wildcard pattern that describes what to upload
-          path: composeApp\build\compose\binaries\main-release\msi\de.hive.gamefinder-0.1.0.msi
+          # path: composeApp\build\compose\binaries\main-release\msi\de.hive.gamefinder-0.1.0.msi
+          path: composeApp\build\compose\jars\gamefinder-windows-amd64-1.0.0.jar
           # The desired behavior if no files are found using the provided path. Available Options:
           # warn: Output a warning but do not fail the action
           # error: Fail the action with an error message
