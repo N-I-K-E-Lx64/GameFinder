@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
 
-    id("dev.hydraulic.conveyor") version "1.8"
+    id("dev.hydraulic.conveyor") version "1.9"
 }
 
 version = "1.0.0"
@@ -34,7 +34,7 @@ kotlin {
         }
     }
 
-    jvm {
+    jvm("desktop") {
         jvmToolchain {
             languageVersion = JavaLanguageVersion.of(17)
             vendor = JvmVendorSpec.JETBRAINS
@@ -42,6 +42,8 @@ kotlin {
     }
     
     sourceSets {
+        val desktopMain by getting
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
 
@@ -89,7 +91,7 @@ kotlin {
 
             implementation(libs.material3.window.size.multiplatform)
         }
-        jvmMain.dependencies {
+        desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
 
             implementation(libs.logback)
@@ -150,10 +152,10 @@ compose.desktop {
 
             modules("java.sql")
 
-            /*buildTypes.release.proguard {
+            buildTypes.release.proguard {
                 //obfuscate.set(true)
                 configurationFiles.from(project.file("compose-desktop.pro"))
-            }*/
+            }
         }
     }
 }
