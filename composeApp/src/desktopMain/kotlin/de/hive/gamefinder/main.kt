@@ -23,17 +23,13 @@ import org.jetbrains.jewel.intui.window.styling.light
 import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.styling.TitleBarStyle
-import org.koin.core.Koin
-
-lateinit var koin: Koin
 
 fun main() {
-
-    koin = KoinInit().init()
-
     val icon = BitmapPainter(useResource("icons/appIcon.png", ::loadImageBitmap))
 
     return application {
+        KoinInit().init()
+
         val themeDefinition =
             if (DesktopViewModel.theme.isDark()) {
                 JewelTheme.darkThemeDefinition()
