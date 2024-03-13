@@ -12,23 +12,32 @@ on:
 jobs:
   build-and-release:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Install and Setup Jetbrains JBR (Linux)
-        if: runner.os == 'Linux'
-        shell: bash
+      # Install JBR for Windows
+      - name: Install and Setup JetBrains Runtime (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
         env:
-          JBR_URL_Linux_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-linux-x86-b1000.48.tar.gz'
+          JBR_URL_Windows_X64: 'https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-17.0.10-windows-x64-b1000.48.tar.gz'
+        # Invoke-WebRequest -Uri "$env:JBR_URL_Windows_X64" -OutFile "jbr.tar.gz"
         run: |
           mkdir -p "$HOME/.jdks/jbr17"
-          wget -q -O - "$JBR_URL_${{ runner.os }}_${{ runner.arch }}" | tar -xzf - --strip-components=1 -C "$HOME/.jdks/jbr17"
-          echo "JAVA_HOME=$HOME/.jdks/jbr17" >> $GITHUB_ENV
-          echo "PATH=$HOME/.jdks/jbr17/bin:$PATH" >> $GITHUB_ENV
+          Start-BitsTransfer -Source "$env:JBR_URL_Windows_X64" -Destination "jbr.tar.gz"
+          tar -xzf "jbr.tar.gz" --strip-components=1 -C "$HOME/.jdks/jbr17"
+          Remove-Item "jbr.tar.gz"
+
+      - name: Setup JAVA_HOME and PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          echo "JAVA_HOME=$HOME\.jdks\jbr17" >> $env:GITHUB_ENV
+          echo "PATH=$HOME\.jdks\jbr17\bin;$env:PATH" >> $env:GITHUB_ENV
 
       - name: Verify Java Setup
         shell: bash
