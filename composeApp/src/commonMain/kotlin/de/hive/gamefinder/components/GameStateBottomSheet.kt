@@ -36,7 +36,7 @@ fun ChangeStateBottomSheet(
                     },
                     modifier = Modifier.clickable { onListItemClick(index) }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
     }
