@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -119,12 +120,12 @@ fun LibrarySideSheet(
                                 }
                             }
 
-                            Divider(modifier = Modifier.padding(16.dp))
+                            HorizontalDivider(modifier = Modifier.padding(16.dp))
                         }
 
                         item {
                             FormIconHeader(
-                                Icons.Filled.Label,
+                                Icons.AutoMirrored.Filled.Label,
                                 contentDescription = "Tag List Icon",
                                 headerText = "Tags"
                             )
@@ -178,7 +179,7 @@ fun LibrarySideSheet(
                                 }
                             }
 
-                            Divider(modifier = Modifier.padding(16.dp))
+                            HorizontalDivider(modifier = Modifier.padding(16.dp))
                         }
 
                         item {

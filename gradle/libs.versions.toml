@@ -10,9 +10,7 @@ androidx-core-ktx = "1.12.0"
 androidx-espresso-core = "3.5.1"
 androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
-compose = "1.5.12"
-compose-compiler = "1.5.7"
-compose-plugin = "1.5.12"
+compose = "1.6.1"
 junit = "4.13.2"
 kotlin = "1.9.22"
 coroutines = "1.8.0"
@@ -31,7 +29,7 @@ logback = "1.4.14"
 napier = "2.7.1"
 kamel = "0.9.1"
 
-jewel = "0.14.1"
+jewel = "0.15.1"
 
 material3WindowSizeClassMultiplatform = "0.3.2"
 
@@ -48,7 +46,6 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-# compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
@@ -90,7 +87,7 @@ jewel-int-ui-decoratedWindow = { module = "org.jetbrains.jewel:jewel-int-ui-deco
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization" , version.ref = "kotlinx-serialization-plugin" }
 sqlDelight-plugin = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

@@ -202,7 +202,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     }
                                 }
 
-                                Divider(modifier = Modifier.padding(8.dp))
+                                HorizontalDivider(modifier = Modifier.padding(8.dp))
 
                                 FormIconHeader(
                                     Icons.Filled.Groups,
