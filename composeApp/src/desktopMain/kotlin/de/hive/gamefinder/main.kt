@@ -25,11 +25,11 @@ import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.styling.TitleBarStyle
 
 fun main() {
+    KoinInit().init()
+
     val icon = BitmapPainter(useResource("icons/appIcon.png", ::loadImageBitmap))
 
     return application {
-        KoinInit().init()
-
         val themeDefinition =
             if (DesktopViewModel.theme.isDark()) {
                 JewelTheme.darkThemeDefinition()
