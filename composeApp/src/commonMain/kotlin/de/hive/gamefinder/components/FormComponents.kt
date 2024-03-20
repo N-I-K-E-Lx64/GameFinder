@@ -1,12 +1,15 @@
 package de.hive.gamefinder.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -56,7 +59,6 @@ fun FormSliderRow(
     onSliderValueChangeFinished: (Int) -> Unit
 ) {
     var sliderPosition by remember { mutableStateOf(sliderValue.toFloat()) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     Column(
         modifier = Modifier.padding(16.dp)
@@ -69,26 +71,21 @@ fun FormSliderRow(
             valueRange = sliderValueRange,
             onValueChangeFinished = { onSliderValueChangeFinished(sliderPosition.toInt()) },
             enabled = sliderEnabled,
-            /*thumb = {
-                Label(
-                    label = {
-                        PlainTooltip(
-                            modifier = Modifier
-                                .requiredSize(45.dp, 25.dp)
-                                .wrapContentWidth()
-                        ) {
-                            Text("%.2f".format(sliderPosition))
-                        }
-                    },
-                    interactionSource = interactionSource
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primary),
                 ) {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        contentDescription = null,
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                    )
+                    Text(text = sliderPosition.toInt().toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.align(Alignment.Center).offset(y = (-2).dp))
                 }
-            }*/
+            }
         )
     }
 }
