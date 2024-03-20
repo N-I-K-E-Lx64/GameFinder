@@ -1,6 +1,5 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -65,7 +64,6 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
