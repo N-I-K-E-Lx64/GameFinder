@@ -182,7 +182,7 @@ fun ModalNavigationDrawerContent(
                             color = MaterialTheme.colorScheme.primary
                         )
                         IconButton(onClick = onDrawerClicked) {
-                            Icon(Icons.AutoMirrored.Filled.MenuOpen, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Default.MenuOpen, contentDescription = null)
                         }
                     }
 

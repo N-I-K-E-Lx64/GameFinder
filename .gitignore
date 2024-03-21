@@ -18,3 +18,5 @@ captures
 
 # Secrets
 composeApp/secrets.properties
+
+/output/

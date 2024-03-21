@@ -4,10 +4,14 @@ name: Build Multiplatform Project
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+#  push:
+#    branches: ['release/**']
+#    tags:
+#      - "v*.*.*"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,3 +23,49 @@ jobs:
 
   createMacOsRelease:
     uses: ./.github/workflows/build-macOS.yml
+
+  releaseArtifactsOnGithubRelease:
+    runs-on: ubuntu-latest
+    needs:
+      - createWindowsRelease
+      - createMacOsRelease
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: which git
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download artifacts from build-targets
+        uses: actions/download-artifact@v4
+        with:
+          path: gamefinder
+          pattern: gamefinder-*
+          # When multiple artifacts are matched, this changes the behavior of the destination directories.
+          # If true, the downloaded artifacts will be in the same directory specified by path.
+          # If false, the downloaded artifacts will be extracted into individual named directories within the specified path.
+          # Optional. Default is 'false'
+          merge-multiple: true
+
+      - run: ls -R gamefinder
+
+#      - name: Upload release assets
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-1.0.0.dmg
+#          gh release upload v0.1.0-alpha gamefinder/de.hive.gamefinder-0.1.0.msi
+
+      - name: Run Conveyor
+        uses: hydraulic-software/conveyor/actions/build@v13.1
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          CONVEYOR_TOKEN: ${{ secrets.CONVEYOR_TOKEN }}
+        with:
+          command: make copied-site
+          signing_key: ${{ secrets.SIGNING_KEY }}
+          agree_to_license: 1

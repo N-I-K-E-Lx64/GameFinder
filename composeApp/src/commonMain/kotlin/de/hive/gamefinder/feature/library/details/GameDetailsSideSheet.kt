@@ -163,6 +163,7 @@ fun LibrarySideSheet(
                                     query = tagQuery,
                                     queryLabel = stringResource(Res.string.details_tag_textview_label),
                                     queryPlaceholder = "Survival",
+                                    querySupportingText = null,
                                     onQueryChanged = {
                                         tagQuery = it
                                         screenModel.searchTags(tagQuery)
