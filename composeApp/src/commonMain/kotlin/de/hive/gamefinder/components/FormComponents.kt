@@ -42,7 +42,7 @@ fun FormSwitchRow(
             )
         }
     )
-    Divider(modifier = Modifier.padding(horizontal = 8.dp))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
 }
 
 @Composable

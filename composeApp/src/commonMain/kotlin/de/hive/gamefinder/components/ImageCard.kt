@@ -48,7 +48,7 @@ fun CoverImageCard(
                         resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { progress -> CircularProgressIndicator(progress) },
+                        onLoading = { CircularProgressIndicator(progress = { it }) },
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
                     )
@@ -87,7 +87,7 @@ fun CoverImageCard(
                         resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { progress -> CircularProgressIndicator(progress) },
+                        onLoading = { CircularProgressIndicator(progress = { it }) },
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .clip(RoundedCornerShape(16.dp))

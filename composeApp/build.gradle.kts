@@ -1,7 +1,5 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -13,17 +11,16 @@ plugins {
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
-    // alias(libs.plugins.multiplatform.resources)
 
-    // id("dev.hydraulic.conveyor") version "1.8"
+    id("dev.hydraulic.conveyor") version "1.9"
 }
 
-// version = "0.1.0"
+version = "1.0.0"
 
 java {
     toolchain {
-        vendor = JvmVendorSpec.JETBRAINS
         languageVersion = JavaLanguageVersion.of(17)
+        vendor = JvmVendorSpec.JETBRAINS
     }
 }
 
@@ -35,17 +32,17 @@ kotlin {
             }
         }
     }
-    
+
     jvm("desktop") {
         jvmToolchain {
-            vendor = JvmVendorSpec.JETBRAINS
             languageVersion = JavaLanguageVersion.of(17)
+            vendor = JvmVendorSpec.JETBRAINS
         }
     }
     
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
 
@@ -63,14 +60,10 @@ kotlin {
             api(libs.multiplatform.noArg)
             api(libs.multiplatform.coroutines)
 
-            //api(libs.moko.resources)
-            //api(libs.moko.resourcesCompose)
-
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
@@ -108,7 +101,6 @@ kotlin {
 
             implementation(libs.sqlDelight.jvm)
 
-            //implementation(libs.jewel.int.ui.standalone)
             implementation(libs.jewel.int.ui.decoratedWindow)
         }
     }
@@ -152,21 +144,9 @@ compose.desktop {
     application {
         mainClass = "de.hive.gamefinder.MainKt"
 
-        val iconsRoot = project.file("src/desktopMain/resources")
-
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "de.hive.gamefinder"
-            packageVersion = "0.1.0"
-            macOS {
-                packageVersion = "1.0.0"
-            }
-            windows {
-                iconFile.set(iconsRoot.resolve("icons/appIcon.ico"))
-            }
-            linux {
-                iconFile.set(iconsRoot.resolve("icons/appIcon.png"))
-            }
+            packageName = "gamefinder"
+            copyright = "© 2024 Niklas Schünemann. All rights reserved."
 
             modules("java.sql")
 
@@ -209,36 +189,15 @@ sqldelight {
     }
 }
 
-tasks {
-    withType<JavaExec> {
-        // afterEvaluate is needed because the Compose Gradle Plugin
-        // register the task in the afterEvaluate block
-        afterEvaluate {
-            javaLauncher = project.javaToolchains.launcherFor {
-                languageVersion = JavaLanguageVersion.of(17)
-                vendor = JvmVendorSpec.JETBRAINS
-            }
-            setExecutable(javaLauncher.map { it.executablePath.asFile.absolutePath }.get())
-        }
-    }
-}
-
-/*dependencies {
+dependencies {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
     windowsAmd64(compose.desktop.windows_x64)
-}*/
+}
 
-
-/*multiplatformResources {
-    multiplatformResourcesPackage = "de.hive.gamefinder"
-}*/
-
-/*// region Work around temporary Compose bugs.
+// Temporary fix for "Cannot choose between the following variants of org.jetbrains.skiko:skiko:$version" - https://github.com/JetBrains/compose-multiplatform/issues/1404#issuecomment-1146894731
 configurations.all {
     attributes {
-        // https://github.com/JetBrains/compose-jb/issues/1404#issuecomment-1146894731
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
 }
-// endregion*/

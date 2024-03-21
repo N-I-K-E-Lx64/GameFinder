@@ -2,9 +2,11 @@ package de.hive.gamefinder
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.res.loadImageBitmap
-import androidx.compose.ui.res.useResource
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.ResourceLoader
+import androidx.compose.ui.res.loadSvgPainter
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -23,15 +25,13 @@ import org.jetbrains.jewel.intui.window.styling.light
 import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.styling.TitleBarStyle
-import org.koin.core.Koin
+import java.io.InputStream
 
-lateinit var koin: Koin
-
+@OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    KoinInit().init()
 
-    koin = KoinInit().init()
-
-    val icon = BitmapPainter(useResource("icons/appIcon.png", ::loadImageBitmap))
+    val icon = svgResource("icons/kotlin.svg")
 
     return application {
         val themeDefinition =
@@ -70,6 +70,16 @@ fun main() {
         }
     }
 }
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun svgResource(
+    resourcePath: String,
+    loader: ResourceLoader = ResourceLoader.Default
+): Painter =
+    loader.load(resourcePath)
+        .use { stream: InputStream ->
+            loadSvgPainter(stream, Density(1f))
+        }
 
 @Preview
 @Composable
