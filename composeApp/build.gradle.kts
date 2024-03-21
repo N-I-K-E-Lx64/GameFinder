@@ -1,5 +1,6 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -85,9 +86,11 @@ kotlin {
             implementation(libs.sqlDelight.coroutines)
             implementation(libs.sqlDelight.primitives)
 
-            implementation(libs.kamel)
-
             implementation(libs.material3.window.size.multiplatform)
+
+            implementation(libs.kamel)
+            implementation(libs.compose.shimmer)
+            implementation(libs.reorderable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -193,11 +196,4 @@ dependencies {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
     windowsAmd64(compose.desktop.windows_x64)
-}
-
-// Temporary fix for "Cannot choose between the following variants of org.jetbrains.skiko:skiko:$version" - https://github.com/JetBrains/compose-multiplatform/issues/1404#issuecomment-1146894731
-configurations.all {
-    attributes {
-        attribute(Attribute.of("ui", String::class.java), "awt")
-    }
 }

@@ -36,21 +36,20 @@ import de.hive.gamefinder.core.domain.Launcher
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
+import gamefinder.composeapp.generated.resources.*
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 class LibraryScreen(val filter: Launcher?) : Screen {
 
-    companion object {
-        const val IGDB_IMAGE_ENDPOINT = "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/"
-    }
-
     @OptIn(
-        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class
+        ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalResourceApi::class
     )
     @Composable
     override fun Content() {
@@ -81,6 +80,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
 
         var splitFraction by remember { mutableStateOf(1f) }
 
+        var gameCount by remember { mutableStateOf(0) }
+
         // Filter states
         var filterPlatform by remember { mutableStateOf(-1) }
         var filterOnlineMultiplayer by remember { mutableStateOf(false) }
@@ -110,7 +111,8 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                             val result = snackbarHostState.showSnackbar(
                                 message = event.message,
                                 actionLabel = event.actionLabel,
-                                withDismissAction = true
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long
                             )
                             when (result) {
                                 SnackbarResult.ActionPerformed -> {
@@ -131,37 +133,33 @@ class LibraryScreen(val filter: Launcher?) : Screen {
             }
         }
 
-        when (state) {
-            is LibraryScreenModel.State.Init -> {
-                Text("Init")
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                AppBar(
+                    gameCount = gameCount,
+                    searchResultState = searchResultState,
+                    onQueryChange = { screenModel.searchGames(it) },
+                    onQueryDismissed = { screenModel.resetSearchResults() }
+                )
+            },
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { openImportGameDialog = true },
+                    icon = { Icon(Icons.Filled.Add, "Import a new game") },
+                    text = { Text(text = "Import Game") }
+                )
             }
+        ) { innerPadding ->
+            when (state) {
+                is LibraryScreenModel.State.Init -> {
+                }
+                is LibraryScreenModel.State.Loading -> {
+                }
+                is LibraryScreenModel.State.Result -> {
+                    val games = (state as LibraryScreenModel.State.Result).games
+                    gameCount = games.size
 
-            is LibraryScreenModel.State.Loading -> {
-                // TODO : Implement a custom loading animation
-                Text("Loading")
-            }
-
-            is LibraryScreenModel.State.Result -> {
-                val games = (state as LibraryScreenModel.State.Result).games
-
-                Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) },
-                    topBar = {
-                        AppBar(
-                            gameCount = games.size,
-                            searchResultState = searchResultState,
-                            onQueryChange = { screenModel.searchGames(it) },
-                            onQueryDismissed = { screenModel.resetSearchResults() }
-                        )
-                    },
-                    floatingActionButton = {
-                        ExtendedFloatingActionButton(
-                            onClick = { openImportGameDialog = true },
-                            icon = { Icon(Icons.Filled.Add, "Import a new game") },
-                            text = { Text(text = "Import Game") }
-                        )
-                    }
-                ) { innerPadding ->
                     TwoPane(
                         modifier = Modifier
                             .fillMaxSize()
@@ -175,7 +173,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                 FormIconHeader(
                                     Icons.Filled.RocketLaunch,
                                     contentDescription = "Launcher Filter Icon",
-                                    headerText = "Launcher"
+                                    headerText = stringResource(Res.string.launcher_form_header)
                                 )
 
                                 Row(
@@ -207,7 +205,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                 FormIconHeader(
                                     Icons.Filled.Groups,
                                     contentDescription = "Multiplayer Parameter Filter Icon",
-                                    headerText = "Multiplayer"
+                                    headerText = stringResource(Res.string.multiplayer_form_header)
                                 )
 
                                 Row(
@@ -216,7 +214,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     FilterChip(
                                         selected = filterOnlineMultiplayer,
                                         onClick = { filterOnlineMultiplayer = !filterOnlineMultiplayer; applyFilter() },
-                                        label = { Text("Online Multiplayer") },
+                                        label = { Text(stringResource(Res.string.library_online_multiplayer_chip_label)) },
                                         leadingIcon = {
                                             if (filterOnlineMultiplayer) {
                                                 Icon(
@@ -232,7 +230,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                         onClick = {
                                             filterCampaignMultiplayer = !filterCampaignMultiplayer; applyFilter()
                                         },
-                                        label = { Text("Campaign Multiplayer") },
+                                        label = { Text(stringResource(Res.string.library_campaign_multiplayer_chip_label)) },
                                         leadingIcon = {
                                             if (filterCampaignMultiplayer) {
                                                 Icon(
@@ -268,7 +266,6 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     }*/
                                 }
 
-                                // TODO : Different card view - https://m3.material.io/foundations/layout/applying-layout/window-size-classes
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
@@ -276,30 +273,30 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     val columnMinSize = if (cardOrientation == CardOrientation.VERTICAL) 300.dp else 500.dp
 
                                     LazyVerticalGrid(
-                                        contentPadding = PaddingValues(16.dp),
+                                        contentPadding = PaddingValues(8.dp),
                                         columns = GridCells.Adaptive(minSize = columnMinSize),
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         state = lazyGridState
                                     ) {
-                                        items(games) {
+                                        items(games) {game ->
                                             CoverImageCard(
-                                                game = it,
+                                                game = game,
                                                 orientation = cardOrientation,
-                                                isSelected = selectedGame == it.id,
+                                                isSelected = selectedGame == game.id,
                                                 onCardClick = {
                                                     // Initialize state in the game details screen model
-                                                    gameDetailsScreenModel.loadState(it.id)
+                                                    gameDetailsScreenModel.loadState(game.id)
                                                     // Open the side sheet
-                                                    selectedGame = it.id
+                                                    selectedGame = game.id
                                                     splitFraction = 2f / 3f
                                                 },
                                                 onChangeStateAction = {
                                                     openChangeStateBottomSheet = true
-                                                    statusChangeGameId = it.id
+                                                    statusChangeGameId = game.id
                                                 },
-                                                onAddToShortlistAction = { screenModel.addGameToShortlist(it.id) }
+                                                onUpdateShortlistStatus = { screenModel.updateShortlistStatus(game.id, it) },
                                             )
                                         }
                                     }
@@ -378,6 +375,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun ImportGameDialog(
     onDismissRequest: () -> Unit,
@@ -402,14 +400,16 @@ private fun ImportGameDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Icon(Icons.Filled.CloudDownload, contentDescription = "Game import header icon")
+
                 Text(
-                    "Import a game",
+                    stringResource(Res.string.import_game_dialog_headline),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
                 AutoCompleteTextView(
                     query = gameName,
-                    queryLabel = "Game name",
+                    queryLabel = stringResource(Res.string.import_game_dialog_headline),
                     queryPlaceholder = "Anno 1800",
                     querySupportingText = "Select the correct version of the game!",
                     onQueryChanged = { onUpdateNameQuery(it) },
@@ -433,7 +433,7 @@ private fun ImportGameDialog(
                     )
                 }
 
-                Text("Platform", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.import_game_dialog_launcher_selection), style = MaterialTheme.typography.titleMedium)
 
                 Column(modifier = Modifier.selectableGroup()) {
                     launchers.forEach { platform ->
@@ -466,14 +466,14 @@ private fun ImportGameDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     TextButton(onClick = { onDismissRequest() }) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.import_game_dialog_cancel))
                     }
 
                     TextButton(
                         onClick = { onSave(desiredGameId) },
                         enabled = desiredGameId != 0
                     ) {
-                        Text("Save")
+                        Text(stringResource(Res.string.import_game_dialog_save))
                     }
                 }
             }
@@ -481,7 +481,7 @@ private fun ImportGameDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 private fun AppBar(
     gameCount: Int,
@@ -500,7 +500,7 @@ private fun AppBar(
             modifier = Modifier.padding(top = 8.dp, start = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "Library", style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(Res.string.library_headline), style = MaterialTheme.typography.headlineLarge)
             Text(
                 text = "$gameCount imported games",
                 style = MaterialTheme.typography.titleSmall
@@ -520,7 +520,7 @@ private fun AppBar(
                 onSearch = { active = false },
                 active = active,
                 onActiveChange = { active = it },
-                placeholder = { Text("Search") },
+                placeholder = { Text(stringResource(Res.string.library_appbar_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     IconButton(onClick = {

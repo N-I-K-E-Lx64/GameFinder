@@ -17,6 +17,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -26,9 +28,12 @@ import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.feature.shortlist.ShortlistScreen
 import io.github.aakira.napier.Napier
+import org.koin.compose.koinInject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigationRail(
+    screenModel: NavigationScreenModel = koinInject(),
     selectedRoute: String,
     onDrawerClicked: () -> Unit = {},
     onActionButtonClicked: () -> Unit = {},
@@ -69,15 +74,40 @@ fun AppNavigationRail(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            SCREEN_NAVIGATION.forEach {
-                NavigationRailItem(
-                    selected = selectedRoute == it.name,
-                    onClick = { onDrawerItemClicked(it) },
-                    icon = {
-                        Icon(it.icon, contentDescription = null)
+            SCREEN_NAVIGATION
+                .filter { it.name != NavigationRoutes.SHORTLIST }
+                .forEach {
+                    NavigationRailItem(
+                        selected = selectedRoute == it.name,
+                        onClick = { onDrawerItemClicked(it) },
+                        icon = {
+                            Icon(it.icon, contentDescription = null)
+                        }
+                    )
+                }
+
+            NavigationRailItem(
+                selected = selectedRoute == NavigationRoutes.SHORTLIST,
+                onClick = { onDrawerItemClicked(SCREEN_NAVIGATION[2]) },
+                icon = {
+                    BadgedBox(
+                        badge = {
+                            Badge {
+                                val badgeNumber = screenModel.shortlistBadge.value.toString()
+                                Text(
+                                    badgeNumber,
+                                    modifier = Modifier.semantics { contentDescription = "$badgeNumber games on shortlist" }
+                                )
+                            }
+                        }
+                    ) {
+                        Icon(
+                            Icons.Filled.Bookmarks,
+                            contentDescription = "Shortlist"
+                        )
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
@@ -177,7 +207,6 @@ fun ModalNavigationDrawerContent(
                     }
                 }
 
-
                 NavigationDrawerContent(
                     selectedRoute = selectedRoute,
                     onDrawerItemClicked = onDrawerItemClicked
@@ -205,8 +234,6 @@ fun NavigationDrawerContent(
                 onDrawerItemClicked = onDrawerItemClicked
             )
         }
-
-        // TODO : Custom filters
     }
 }
 
@@ -272,7 +299,7 @@ fun navigationMeasurePolicy(): MeasurePolicy {
 object NavigationRoutes {
     const val LIBRARY = "Library"
     const val GROUP = "Group Play (Alpha)"
-    const val SHORTLIST = "Shortlist (WIP)"
+    const val SHORTLIST = "Shortlist"
 }
 
 data class NavigationElement (
