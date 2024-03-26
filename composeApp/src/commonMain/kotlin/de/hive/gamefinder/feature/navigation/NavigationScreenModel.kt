@@ -16,6 +16,10 @@ class NavigationScreenModel(private val friendUseCase: FriendUseCase) : ScreenMo
         _friendName.value = name
     }
 
+    fun validateFriend(friendName: String): Boolean {
+        return friendUseCase.checkFriendExistence(friendName = friendName)
+    }
+
     fun saveFriend() {
         screenModelScope.launch {
             val friend = Friend(name = friendName.value)
