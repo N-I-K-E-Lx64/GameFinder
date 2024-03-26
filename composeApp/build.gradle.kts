@@ -174,10 +174,12 @@ buildkonfig {
 
     val clientId = if (props.getProperty("CLIENT_ID") != null) props.getProperty("CLIENT_ID") else System.getenv("CLIENT_ID")
     val clientSecret = if (props.getProperty("CLIENT_SECRET") != null) props.getProperty("CLIENT_SECRET") else System.getenv("CLIENT_SECRET")
+    val development = if (props.getProperty("DEVELOPMENT") != null) "true" else "false"
 
     defaultConfigs {
         buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", clientId)
         buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", clientSecret)
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEVELOPMENT", development)
     }
 }
 

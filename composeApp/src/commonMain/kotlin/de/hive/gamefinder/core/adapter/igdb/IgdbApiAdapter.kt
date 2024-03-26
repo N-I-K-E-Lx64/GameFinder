@@ -100,8 +100,6 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         }
         val desiredGame = igdbResult.first()
 
-        println(desiredGame)
-
         val gameModes = desiredGame.gameModes?.let { gameModes -> gameModes.map { GameMode.entries[it] } }
         val multiplayerMode = desiredGame.multiplayerModes?.let { getMultiplayerInfos(desiredGame.gameId) }
 
