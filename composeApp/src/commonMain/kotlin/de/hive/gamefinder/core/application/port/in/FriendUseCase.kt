@@ -12,5 +12,7 @@ interface FriendUseCase {
 
     fun getFriendByGame(gameId: Int): Flow<List<GameFriendRelation>>
 
+    fun checkFriendExistence(friendName: String): Boolean
+
     suspend fun changeGameFriendRelation(gameId: Int, friendId: Int, update: Boolean)
 }

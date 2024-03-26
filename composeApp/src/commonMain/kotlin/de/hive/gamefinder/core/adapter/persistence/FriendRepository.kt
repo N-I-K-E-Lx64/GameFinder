@@ -34,6 +34,13 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
             .map { result -> result.map { GameFriendRelation(it.id, gameId, it.name, it.owning.toBoolean()) } }
     }
 
+    override fun getFriendByName(friendName: String): Friend? {
+        val entity = dbQueries
+            .getFriendByName(friendName)
+            .executeAsOneOrNull()
+        return entity?.toModel()
+    }
+
     override suspend fun createGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
             .createGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())

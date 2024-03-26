@@ -122,6 +122,10 @@ SELECT DISTINCT fe.id, fe.name, IIF(gf.game_id = ?, 1, 0) AS owning
 FROM friend_entity AS fe
 LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
 
+getFriendByName:
+SELECT * FROM friend_entity
+WHERE name = ?;
+
 createGameFriendRelation:
 INSERT INTO game_friends (game_id, friend_id) VALUES (:gameId, :friendId);
 

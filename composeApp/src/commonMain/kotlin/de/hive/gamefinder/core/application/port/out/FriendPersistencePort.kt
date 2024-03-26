@@ -12,6 +12,8 @@ interface FriendPersistencePort {
 
     fun getFriendsByGame(gameId: Int): Flow<List<GameFriendRelation>>
 
+    fun getFriendByName(friendName: String): Friend?
+
     suspend fun createGameFriendRelation(gameId: Int, friendId: Int)
 
     suspend fun deleteGameFriendRelation(gameId: Int, friendId: Int)
