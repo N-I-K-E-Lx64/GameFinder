@@ -87,10 +87,6 @@ kotlin {
             implementation(libs.sqlDelight.primitives)
 
             implementation(libs.material3.window.size.multiplatform)
-
-            implementation(libs.kamel)
-            implementation(libs.compose.shimmer)
-            implementation(libs.reorderable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

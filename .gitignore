@@ -17,6 +17,8 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # Secrets
-composeApp/secrets.properties
+/secrets.properties
+/composeApp/generated.conveyor.conf
+/composeApp/gamefinder.db
 
 /output/

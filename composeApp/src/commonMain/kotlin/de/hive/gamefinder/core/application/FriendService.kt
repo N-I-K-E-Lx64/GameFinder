@@ -20,6 +20,10 @@ class FriendService(private val persistencePort: FriendPersistencePort) : Friend
         return persistencePort.getFriendsByGame(gameId)
     }
 
+    override fun checkFriendExistence(friendName: String): Boolean {
+        return persistencePort.getFriendByName(friendName) != null
+    }
+
     override suspend fun changeGameFriendRelation(gameId: Int, friendId: Int, update: Boolean) {
         if (update) persistencePort.createGameFriendRelation(gameId, friendId) else persistencePort.deleteGameFriendRelation(gameId, friendId)
     }
