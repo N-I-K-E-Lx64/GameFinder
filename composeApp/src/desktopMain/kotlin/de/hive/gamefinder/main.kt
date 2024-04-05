@@ -57,7 +57,7 @@ fun main() {
         ) {
             DecoratedWindow(
                 onCloseRequest = { exitApplication() },
-                state = rememberWindowState(width = 1280.dp, height = 960.dp),
+                state = rememberWindowState(width = 1400.dp, height = 960.dp),
                 title = "GameFinder",
                 icon = icon
             ) {

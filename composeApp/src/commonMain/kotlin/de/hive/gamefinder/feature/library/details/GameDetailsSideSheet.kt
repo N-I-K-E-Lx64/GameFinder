@@ -21,8 +21,11 @@ import de.hive.gamefinder.components.AutoCompleteTextView
 import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.components.FormSliderRow
 import de.hive.gamefinder.components.FormSwitchRow
+import gamefinder.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
 @Composable
 fun LibrarySideSheet(
     state: GameDetailsScreenModel.State,
@@ -88,7 +91,7 @@ fun LibrarySideSheet(
                             FormIconHeader(
                                 Icons.Filled.PersonAdd,
                                 contentDescription = "Add Friend Icon",
-                                headerText = "Friends"
+                                headerText = stringResource(Res.string.friends_form_header)
                             )
                             Column {
                                 relations?.forEach { relation ->
@@ -124,7 +127,7 @@ fun LibrarySideSheet(
                             FormIconHeader(
                                 Icons.AutoMirrored.Filled.Label,
                                 contentDescription = "Tag List Icon",
-                                headerText = "Tags"
+                                headerText = stringResource(Res.string.tags_form_header)
                             )
 
                             FlowRow(
@@ -155,7 +158,7 @@ fun LibrarySideSheet(
                                 }
                                 AutoCompleteTextView(
                                     query = tagQuery,
-                                    queryLabel = "Tags",
+                                    queryLabel = stringResource(Res.string.details_tag_textview_label),
                                     queryPlaceholder = "Survival",
                                     querySupportingText = null,
                                     onQueryChanged = {
@@ -183,24 +186,24 @@ fun LibrarySideSheet(
                             FormIconHeader(
                                 Icons.Filled.ConnectWithoutContact,
                                 contentDescription = "Multiplayer Options Icon",
-                                headerText = "Multiplayer"
+                                headerText = stringResource(Res.string.multiplayer_form_header)
                             )
 
                             FormSwitchRow(
-                                headlineText = "Online Coop",
+                                headlineText = stringResource(Res.string.online_coop_form_header),
                                 switchValue = hasOnlineCoop,
                                 onSwitchValueChange = { screenModel.updateOnlineCoopState(it) }
                             )
 
                             FormSwitchRow(
-                                headlineText = "Campaign Coop",
+                                headlineText = stringResource(Res.string.campaign_coop_form_header),
                                 switchValue = hasCampaignCoop,
                                 switchEnabled = hasOnlineCoop,
                                 onSwitchValueChange = { screenModel.updateCampaignCoopState(it) }
                             )
 
                             FormSliderRow(
-                                headlineText = "Online Coop Max. Players",
+                                headlineText = stringResource(Res.string.maxplayers_form_header),
                                 sliderValue = onlineCoopMaxPlayers,
                                 sliderSteps = 13,
                                 sliderValueRange = 2f..16f,
@@ -216,7 +219,7 @@ fun LibrarySideSheet(
                                     onClick = { screenModel.updateMultiplayerParameters(it.id) },
                                     enabled = updateButtonVisibility
                                 ) {
-                                    Text("Update")
+                                    Text(stringResource(Res.string.details_update_button_label))
                                 }
                             }
                         }

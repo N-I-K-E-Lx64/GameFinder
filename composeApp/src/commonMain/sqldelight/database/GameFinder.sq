@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS game_entity (
     online_coop INTEGER AS Boolean,
     online_max_players INTEGER AS Int,
     shortlist INTEGER AS Boolean NOT NULL,
+    shortlist_position INTEGER AS Int,
     game_status INTEGER AS GameStatus NOT NULL
 );
 
@@ -58,6 +59,12 @@ SELECT ge.*, te.* FROM game_entity AS ge
 LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
 LEFT JOIN main.tag_entity te ON te.id = gt.tag_id
 WHERE ge.id = ?;
+
+getGamesOnShortlist:
+SELECT *
+FROM game_entity
+WHERE shortlist = 1
+ORDER BY shortlist_position;
 
 searchGamesByName:
 SELECT *
@@ -103,7 +110,17 @@ WHERE id = (:gameId);
 
 addGameToShortlist:
 UPDATE game_entity
-SET shortlist = 1
+SET shortlist = 1, shortlist_position = (:position)
+WHERE id = (:gameId);
+
+removeGameFromShortlist:
+UPDATE game_entity
+SET shortlist = 0, shortlist_position = NULL
+WHERE id = (:gameId);
+
+updateShortListPosition:
+UPDATE game_entity
+SET shortlist_position = (:position)
 WHERE id = (:gameId);
 
 updateGameStatus:

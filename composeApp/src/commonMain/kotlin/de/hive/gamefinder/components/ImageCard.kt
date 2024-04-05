@@ -1,9 +1,11 @@
 package de.hive.gamefinder.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -12,13 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.valentinilk.shimmer.shimmer
 import de.hive.gamefinder.core.domain.Game
-import de.hive.gamefinder.feature.library.LibraryScreen
+import de.hive.gamefinder.core.utils.ImageSize
+import de.hive.gamefinder.core.utils.getImageEndpoint
+import gamefinder.composeapp.generated.resources.Res
+import gamefinder.composeapp.generated.resources.game_action_addToShortlist
+import gamefinder.composeapp.generated.resources.game_action_changeState
+import gamefinder.composeapp.generated.resources.game_action_removeFromShortlist
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import kotlin.text.Typography.middleDot
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoverImageCard(
     game: Game,
@@ -26,7 +35,7 @@ fun CoverImageCard(
     isSelected: Boolean,
     onCardClick: () -> Unit,
     onChangeStateAction: () -> Unit,
-    onAddToShortlistAction: () -> Unit = {}
+    onUpdateShortlistStatus: (addToShortlist: Boolean) -> Unit
 ) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -45,10 +54,17 @@ fun CoverImageCard(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     KamelImage(
-                        resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
+                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { CircularProgressIndicator(progress = { it }) },
+                        onLoading = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .shimmer()
+                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                            )
+                        },
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
                     )
@@ -68,8 +84,9 @@ fun CoverImageCard(
                         )
 
                         LibraryEntryAssistantChipRow(
+                            isGameOnShortlist = game.isShortlist,
                             onChangeStateAction = { onChangeStateAction() },
-                            onAddToShortlistAction = { onAddToShortlistAction() }
+                            onUpdateShortlistStatus = { onUpdateShortlistStatus(it) }
                         )
                     }
                 }
@@ -84,7 +101,7 @@ fun CoverImageCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     KamelImage(
-                        resource = asyncPainterResource("${LibraryScreen.IGDB_IMAGE_ENDPOINT}${game.coverImageId}.jpg"),
+                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
                         onLoading = { CircularProgressIndicator(progress = { it }) },
@@ -117,8 +134,9 @@ fun CoverImageCard(
                         }
 
                         LibraryEntryAssistantChipRow(
+                            isGameOnShortlist = game.isShortlist,
                             onChangeStateAction = { onChangeStateAction() },
-                            onAddToShortlistAction = { onAddToShortlistAction() }
+                            onUpdateShortlistStatus = { onUpdateShortlistStatus(it) }
                         )
                     }
                 }
@@ -127,11 +145,12 @@ fun CoverImageCard(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
 @Composable
 fun LibraryEntryAssistantChipRow(
+    isGameOnShortlist: Boolean,
     onChangeStateAction: () -> Unit,
-    onAddToShortlistAction: () -> Unit
+    onUpdateShortlistStatus: (addToShortlist: Boolean) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
@@ -139,7 +158,7 @@ fun LibraryEntryAssistantChipRow(
     ) {
         AssistChip(
             onClick = { onChangeStateAction() },
-            label = { Text("Change state") },
+            label = { Text(stringResource(Res.string.game_action_changeState)) },
             leadingIcon = {
                 Icon(
                     Icons.Default.ChangeCircle,
@@ -149,16 +168,30 @@ fun LibraryEntryAssistantChipRow(
             }
         )
 
-        AssistChip(
-            onClick = { onAddToShortlistAction() },
-            label = { Text("Add to shortlist") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.BookmarkAdd,
-                    contentDescription = null,
-                    modifier = Modifier.size(AssistChipDefaults.IconSize)
-                )
-            }
-        )
+        if (!isGameOnShortlist) {
+            AssistChip(
+                onClick = { onUpdateShortlistStatus(true) },
+                label = { Text(stringResource(Res.string.game_action_addToShortlist)) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.BookmarkAdd,
+                        contentDescription = "Add game to shortlist",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
+        } else {
+            AssistChip(
+                onClick = { onUpdateShortlistStatus(false) },
+                label = { Text(stringResource(Res.string.game_action_removeFromShortlist)) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.BookmarkRemove,
+                        contentDescription = "Remove game from shortlist",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
+        }
     }
 }

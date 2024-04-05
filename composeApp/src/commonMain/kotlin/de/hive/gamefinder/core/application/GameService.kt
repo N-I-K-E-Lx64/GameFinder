@@ -22,6 +22,10 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         return persistencePort.getGame(id)
     }
 
+    override fun getGamesOnShortlist(): Flow<List<Game>> {
+        return persistencePort.getGamesOnShortlist()
+    }
+
     override fun searchGamesByName(name: String): Flow<List<Game>> {
         return persistencePort.getGamesByName(name)
     }
@@ -48,8 +52,14 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
         persistencePort.updateGameStatus(gameId, status)
     }
 
-    override suspend fun addGameToShortlist(gameId: Int) {
-        persistencePort.addGameToShortlist(gameId)
+    override suspend fun updateShortlistPosition(shortlistUpdate: List<Game>) {
+        shortlistUpdate
+            .filterIndexed { index, game -> game.shortlistPosition != index }
+            .forEach { persistencePort.updateShortlistPosition(it.id, shortlistUpdate.indexOf(it)) }
+    }
+
+    override suspend fun updateShortlistStatus(gameId: Int, addToShortlist: Boolean) {
+        if (addToShortlist) persistencePort.addGameToShortlist(gameId) else persistencePort.removeGameFromShortlist(gameId)
     }
 
     override suspend fun deleteGame(id: Int) {
