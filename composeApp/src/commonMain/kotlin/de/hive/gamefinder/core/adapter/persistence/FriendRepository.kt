@@ -2,9 +2,9 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 import de.hive.gamefinder.core.application.port.out.FriendPersistencePort
 import de.hive.gamefinder.core.domain.Friend
+import de.hive.gamefinder.core.domain.FriendGameRelation
 import de.hive.gamefinder.database.GameFinderDatabase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -26,12 +26,12 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
             .map { friends -> friends.map { it.toModel() } }
     }
 
-    override fun getFriendsByGame(gameId: Int): Flow<List<GameFriendRelation>> {
+    override fun getFriendsByGame(gameId: Int): Flow<List<FriendGameRelation>> {
         return dbQueries
-            .getFriendsByGame(gameId.toLong())
+            .getFriendsByGame(gameId.toLong(), mapper = { id, name, owning -> FriendGameRelation(id, name, owning.toBoolean()) })
             .asFlow()
             .mapToList(Dispatchers.IO)
-            .map { result -> result.map { GameFriendRelation(it.id, gameId, it.name, it.owning.toBoolean()) } }
+            .map { result -> result.map { it } }
     }
 
     override fun getFriendByName(friendName: String): Friend? {

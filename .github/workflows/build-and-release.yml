@@ -2,7 +2,7 @@ name: Build and Release Multiplatform Project
 
 on:
   push:
-    branches: ['release/**']
+    branches: ['main']
     tags:
       - "v*.*.*"
 
