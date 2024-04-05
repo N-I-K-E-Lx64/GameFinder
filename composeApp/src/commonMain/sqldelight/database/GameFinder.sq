@@ -118,9 +118,10 @@ getAllFriends:
 SELECT * FROM friend_entity;
 
 getFriendsByGame:
-SELECT DISTINCT fe.id, fe.name, IIF(gf.game_id = ?, 1, 0) AS owning
+SELECT fe.id, name, CASE WHEN gf.id IS NOT NULL THEN 1 ELSE 0 END AS owning
 FROM friend_entity AS fe
-LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
+LEFT JOIN main.game_friends gf ON fe.id = gf.friend_id AND gf.game_id = ?
+ORDER BY fe.id;
 
 getFriendByName:
 SELECT * FROM friend_entity
