@@ -2,12 +2,16 @@ package de.hive.gamefinder.feature.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.CurrentScreen
@@ -78,7 +82,7 @@ fun NavigationWrapper(
         AddFriendDialog(
             onDismissRequest = { openDialog = false },
             onDialogClosed = { openDialog = false },
-            onSave = { screenModel.saveFriend() },
+            onSave = { screenModel.saveFriend(); openDialog = false },
             onUpdateName = { screenModel.setFriendName(it) },
             friendName = friendName
         )
@@ -145,7 +149,7 @@ private fun AddFriendDialog(
                         Text(text = "Friend name")
                     },
                     singleLine = true,
-                    /*keyboardActions = KeyboardActions(
+                    keyboardActions = KeyboardActions(
                         onDone = {
                             onSave()
                             onDialogClosed()
@@ -154,7 +158,7 @@ private fun AddFriendDialog(
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Text
-                    )*/
+                    )
                 )
 
                 Row(
@@ -169,7 +173,6 @@ private fun AddFriendDialog(
                         Text("Save")
                     }
                 }
-
             }
         }
     }
