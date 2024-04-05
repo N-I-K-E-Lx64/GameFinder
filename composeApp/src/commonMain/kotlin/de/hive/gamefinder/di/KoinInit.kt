@@ -25,6 +25,7 @@ import de.hive.gamefinder.feature.game_finder.GameFinderScreenModel
 import de.hive.gamefinder.feature.library.LibraryScreenModel
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
+import de.hive.gamefinder.feature.shortlist.ShortlistScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
 import io.github.aakira.napier.Napier
 import org.koin.core.Koin
@@ -60,7 +61,8 @@ fun createDatabase(driver: SqlDriver): GameFinderDatabase {
             game_idAdapter = IntColumnAdapter,
             game_modesAdapter = gameModeAdapter,
             online_max_playersAdapter = IntColumnAdapter,
-            game_statusAdapter = gameStatusAdapter
+            game_statusAdapter = gameStatusAdapter,
+            shortlist_positionAdapter = IntColumnAdapter
         ),
         friend_entityAdapter = Friend_entity.Adapter(
             idAdapter = IntColumnAdapter
@@ -77,7 +79,7 @@ val coreModule = module {
     single<GameFinderDatabase> { createDatabase(get<DatabaseDriverFactory>().createDriver()) }
 
     single<Settings> { Settings() }
-
+    
     /**
      * Adapters
      */

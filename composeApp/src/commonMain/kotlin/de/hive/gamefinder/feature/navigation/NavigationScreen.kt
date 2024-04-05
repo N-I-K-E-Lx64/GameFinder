@@ -2,18 +2,12 @@ package de.hive.gamefinder.feature.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.CurrentScreen
@@ -36,20 +30,20 @@ fun NavigationWrapper(
 
     var selectedRoute by remember { mutableStateOf(NavigationRoutes.LIBRARY) }
     var openDialog by remember { mutableStateOf(false) }
-    var isError by rememberSaveable { mutableStateOf(false) }
 
-    fun validate(name: String) {
-        isError = screenModel.validateFriend(name)
+    LaunchedEffect(Unit) {
+        // Load badge values
+        screenModel.getBadgeValues()
     }
+
+    // TODO : Update the selected route when we go back!
 
     if (navigationType == NavigationType.PERMANENT_NAVIGATION_DRAWER) {
         PermanentNavigationDrawer(
             drawerContent = {
                 PermanentNavigationDrawerContent(
                     selectedRoute = selectedRoute,
-                    onDrawerItemClicked = {
-                        selectedRoute = it.name; navigator.push(it.destination)
-                    }
+                    onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) }
                 )
             },
         ) {
@@ -63,9 +57,7 @@ fun NavigationWrapper(
                     onDrawerClicked = {
                         scope.launch { drawerState.close() }
                     },
-                    onDrawerItemClicked = {
-                        selectedRoute = it.name; navigator.push(it.destination)
-                    },
+                    onDrawerItemClicked = { selectedRoute = it.name; navigator.push(it.destination) },
                     onActionButtonClicked = { openDialog = true }
                 )
             },
@@ -85,23 +77,10 @@ fun NavigationWrapper(
     if (openDialog) {
         AddFriendDialog(
             onDismissRequest = { openDialog = false },
-            onDialogClosed = {
-                openDialog = false
-                screenModel.setFriendName("")
-            },
-            onSave = {
-                // Check whether friend already exists
-                validate(friendName)
-
-                if (!isError) {
-                    screenModel.saveFriend()
-                    openDialog = false
-                    screenModel.setFriendName("")
-                }
-            },
+            onDialogClosed = { openDialog = false },
+            onSave = { screenModel.saveFriend() },
             onUpdateName = { screenModel.setFriendName(it) },
-            friendName = friendName,
-            isError = isError
+            friendName = friendName
         )
     }
 }
@@ -134,24 +113,29 @@ private fun AddFriendDialog(
     onSave: () -> Unit,
     onUpdateName: (friendName: String) -> Unit,
     friendName: String,
-    isError: Boolean
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    Icons.Filled.PersonAdd,
-                    contentDescription = "Create friend dialog header icon"
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Add a friend",
+                        style = MaterialTheme.typography.titleMedium
+                    )
 
-                Text(
-                    "Add a friend",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                    IconButton(
+                        onClick = { onDialogClosed() }
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close Dialog")
+                    }
+                }
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -161,25 +145,16 @@ private fun AddFriendDialog(
                         Text(text = "Friend name")
                     },
                     singleLine = true,
-                    keyboardActions = KeyboardActions(
+                    /*keyboardActions = KeyboardActions(
                         onDone = {
                             onSave()
+                            onDialogClosed()
                         }
                     ),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Text
-                    ),
-                    isError = isError,
-                    supportingText = {
-                        if (isError) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "$friendName already exists",
-                                textAlign = TextAlign.Start
-                            )
-                        }
-                    }
+                    )*/
                 )
 
                 Row(
@@ -194,6 +169,7 @@ private fun AddFriendDialog(
                         Text("Save")
                     }
                 }
+
             }
         }
     }

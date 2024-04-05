@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS game_entity (
     online_coop INTEGER AS Boolean,
     online_max_players INTEGER AS Int,
     shortlist INTEGER AS Boolean NOT NULL,
+    shortlist_position INTEGER AS Int,
     game_status INTEGER AS GameStatus NOT NULL
 );
 
@@ -59,6 +60,12 @@ LEFT JOIN main.game_tags gt ON ge.id = gt.game_id
 LEFT JOIN main.tag_entity te ON te.id = gt.tag_id
 WHERE ge.id = ?;
 
+getGamesOnShortlist:
+SELECT *
+FROM game_entity
+WHERE shortlist = 1
+ORDER BY shortlist_position;
+
 searchGamesByName:
 SELECT *
 FROM game_entity
@@ -73,20 +80,23 @@ AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
 findMultiplayerGamesByFriendsAndTags:
 SELECT DISTINCT ge.* FROM game_entity AS ge
-LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
-LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+    LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
+    LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
 WHERE ge.online_coop = 1
-AND ge.online_max_players >= (:friendCount)
-AND gf.friend_id IN ?
-AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL);
+    AND ge.online_max_players >= (:friendCount)
+    AND gf.friend_id IN ?
+    AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL)
+GROUP BY ge.id
+HAVING COUNT(DISTINCT gf.friend_id) = (:friendCount);
 
 findMultiplayerGamesByFriends:
-SELECT DISTINCT ge.* FROM game_entity AS ge
-LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
-LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+SELECT ge.* FROM game_entity AS ge
+    LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
 WHERE ge.online_coop = 1
-AND ge.online_max_players >= (:friendCount)
-AND gf.friend_id IN ?;
+  AND ge.online_max_players >= (:friendCount)
+  AND gf.friend_id IN ?
+GROUP BY ge.id
+HAVING COUNT(DISTINCT gf.friend_id) = (:friendCount);
 
 addGame:
 INSERT OR REPLACE INTO game_entity
@@ -100,7 +110,17 @@ WHERE id = (:gameId);
 
 addGameToShortlist:
 UPDATE game_entity
-SET shortlist = 1
+SET shortlist = 1, shortlist_position = (:position)
+WHERE id = (:gameId);
+
+removeGameFromShortlist:
+UPDATE game_entity
+SET shortlist = 0, shortlist_position = NULL
+WHERE id = (:gameId);
+
+updateShortListPosition:
+UPDATE game_entity
+SET shortlist_position = (:position)
 WHERE id = (:gameId);
 
 updateGameStatus:
@@ -118,9 +138,10 @@ getAllFriends:
 SELECT * FROM friend_entity;
 
 getFriendsByGame:
-SELECT DISTINCT fe.id, fe.name, IIF(gf.game_id = ?, 1, 0) AS owning
+SELECT fe.id, name, CASE WHEN gf.id IS NOT NULL THEN 1 ELSE 0 END AS owning
 FROM friend_entity AS fe
-LEFT OUTER JOIN main.game_friends gf ON fe.id = gf.friend_id;
+LEFT JOIN main.game_friends gf ON fe.id = gf.friend_id AND gf.game_id = ?
+ORDER BY fe.id;
 
 getFriendByName:
 SELECT * FROM friend_entity

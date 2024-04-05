@@ -1,5 +1,6 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -15,7 +16,7 @@ plugins {
     id("dev.hydraulic.conveyor") version "1.9"
 }
 
-version = "1.0.0"
+version = "1.0.1"
 
 java {
     toolchain {
@@ -84,8 +85,6 @@ kotlin {
             implementation(libs.sqlDelight.runtime)
             implementation(libs.sqlDelight.coroutines)
             implementation(libs.sqlDelight.primitives)
-
-            implementation(libs.kamel)
 
             implementation(libs.material3.window.size.multiplatform)
         }
@@ -174,10 +173,12 @@ buildkonfig {
 
     val clientId = if (props.getProperty("CLIENT_ID") != null) props.getProperty("CLIENT_ID") else System.getenv("CLIENT_ID")
     val clientSecret = if (props.getProperty("CLIENT_SECRET") != null) props.getProperty("CLIENT_SECRET") else System.getenv("CLIENT_SECRET")
+    val development = if (props.getProperty("DEVELOPMENT") != null) "true" else "false"
 
     defaultConfigs {
         buildConfigField(FieldSpec.Type.STRING, "CLIENT_ID", clientId)
         buildConfigField(FieldSpec.Type.STRING, "CLIENT_SECRET", clientSecret)
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEVELOPMENT", development)
     }
 }
 
@@ -193,11 +194,4 @@ dependencies {
     linuxAmd64(compose.desktop.linux_x64)
     macAarch64(compose.desktop.macos_arm64)
     windowsAmd64(compose.desktop.windows_x64)
-}
-
-// Temporary fix for "Cannot choose between the following variants of org.jetbrains.skiko:skiko:$version" - https://github.com/JetBrains/compose-multiplatform/issues/1404#issuecomment-1146894731
-configurations.all {
-    attributes {
-        attribute(Attribute.of("ui", String::class.java), "awt")
-    }
 }

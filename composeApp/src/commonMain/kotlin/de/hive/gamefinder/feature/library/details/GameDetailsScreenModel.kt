@@ -2,17 +2,15 @@ package de.hive.gamefinder.feature.library.details
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.TagUseCase
-import de.hive.gamefinder.core.domain.Friend
+import de.hive.gamefinder.core.domain.FriendGameRelation
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.domain.Tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class GameDetailsScreenModel(
@@ -23,7 +21,7 @@ class GameDetailsScreenModel(
 
     sealed class State {
         data object Loading : State()
-        data class Result(val friends: List<Friend>, val friendsOwningGame: List<GameFriendRelation>) : State()
+        data class Result(val friendsOwningGame: Map<Int, List<FriendGameRelation>>) : State()
     }
 
     private val _game = MutableStateFlow<Game?>(null)
@@ -67,8 +65,7 @@ class GameDetailsScreenModel(
 
     fun loadState(gameId: Int) {
         screenModelScope.launch {
-            val friendFlow = friendUseCase.getFriends()
-            val gameFriendRelationFlow = friendUseCase.getFriendByGame(gameId)
+            mutableState.value = State.Loading
 
             launch {
                 gameUseCase.getGame(gameId).collect {
@@ -77,10 +74,20 @@ class GameDetailsScreenModel(
                 }
             }
 
-            friendFlow.combine(gameFriendRelationFlow) { friends, relations ->
-                State.Result(friends, relations)
-            }.collect { combinedState ->
-                mutableState.value = combinedState
+            launch {
+                friendUseCase.getFriendByGame(gameId).collect {
+                    when (mutableState.value) {
+                        is State.Loading -> {
+                            mutableState.value = State.Result(mapOf(gameId to it))
+                        }
+                        is State.Result -> {
+                            val state = mutableState.value as State.Result
+                            val relationMap = state.friendsOwningGame.toMutableMap()
+                            relationMap[gameId] = it
+                            mutableState.value = State.Result(friendsOwningGame = relationMap)
+                        }
+                    }
+                }
             }
         }
     }

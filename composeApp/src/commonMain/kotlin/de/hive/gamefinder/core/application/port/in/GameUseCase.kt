@@ -14,6 +14,8 @@ interface GameUseCase {
 
     fun getGame(id: Int): Flow<Game?>
 
+    fun getGamesOnShortlist(): Flow<List<Game>>
+
     fun searchGamesByName(name: String): Flow<List<Game>>
 
     fun getGamesByQuery(query: GameQuery): Flow<List<Game>>
@@ -24,7 +26,9 @@ interface GameUseCase {
 
     suspend fun updateGameStatus(gameId: Int, status: GameStatus)
 
-    suspend fun addGameToShortlist(gameId: Int)
+    suspend fun updateShortlistPosition(shortlistUpdate: List<Game>)
+
+    suspend fun updateShortlistStatus(gameId: Int, addToShortlist: Boolean)
 
     suspend fun deleteGame(id: Int)
 }
