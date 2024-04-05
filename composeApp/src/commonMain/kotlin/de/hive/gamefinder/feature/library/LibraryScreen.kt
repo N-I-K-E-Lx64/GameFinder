@@ -466,14 +466,14 @@ private fun ImportGameDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     TextButton(onClick = { onDismissRequest() }) {
-                        Text(stringResource(Res.string.import_game_dialog_cancel))
+                        Text(stringResource(Res.string.const_cancel))
                     }
 
                     TextButton(
                         onClick = { onSave(desiredGameId) },
                         enabled = desiredGameId != 0
                     ) {
-                        Text(stringResource(Res.string.import_game_dialog_save))
+                        Text(stringResource(Res.string.const_save))
                     }
                 }
             }

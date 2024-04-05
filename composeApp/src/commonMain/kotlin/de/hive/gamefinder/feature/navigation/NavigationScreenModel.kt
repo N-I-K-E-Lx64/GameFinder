@@ -20,6 +20,10 @@ class NavigationScreenModel(private val friendUseCase: FriendUseCase, private va
     private val _shortlistBadge = MutableStateFlow<Int>(0)
     val shortlistBadge = _shortlistBadge.asStateFlow()
 
+    fun validateFriend(friendName: String): Boolean {
+        return friendUseCase.checkFriendExistence(friendName = friendName)
+    }
+
     fun saveFriend() {
         screenModelScope.launch {
             val friend = Friend(name = friendName.value)
