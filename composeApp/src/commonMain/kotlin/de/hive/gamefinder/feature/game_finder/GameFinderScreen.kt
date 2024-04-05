@@ -191,9 +191,7 @@ class GameFinderScreen : Screen {
                                         resource = asyncPainterResource(getImageEndpoint(it.coverImageId, ImageSize.COVER_BIG)),
                                         contentDescription = "${it.name} - Cover",
                                         contentScale = ContentScale.FillWidth,
-                                        onLoading = { progress ->
-                                            CircularProgressIndicator(progress = { progress })
-                                        }
+                                        onLoading = { CircularProgressIndicator(progress = { it }) }
                                     )
                                 }
                             }

@@ -104,7 +104,7 @@ fun CoverImageCard(
                         resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { progress -> CircularProgressIndicator(progress = {progress}) },
+                        onLoading = { CircularProgressIndicator(progress = { it }) },
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .clip(RoundedCornerShape(16.dp))

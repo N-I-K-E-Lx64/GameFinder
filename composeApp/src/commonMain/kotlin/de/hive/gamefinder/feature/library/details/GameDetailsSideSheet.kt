@@ -50,9 +50,7 @@ fun LibrarySideSheet(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val friends = state.friends
-                    val relations = state.friendsOwningGame
-
+                    val relations = state.friendsOwningGame[game?.id]
                     val lazyColumnState = rememberLazyListState()
 
                     LazyColumn(
@@ -96,26 +94,25 @@ fun LibrarySideSheet(
                                 headerText = stringResource(Res.string.friends_form_header)
                             )
                             Column {
-                                friends.forEach { friend ->
-                                    val checkboxValue = relations.first { it.friendId == friend.id }.doesFriendOwnGame
+                                relations?.forEach { relation ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(56.dp)
                                             .toggleable(
-                                                value = checkboxValue,
-                                                onValueChange = { onFriendRelationUpdated(friend.id, it) },
+                                                value = relation.owning,
+                                                onValueChange = { onFriendRelationUpdated(relation.id, it) },
                                                 role = Role.Checkbox
                                             )
                                             .padding(horizontal = 16.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Checkbox(
-                                            checked = checkboxValue,
+                                            checked = relation.owning,
                                             onCheckedChange = null
                                         )
                                         Text(
-                                            text = friend.name,
+                                            text = relation.name,
                                             style = MaterialTheme.typography.bodyLarge,
                                             modifier = Modifier.padding(start = 16.dp)
                                         )
@@ -163,6 +160,7 @@ fun LibrarySideSheet(
                                     query = tagQuery,
                                     queryLabel = stringResource(Res.string.details_tag_textview_label),
                                     queryPlaceholder = "Survival",
+                                    querySupportingText = null,
                                     onQueryChanged = {
                                         tagQuery = it
                                         screenModel.searchTags(tagQuery)

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
+    <string name="const_cancel">Cancel</string>
+    <string name="const_save">Save</string>
+
     <string name="launcher_form_header">Launcher</string>
     <string name="friends_form_header">Friends</string>
     <string name="tags_form_header">Tags</string>
@@ -16,8 +19,6 @@
     <string name="import_game_dialog_headline">Import a game</string>
     <string name="import_game_dialog_name_query_label">Game name</string>
     <string name="import_game_dialog_launcher_selection">Launcher</string>
-    <string name="import_game_dialog_cancel">Cancel</string>
-    <string name="import_game_dialog_save">Save</string>
 
     <string name="gamefinder_headline">GameFinder</string>
     <string name="gamefinder_button_label">Find Game</string>
@@ -33,4 +34,7 @@
     <string name="game_action_addToShortlist">Add to shortlist</string>
     <string name="game_action_changeState">Change state</string>
     <string name="game_action_removeFromShortlist">Remove from shortlist</string>
+
+    <string name="friend_dialog_header">Add a friend</string>
+    <string name="friend_dialog_error_text">%1$s already exists</string>
 </resources>

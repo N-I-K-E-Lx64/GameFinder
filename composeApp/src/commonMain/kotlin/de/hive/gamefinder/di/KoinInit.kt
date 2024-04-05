@@ -27,6 +27,7 @@ import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
 import de.hive.gamefinder.feature.shortlist.ShortlistScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
+import io.github.aakira.napier.Napier
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -35,7 +36,9 @@ import org.koin.dsl.module
 
 class KoinInit {
     fun init(appDeclaration: KoinAppDeclaration = {}): Koin {
+        Napier.i { "Initializing Koin" }
         return startKoin {
+            Napier.i { "Inside Koin Application" }
             modules(
                 listOf(
                     platformModule(),
@@ -43,6 +46,7 @@ class KoinInit {
                 )
             )
             appDeclaration()
+            Napier.i { "Modules are initialized" }
         }.koin
     }
 }
@@ -75,16 +79,7 @@ val coreModule = module {
     single<GameFinderDatabase> { createDatabase(get<DatabaseDriverFactory>().createDriver()) }
 
     single<Settings> { Settings() }
-
-    /**
-     * Screen modules
-     */
-    single { LibraryScreenModel(get(), get()) }
-    single { GameDetailsScreenModel(get(), get(), get()) }
-    single { NavigationScreenModel(get(), get()) }
-    single { GameFinderScreenModel(get(), get(), get()) }
-    single { ShortlistScreenModel(get()) }
-
+    
     /**
      * Adapters
      */
@@ -100,6 +95,15 @@ val coreModule = module {
     single<GameUseCase> { GameService(get()) }
     single<FriendUseCase> { FriendService(get()) }
     single<TagUseCase> { TagService(get()) }
+
+    /**
+     * Screen modules
+     */
+    single { LibraryScreenModel(get(), get()) }
+    single { GameDetailsScreenModel(get(), get(), get()) }
+    single { NavigationScreenModel(get(), get()) }
+    single { GameFinderScreenModel(get(), get(), get()) }
+    single { ShortlistScreenModel(get()) }
 }
 
 expect fun platformModule(): Module

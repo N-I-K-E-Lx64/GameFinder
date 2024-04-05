@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
+@Serializable
 data class AuthenticationToken(
     @JsonNames("access_token") val accessToken: String,
     @JsonNames("expires_in") val exiresIn: Long,

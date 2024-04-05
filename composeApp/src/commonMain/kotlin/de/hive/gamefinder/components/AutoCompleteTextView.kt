@@ -26,6 +26,7 @@ fun <T> AutoCompleteTextView(
     query: String,
     queryLabel: String,
     queryPlaceholder: String,
+    querySupportingText: String?,
     onQueryChanged: (String) -> Unit = {},
     predictions: List<T>,
     onDoneAction: () -> Unit = {},
@@ -44,6 +45,7 @@ fun <T> AutoCompleteTextView(
                     query = query,
                     label = queryLabel,
                     placeholder = queryPlaceholder,
+                    supportingText = querySupportingText,
                     onDoneAction = onDoneAction,
                     onQueryChanged = onQueryChanged
                 )
@@ -69,6 +71,7 @@ fun QuerySearch(
     query: String,
     label: String,
     placeholder: String,
+    supportingText: String?,
     onDoneAction: () -> Unit = {},
     onQueryChanged: (String) -> Unit
 ) {
@@ -78,6 +81,7 @@ fun QuerySearch(
         modifier = modifier.fillMaxWidth(),
         label = { Text(text = label) },
         placeholder = { Text(text = placeholder) },
+        supportingText = { supportingText?.let { Text(text = it) } },
         singleLine = true,
         keyboardActions = KeyboardActions(
             onDone = { onDoneAction() }
