@@ -73,20 +73,23 @@ AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
 
 findMultiplayerGamesByFriendsAndTags:
 SELECT DISTINCT ge.* FROM game_entity AS ge
-LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
-LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+    LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
+    LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
 WHERE ge.online_coop = 1
-AND ge.online_max_players >= (:friendCount)
-AND gf.friend_id IN ?
-AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL);
+    AND ge.online_max_players >= (:friendCount)
+    AND gf.friend_id IN ?
+    AND (gt.tag_id NOT IN ? OR gt.tag_id IS NULL)
+GROUP BY ge.id
+HAVING COUNT(DISTINCT gf.friend_id) = (:friendCount);
 
 findMultiplayerGamesByFriends:
-SELECT DISTINCT ge.* FROM game_entity AS ge
-LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
-LEFT OUTER JOIN main.game_tags gt ON ge.id = gt.game_id
+SELECT ge.* FROM game_entity AS ge
+    LEFT OUTER JOIN main.game_friends gf ON ge.id = gf.game_id
 WHERE ge.online_coop = 1
-AND ge.online_max_players >= (:friendCount)
-AND gf.friend_id IN ?;
+  AND ge.online_max_players >= (:friendCount)
+  AND gf.friend_id IN ?
+GROUP BY ge.id
+HAVING COUNT(DISTINCT gf.friend_id) = (:friendCount);
 
 addGame:
 INSERT OR REPLACE INTO game_entity

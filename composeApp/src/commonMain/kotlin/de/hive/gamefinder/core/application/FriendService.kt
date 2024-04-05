@@ -1,6 +1,5 @@
 package de.hive.gamefinder.core.application
 
-import de.hive.gamefinder.core.adapter.objects.GameFriendRelation
 import de.hive.gamefinder.core.application.port.`in`.FriendUseCase
 import de.hive.gamefinder.core.application.port.out.FriendPersistencePort
 import de.hive.gamefinder.core.domain.Friend
