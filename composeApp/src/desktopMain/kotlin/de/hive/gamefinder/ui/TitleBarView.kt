@@ -49,7 +49,8 @@ fun DecoratedWindowScope.TitleBarView() {
         }
 
         Row(
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Tooltip({
                 when (DesktopViewModel.theme) {
@@ -82,6 +83,63 @@ fun DecoratedWindowScope.TitleBarView() {
                             StandaloneSampleIcons::class.java,
                         )
                     }
+                }
+            }
+
+            IconButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.size(40.dp),
+            ) {
+                when (DesktopViewModel.theme) {
+                    IntUiThemes.Light -> Icon(
+                        "icons/upload.svg",
+                        "Export game library",
+                        StandaloneSampleIcons::class.java,
+                    )
+                    IntUiThemes.Dark, IntUiThemes.System -> Icon(
+                        "icons/upload_dark.svg",
+                        "Export game library",
+                        StandaloneSampleIcons::class.java,
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.size(40.dp),
+            ) {
+                when (DesktopViewModel.theme) {
+                    IntUiThemes.Light -> Icon(
+                        "icons/download.svg",
+                        "Import game library",
+                        StandaloneSampleIcons::class.java,
+                    )
+                    IntUiThemes.Dark, IntUiThemes.System -> Icon(
+                        "icons/download_dark.svg",
+                        "Import game library",
+                        StandaloneSampleIcons::class.java,
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.size(40.dp),
+            ) {
+                when (DesktopViewModel.theme) {
+                    IntUiThemes.Light -> Icon(
+                        "icons/infoOutline.svg",
+                        "About application",
+                        StandaloneSampleIcons::class.java,
+                    )
+                    IntUiThemes.Dark, IntUiThemes.System -> Icon(
+                        "icons/infoOutline_dark.svg",
+                        "About application",
+                        StandaloneSampleIcons::class.java,
+                    )
                 }
             }
         }

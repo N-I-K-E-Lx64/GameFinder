@@ -1,5 +1,6 @@
 package de.hive.gamefinder.feature.navigation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +20,7 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -27,7 +29,15 @@ import de.hive.gamefinder.components.LayoutType
 import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.feature.shortlist.ShortlistScreen
+import gamefinder.composeapp.generated.resources.BebasNeue_Regular
+import gamefinder.composeapp.generated.resources.Res
+import gamefinder.composeapp.generated.resources.app_name
+import gamefinder.composeapp.generated.resources.compose_multiplatform
 import io.github.aakira.napier.Napier
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -146,6 +156,7 @@ fun PermanentNavigationDrawerContent(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ModalNavigationDrawerContent(
     selectedRoute: String,
@@ -166,20 +177,28 @@ fun ModalNavigationDrawerContent(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .layoutId(LayoutType.HEADER),
-                            text = "GAMEFINDER",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.compose_multiplatform),
+                                contentDescription = "App logo",
+                                modifier = Modifier.width(40.dp).height(40.dp)
+                            )
+                            Text(
+                                text = stringResource(Res.string.app_name),
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontFamily = FontFamily(Font(Res.font.BebasNeue_Regular)),
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+
                         IconButton(onClick = onDrawerClicked) {
                             Icon(Icons.AutoMirrored.Filled.MenuOpen, contentDescription = null)
                         }

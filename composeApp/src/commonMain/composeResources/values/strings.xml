@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="app_name">gamefinder</string>
+    <string name="library_headline">Library</string>
+    <string name="gamefinder_headline">GameFinder</string>
+    <string name="shortlist_headline">Shortlist</string>
 
     <string name="launcher_form_header">Launcher</string>
     <string name="friends_form_header">Friends</string>
@@ -10,7 +13,6 @@
     <string name="campaign_coop_form_header">Campaign Coop</string>
     <string name="maxplayers_form_header">Online Coop Max. Players</string>
 
-    <string name="library_headline">Library</string>
     <string name="library_appbar_search_placeholder">Search</string>
     <string name="library_online_multiplayer_chip_label">Online Multiplayer</string>
     <string name="library_campaign_multiplayer_chip_label">Campaign Multiplayer</string>
@@ -21,7 +23,6 @@
     <string name="import_game_dialog_cancel">Cancel</string>
     <string name="import_game_dialog_save">Save</string>
 
-    <string name="gamefinder_headline">GameFinder</string>
     <string name="gamefinder_button_label">Find Game</string>
     <string name="gamefinder_dialog_headline">No filter options</string>
     <string name="gamefinder_dialog_body">Since you haven't added any friends yet, I can't help you find the right games.</string>

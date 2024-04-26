@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,6 +20,8 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -47,6 +50,18 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 class LibraryScreen(val filter: Launcher?) : Screen {
+
+    data class PlayerCountOption(
+        val playerCount: Int,
+        val icon: ImageVector
+    )
+
+    val PLAYER_COUNT_OPTIONS: List<PlayerCountOption> = listOf(
+        PlayerCountOption(2, Icons.Default.Filter2),
+        PlayerCountOption(4, Icons.Default.Filter4),
+        PlayerCountOption(5, Icons.Default.Filter5),
+        PlayerCountOption(8, Icons.Default.Filter8)
+    )
 
     @OptIn(
         ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalResourceApi::class
@@ -86,12 +101,14 @@ class LibraryScreen(val filter: Launcher?) : Screen {
         var filterPlatform by remember { mutableStateOf(-1) }
         var filterOnlineMultiplayer by remember { mutableStateOf(false) }
         var filterCampaignMultiplayer by remember { mutableStateOf(false) }
+        var filterMinPlayerCount by remember { mutableStateOf(0) }
+        var expandMenu by remember { mutableStateOf(false) }
 
         var gameName by remember { mutableStateOf("") }
         var selectedLauncher by remember { mutableStateOf(Launcher.STEAM) }
 
         fun applyFilter() {
-            screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer)
+            screenModel.filterGamesByQuery(filterPlatform, filterOnlineMultiplayer, filterCampaignMultiplayer, filterMinPlayerCount)
         }
 
         LaunchedEffect(Unit) {
@@ -123,6 +140,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     // Initialize state in the game details screen model
                                     gameDetailsScreenModel.loadState(gameId)
                                 }
+
                                 SnackbarResult.Dismissed -> {
                                     Napier.d { "Snackbar dismissed" }
                                 }
@@ -150,13 +168,18 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                     text = { Text(text = "Import Game") }
                 )
             },
-            //containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp))
         ) { innerPadding ->
             when (state) {
                 is LibraryScreenModel.State.Init -> {
                 }
+
                 is LibraryScreenModel.State.Loading -> {
                 }
+
                 is LibraryScreenModel.State.Result -> {
                     val games = (state as LibraryScreenModel.State.Result).games
                     gameCount = games.size
@@ -242,13 +265,16 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                             }
                                         }
                                     )
-                                    /*Box {
+                                    Box {
                                         FilterChip(
-                                            selected = filterOnlineMaxPlayers != 0,
-                                            onClick = { filterCampaignMultiplayer = !filterCampaignMultiplayer },
-                                            label = { if (filterOnlineMaxPlayers == 0) Text("Players") else Text(filterOnlineMaxPlayers.toString()) },
+                                            selected = filterMinPlayerCount != 0,
+                                            onClick = {
+                                                if (filterMinPlayerCount == 0) expandMenu = true
+                                                else filterMinPlayerCount = 0
+                                            },
+                                            label = { if (filterMinPlayerCount == 0) Text("Players") else Text("min $filterMinPlayerCount Player") },
                                             leadingIcon = {
-                                                if (filterCampaignMultiplayer) {
+                                                if (filterMinPlayerCount != 0) {
                                                     Icon(
                                                         Icons.Filled.Done,
                                                         contentDescription = null,
@@ -264,7 +290,20 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                                 )
                                             }
                                         )
-                                    }*/
+                                        DropdownMenu(expanded = expandMenu, onDismissRequest = { println("dismissed") }) {
+                                            PLAYER_COUNT_OPTIONS.forEach {
+                                                DropdownMenuItem(
+                                                    text = { Text("${it.playerCount} Players") },
+                                                    onClick = {
+                                                        filterMinPlayerCount = it.playerCount
+                                                        expandMenu = false
+                                                        applyFilter()
+                                                    },
+                                                    leadingIcon = { Icon(it.icon, contentDescription = null) }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
 
                                 Box(
@@ -281,7 +320,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         state = lazyGridState
                                     ) {
-                                        items(games) {game ->
+                                        items(games) { game ->
                                             CoverImageCard(
                                                 game = game,
                                                 orientation = cardOrientation,
@@ -316,18 +355,22 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                             }
                         },
                         second = {
-                            LibrarySideSheet(
-                                state = sideSheetState,
-                                screenModel = gameDetailsScreenModel,
-                                onSideSheetClosed = { splitFraction = 1f },
-                                onFriendRelationUpdated = { friendId, change ->
-                                    gameDetailsScreenModel.updateFriendRelations(
-                                        selectedGame,
-                                        friendId,
-                                        change
-                                    )
-                                }
-                            )
+                            Box(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                LibrarySideSheet(
+                                    state = sideSheetState,
+                                    screenModel = gameDetailsScreenModel,
+                                    onSideSheetClosed = { splitFraction = 1f },
+                                    onFriendRelationUpdated = { friendId, change ->
+                                        gameDetailsScreenModel.updateFriendRelations(
+                                            selectedGame,
+                                            friendId,
+                                            change
+                                        )
+                                    }
+                                )
+                            }
                         },
                         strategy = HorizontalTwoPaneStrategy(
                             splitFraction = splitFraction
@@ -418,7 +461,8 @@ private fun ImportGameDialog(
                     onItemClick = {
                         desiredGameId = it.igdbGameId
                         onUpdateNameQuery(it.name)
-                    }
+                    },
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
                 ) {
                     val releaseDate = it.releaseDate.toLocalDateTime(TimeZone.UTC).date
                     ListItem(
@@ -436,24 +480,24 @@ private fun ImportGameDialog(
                 Text(stringResource(Res.string.import_game_dialog_launcher_selection), style = MaterialTheme.typography.titleMedium)
 
                 Column(modifier = Modifier.selectableGroup()) {
-                    launchers.forEach { platform ->
+                    launchers.forEach { launcher ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
                                 .selectable(
-                                    selected = (platform == selectedLauncher),
-                                    onClick = { onSelectPlatform(platform) },
+                                    selected = (launcher == selectedLauncher),
+                                    onClick = { onSelectPlatform(launcher) },
                                     role = Role.RadioButton
                                 ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (platform == selectedLauncher),
+                                selected = (launcher == selectedLauncher),
                                 onClick = null
                             )
                             Text(
-                                text = platform.name,
+                                text = launcher.launcher,
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(start = 16.dp)
                             )

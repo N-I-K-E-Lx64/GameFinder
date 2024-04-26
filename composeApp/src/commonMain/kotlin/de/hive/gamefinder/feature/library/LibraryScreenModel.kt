@@ -46,15 +46,16 @@ class LibraryScreenModel(
         }
     }
 
-    fun filterGamesByQuery(platformOrdinal: Int, online: Boolean, campaign: Boolean) {
+    fun filterGamesByQuery(platformOrdinal: Int, online: Boolean, campaign: Boolean, minPlayerCount: Int) {
         screenModelScope.launch {
             mutableState.value = State.Loading
 
             val launcherFilter = if (platformOrdinal != -1) Launcher.entries[platformOrdinal] else null
             val onlineMultiplayerFilter = if (online) true else null
             val campaignMultiplayerFilter = if (campaign) true else null
+            val minPlayerCountFilter = if (minPlayerCount != 0) minPlayerCount else null
 
-            val query = GameQuery(launcherFilter, onlineMultiplayerFilter, campaignMultiplayerFilter)
+            val query = GameQuery(launcherFilter, onlineMultiplayerFilter, campaignMultiplayerFilter, minPlayerCount)
             gameUseCase.getGamesByQuery(query).collect {
                 mutableState.value = State.Result(games = it)
             }

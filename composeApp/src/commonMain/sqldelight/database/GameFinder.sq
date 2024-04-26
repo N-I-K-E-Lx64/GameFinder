@@ -76,7 +76,8 @@ getGamesByQuery:
 SELECT * FROM game_entity
 WHERE (:launcher IS NULL OR launcher = :launcher)
 AND (:onlineCoop IS NULL OR online_coop = :onlineCoop)
-AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop);
+AND (:campaignCoop IS NULL OR campaign_coop = :campaignCoop)
+AND (:minPlayerCount IS NULL OR online_max_players >= :minPlayerCount);
 
 findMultiplayerGamesByFriendsAndTags:
 SELECT DISTINCT ge.* FROM game_entity AS ge

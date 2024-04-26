@@ -35,17 +35,19 @@ fun FormSwitchRow(
     switchEnabled: Boolean = true,
     onSwitchValueChange: (Boolean) -> Unit
 ) {
-    ListItem(
-        headlineContent = { Text(headlineText) },
-        trailingContent = {
-            Switch(
-                checked = switchValue,
-                onCheckedChange = { onSwitchValueChange(it) },
-                enabled = switchEnabled
-            )
-        }
-    )
-    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+
+        ListItem(
+            headlineContent = { Text(headlineText) },
+            trailingContent = {
+                Switch(
+                    checked = switchValue,
+                    onCheckedChange = { onSwitchValueChange(it) },
+                    enabled = switchEnabled
+                )
+            },
+            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+        )
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

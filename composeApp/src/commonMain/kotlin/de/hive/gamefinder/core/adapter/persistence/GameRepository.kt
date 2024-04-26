@@ -88,7 +88,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
 
     override fun getGamesByQuery(query: GameQuery): Flow<List<Game>> {
         return dbQueries
-            .getGamesByQuery(query.launcher, query.onlineCoop, query.campaignCoop)
+            .getGamesByQuery(query.launcher, query.onlineCoop, query.campaignCoop, query.minPlayerCount)
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { games -> games.map { it.toModel() } }

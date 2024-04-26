@@ -20,18 +20,21 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.valentinilk.shimmer.shimmer
 import de.hive.gamefinder.components.HorizontalTwoPaneStrategy
-import de.hive.gamefinder.components.TopBar
 import de.hive.gamefinder.components.TwoPane
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.getImageEndpoint
+import gamefinder.composeapp.generated.resources.Res
+import gamefinder.composeapp.generated.resources.shortlist_headline
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyColumnState
 
 class ShortlistScreen : Screen {
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
     @Composable
     override fun Content() {
         val screenModel = getScreenModel<ShortlistScreenModel>()
@@ -45,7 +48,6 @@ class ShortlistScreen : Screen {
         }
 
         Scaffold(
-            topBar = { TopBar() },
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             modifier = Modifier
                 .fillMaxSize()
@@ -75,7 +77,7 @@ class ShortlistScreen : Screen {
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(text = "Shortlist", style = MaterialTheme.typography.titleLarge)
+                                Text(text = stringResource(Res.string.shortlist_headline), style = MaterialTheme.typography.headlineLarge)
 
                                 LazyColumn(
                                     modifier = Modifier.fillMaxSize(),

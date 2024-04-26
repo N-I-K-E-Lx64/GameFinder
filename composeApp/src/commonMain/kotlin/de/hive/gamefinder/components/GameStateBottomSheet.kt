@@ -53,7 +53,7 @@ private data class BottomSheetListItem(
 )
 
 private val CHANGE_STATE_ITEMS: List<BottomSheetListItem> = listOf(
-    BottomSheetListItem("Library", "The game is part of your library, but currently not installed", Icons.Default.LibraryAddCheck),
+    BottomSheetListItem("Library", "The game is part of your library, but currently not installed", Icons.Default.VideoLibrary),
     BottomSheetListItem("Installed", "The game is installed on your PC", Icons.Default.InstallDesktop),
     BottomSheetListItem("Playing", "You are currently playing the game", Icons.Default.SmartDisplay),
     BottomSheetListItem("Paused", "You have stopped actively playing the game, but it is still installed", Icons.Default.PausePresentation),

@@ -10,12 +10,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 
@@ -30,6 +28,7 @@ fun <T> AutoCompleteTextView(
     predictions: List<T>,
     onDoneAction: () -> Unit = {},
     onItemClick: (T) -> Unit = {},
+    containerColor: Color = MaterialTheme.colorScheme.surface,
     itemContent: @Composable (T) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -39,13 +38,28 @@ fun <T> AutoCompleteTextView(
         modifier = modifier.heightIn(max = TextFieldDefaults.MinHeight * 4)
     ) {
         stickyHeader {
-            Surface {
-                QuerySearch(
-                    query = query,
-                    label = queryLabel,
-                    placeholder = queryPlaceholder,
-                    onDoneAction = onDoneAction,
-                    onQueryChanged = onQueryChanged
+            Surface(
+                color = containerColor,
+            ) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChanged,
+                    modifier = modifier.fillMaxWidth(),
+                    label = { Text(text = queryLabel) },
+                    placeholder = { Text(text = queryPlaceholder) },
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { onDoneAction() }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Text
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = containerColor,
+                        unfocusedContainerColor = containerColor,
+                        focusedContainerColor = containerColor
+                    )
                 )
             }
         }
@@ -63,28 +77,61 @@ fun <T> AutoCompleteTextView(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuerySearch(
+fun <T> AutoCompleteTextViewColorOverwrite(
     modifier: Modifier = Modifier,
     query: String,
-    label: String,
-    placeholder: String,
+    queryLabel: String,
+    queryPlaceholder: String,
+    onQueryChanged: (String) -> Unit = {},
+    predictions: List<T>,
     onDoneAction: () -> Unit = {},
-    onQueryChanged: (String) -> Unit
+    onItemClick: (T) -> Unit = {},
+    itemContent: @Composable (T) -> Unit
 ) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChanged,
-        modifier = modifier.fillMaxWidth(),
-        label = { Text(text = label) },
-        placeholder = { Text(text = placeholder) },
-        singleLine = true,
-        keyboardActions = KeyboardActions(
-            onDone = { onDoneAction() }
-        ),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text
-        )
-    )
+    val lazyListState = rememberLazyListState()
+
+    LazyColumn(
+        state = lazyListState,
+        modifier = modifier.heightIn(max = TextFieldDefaults.MinHeight * 4)
+    ) {
+        stickyHeader {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChanged,
+                    modifier = modifier.fillMaxWidth(),
+                    label = { Text(text = queryLabel) },
+                    placeholder = { Text(text = queryPlaceholder) },
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { onDoneAction() }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Text
+                    ),
+                    colors = TextFieldDefaults.colors(
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    )
+                )
+            }
+        }
+
+        if (predictions.isNotEmpty()) {
+            items(predictions) {
+                Row(
+                    modifier = Modifier
+                        .clickable(onClick = { onItemClick(it) })
+                ) {
+                    itemContent(it)
+                }
+            }
+        }
+    }
 }
