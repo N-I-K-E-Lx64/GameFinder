@@ -20,7 +20,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import de.hive.gamefinder.components.NavigationType
 import gamefinder.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -132,7 +131,6 @@ fun AppContent(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun AddFriendDialog(
     onDismissRequest: () -> Unit,

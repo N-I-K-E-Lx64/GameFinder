@@ -10,8 +10,6 @@ import de.hive.gamefinder.core.domain.GameMode
 import de.hive.gamefinder.core.domain.GamePrediction
 import de.hive.gamefinder.core.domain.MultiplayerMode
 import de.hive.gamefinder.core.utils.levenshteinSimilarity
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.auth.*
@@ -35,11 +33,11 @@ class IgdbApiAdapter(private val settings: Settings) : IgdbApiPort {
         install(Logging) {
             logger = object : Logger {
                 override fun log(message: String) {
-                    Napier.v("HTTP Client", null, message)
+                    co.touchlab.kermit.Logger.v("HTTP Client", null, message)
                 }
             }
             level = LogLevel.HEADERS
-        }.also { Napier.base(DebugAntilog()) }
+        }
 
         install(ContentNegotiation) {
             json()

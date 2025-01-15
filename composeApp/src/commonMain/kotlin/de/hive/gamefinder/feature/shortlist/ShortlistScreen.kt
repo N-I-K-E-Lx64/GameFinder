@@ -1,7 +1,6 @@
 package de.hive.gamefinder.feature.shortlist
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,11 +17,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
-import com.valentinilk.shimmer.shimmer
+import coil3.compose.AsyncImage
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.getImageEndpoint
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyColumnState
 
@@ -83,18 +80,10 @@ class ShortlistScreen : Screen {
                                                     .height(56.dp)
                                                     .clip(RoundedCornerShape(8.dp))
                                             ) {
-                                                KamelImage(
-                                                    resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.LOGO_MED)),
+                                                AsyncImage(
+                                                    model = getImageEndpoint(game.coverImageId, ImageSize.LOGO_MED),
                                                     contentDescription = "${game.name} - Thumb",
-                                                    contentScale = ContentScale.Crop,
-                                                    onLoading = {
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .fillMaxSize()
-                                                                .shimmer()
-                                                                .background(MaterialTheme.colorScheme.inverseOnSurface)
-                                                        )
-                                                    }
+                                                    contentScale = ContentScale.Crop
                                                 )
                                             }
                                         },

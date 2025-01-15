@@ -13,9 +13,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        KoinInit().init {
+        /*KoinInit().init {
             androidContext(androidContext = this@MainActivity)
-        }
+        }*/
 
         setContent {
             Theme {

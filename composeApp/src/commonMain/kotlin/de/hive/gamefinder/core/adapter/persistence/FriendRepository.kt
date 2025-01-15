@@ -2,11 +2,11 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.core.application.port.out.FriendPersistencePort
 import de.hive.gamefinder.core.domain.Friend
 import de.hive.gamefinder.core.domain.FriendGameRelation
 import de.hive.gamefinder.database.GameFinderDatabase
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -44,12 +44,12 @@ class FriendRepository(database: GameFinderDatabase) : FriendPersistencePort {
     override suspend fun createGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
             .createGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
-        Napier.i("Add friend $friendId to game $gameId")
+        Logger.i("Add friend $friendId to game $gameId")
     }
 
     override suspend fun deleteGameFriendRelation(gameId: Int, friendId: Int) {
         dbQueries
             .removeGameFriendRelation(gameId = gameId.toLong(), friendId = friendId.toLong())
-        Napier.i("Remove friend $friendId from game $gameId")
+        Logger.i { "Remove friend $friendId from game $gameId" }
     }
 }

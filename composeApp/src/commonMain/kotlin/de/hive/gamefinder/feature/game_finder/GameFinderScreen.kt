@@ -23,12 +23,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import de.hive.gamefinder.components.FormIconHeader
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.core.utils.getImageEndpoint
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -187,11 +186,10 @@ class GameFinderScreen : Screen {
                                         .wrapContentHeight()
                                         .clip(RoundedCornerShape(16.dp))
                                 ) {
-                                    KamelImage(
-                                        resource = asyncPainterResource(getImageEndpoint(it.coverImageId, ImageSize.COVER_BIG)),
+                                    AsyncImage(
+                                        model = getImageEndpoint(it.coverImageId, ImageSize.COVER_BIG),
                                         contentDescription = "${it.name} - Cover",
-                                        contentScale = ContentScale.FillWidth,
-                                        onLoading = { CircularProgressIndicator(progress = { it }) }
+                                        contentScale = ContentScale.FillWidth
                                     )
                                 }
                             }

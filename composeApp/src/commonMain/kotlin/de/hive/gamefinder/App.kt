@@ -5,15 +5,21 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
+import de.hive.gamefinder.components.NavigationType
+import de.hive.gamefinder.di.coreModule
+import de.hive.gamefinder.di.getPlatformModule
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.feature.navigation.NavigationWrapper
-import de.hive.gamefinder.components.NavigationType
-import org.koin.compose.KoinContext
+import org.koin.compose.KoinApplication
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun App() {
-    KoinContext {
+    KoinApplication(application = {
+        modules(
+            coreModule,
+            getPlatformModule())
+    }) {
         val windowSize = calculateWindowSizeClass()
         val navigationType: NavigationType
 

@@ -27,28 +27,11 @@ import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.navigation.NavigationScreenModel
 import de.hive.gamefinder.feature.shortlist.ShortlistScreenModel
 import de.hive.gamefinder.platform.DatabaseDriverFactory
-import io.github.aakira.napier.Napier
-import org.koin.core.Koin
-import org.koin.core.context.startKoin
 import org.koin.core.module.Module
-import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-class KoinInit {
-    fun init(appDeclaration: KoinAppDeclaration = {}): Koin {
-        Napier.i { "Initializing Koin" }
-        return startKoin {
-            Napier.i { "Inside Koin Application" }
-            modules(
-                listOf(
-                    platformModule(),
-                    coreModule
-                )
-            )
-            appDeclaration()
-            Napier.i { "Modules are initialized" }
-        }.koin
-    }
+fun getPlatformModule(): Module {
+    return platformModule()
 }
 
 fun createDatabase(driver: SqlDriver): GameFinderDatabase {

@@ -28,6 +28,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.components.*
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GamePrediction
@@ -37,7 +38,6 @@ import de.hive.gamefinder.core.utils.UiEvents
 import de.hive.gamefinder.feature.library.details.GameDetailsScreenModel
 import de.hive.gamefinder.feature.library.details.LibrarySideSheet
 import gamefinder.composeapp.generated.resources.*
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -124,7 +124,7 @@ class LibraryScreen(val filter: Launcher?) : Screen {
                                     gameDetailsScreenModel.loadState(gameId)
                                 }
                                 SnackbarResult.Dismissed -> {
-                                    Napier.d { "Snackbar dismissed" }
+                                    Logger.d { "Snackbar dismissed" }
                                 }
                             }
                         }

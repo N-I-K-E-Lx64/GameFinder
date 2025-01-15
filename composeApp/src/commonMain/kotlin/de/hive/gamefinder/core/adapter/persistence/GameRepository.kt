@@ -2,10 +2,10 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.database.GameFinderDatabase
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -145,7 +145,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
         val position = dbQueries.getGamesOnShortlist().executeAsList().size + 1
         dbQueries
             .addGameToShortlist(gameId = gameId, position = position)
-        Napier.i { "Add game $gameId to shortlist on position $position" }
+        Logger.i { "Add game $gameId to shortlist on position $position" }
     }
 
     override suspend fun removeGameFromShortlist(gameId: Int) {
@@ -156,7 +156,7 @@ class GameRepository(database: GameFinderDatabase) : GamePersistencePort {
     override suspend fun updateShortlistPosition(gameId: Int, shortlistPosition: Int) {
         dbQueries
             .updateShortListPosition(gameId = gameId, position = shortlistPosition)
-        Napier.i("Update shortlist position of game $gameId to $shortlistPosition")
+        Logger.i {"Update shortlist position of game $gameId to $shortlistPosition" }
     }
 
     override suspend fun deleteGame(id: Int) {
