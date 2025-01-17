@@ -1,6 +1,5 @@
 package de.hive.gamefinder.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.valentinilk.shimmer.shimmer
+import coil3.compose.AsyncImage
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.utils.ImageSize
 import de.hive.gamefinder.core.utils.getImageEndpoint
@@ -22,8 +21,6 @@ import gamefinder.composeapp.generated.resources.Res
 import gamefinder.composeapp.generated.resources.game_action_addToShortlist
 import gamefinder.composeapp.generated.resources.game_action_changeState
 import gamefinder.composeapp.generated.resources.game_action_removeFromShortlist
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import kotlin.text.Typography.middleDot
@@ -53,21 +50,10 @@ fun CoverImageCard(
                         .padding(bottom = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    KamelImage(
-                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
+                    AsyncImage(model = getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .shimmer()
-                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                    )
+                        modifier = Modifier.clip(RoundedCornerShape(16.dp)))
 
                     Column(
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -100,11 +86,10 @@ fun CoverImageCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    KamelImage(
-                        resource = asyncPainterResource(getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG)),
+                    AsyncImage(
+                        model = getImageEndpoint(game.coverImageId, ImageSize.COVER_BIG),
                         contentDescription = "${game.name} - Cover",
                         contentScale = ContentScale.Crop,
-                        onLoading = { CircularProgressIndicator(progress = { it }) },
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .clip(RoundedCornerShape(16.dp))

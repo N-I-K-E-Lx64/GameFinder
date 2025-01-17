@@ -23,14 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import cafe.adriel.voyager.core.screen.Screen
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.components.LayoutType
 import de.hive.gamefinder.feature.game_finder.GameFinderScreen
 import de.hive.gamefinder.feature.library.LibraryScreen
 import de.hive.gamefinder.feature.shortlist.ShortlistScreen
-import io.github.aakira.napier.Napier
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigationRail(
     screenModel: NavigationScreenModel = koinInject(),
@@ -273,7 +272,7 @@ fun navigationMeasurePolicy(): MeasurePolicy {
             when (it.layoutId) {
                 LayoutType.HEADER -> headerMeasurable = it
                 LayoutType.CONTENT -> contentMeasurable = it
-                else -> Napier.e { "Unknown layoutId encountered!" }
+                else -> Logger.e { "Unknown layoutId encountered!" }
             }
         }
 

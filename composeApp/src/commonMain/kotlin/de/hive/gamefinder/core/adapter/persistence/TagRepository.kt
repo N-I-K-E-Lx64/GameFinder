@@ -2,10 +2,10 @@ package de.hive.gamefinder.core.adapter.persistence
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.core.application.port.out.TagPersistencePort
 import de.hive.gamefinder.core.domain.Tag
 import de.hive.gamefinder.database.GameFinderDatabase
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,7 +19,7 @@ class TagRepository(database: GameFinderDatabase) : TagPersistencePort {
             dbQueries.getLastInsertedRowId().executeAsOne()
         }.toInt()
 
-        Napier.v("Created tag $tagId with value ${tag.tag}")
+        Logger.i { "Created tag $tagId with value ${tag.tag}" }
         return tagId
     }
 
@@ -45,11 +45,11 @@ class TagRepository(database: GameFinderDatabase) : TagPersistencePort {
 
     override suspend fun createGameTagRelation(gameId: Int, tagId: Int) {
         dbQueries.createGameTagRelation(gameId = gameId.toLong(), tagId = tagId.toLong())
-        Napier.i("Add tag $tagId to game $gameId")
+        Logger.i { "Add tag $tagId to game $gameId" }
     }
 
     override suspend fun removeGameTagRelation(gameId: Int, tagId: Int) {
         dbQueries.removeSingleGameTagRelation(gameId = gameId.toLong(), tagId = tagId.toLong())
-        Napier.i("Remove tag $tagId from game $gameId")
+        Logger.i { "Remove tag $tagId from game $gameId" }
     }
 }

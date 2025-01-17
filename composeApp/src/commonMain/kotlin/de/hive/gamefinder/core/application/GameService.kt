@@ -1,12 +1,12 @@
 package de.hive.gamefinder.core.application
 
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.out.GamePersistencePort
 import de.hive.gamefinder.core.domain.Game
 import de.hive.gamefinder.core.domain.GameQuery
 import de.hive.gamefinder.core.domain.GameStatus
 import de.hive.gamefinder.core.domain.MultiplayerMode
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 
 class GameService(private val persistencePort: GamePersistencePort) : GameUseCase {
@@ -36,10 +36,10 @@ class GameService(private val persistencePort: GamePersistencePort) : GameUseCas
 
     override fun findGames(friendIds: List<Int>, tagIds: List<Int>?): Flow<List<Game>> {
         return if (tagIds.isNullOrEmpty()) {
-            Napier.d { "Searching games for friends $friendIds" }
+            Logger.d { "Searching games for friends $friendIds" }
             persistencePort.findGamesByFriends(friendIds)
         } else {
-            Napier.d { "Searching games for friends $friendIds. Tags $tagIds are deselected"}
+            Logger.d { "Searching games for friends $friendIds. Tags $tagIds are deselected"}
             persistencePort.findGamesByFriendsAndTags(friendIds, tagIds)
         }
     }

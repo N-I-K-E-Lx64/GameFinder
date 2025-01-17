@@ -2,19 +2,17 @@ package de.hive.gamefinder
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.ResourceLoader
-import androidx.compose.ui.res.loadSvgPainter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import de.hive.gamefinder.di.KoinInit
 import de.hive.gamefinder.ui.DesktopViewModel
 import de.hive.gamefinder.ui.IntUiThemes
 import de.hive.gamefinder.ui.TitleBarView
 import de.hive.gamefinder.ui.theme.AppTheme
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.decodeToSvgPainter
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.intui.standalone.theme.darkThemeDefinition
@@ -25,11 +23,9 @@ import org.jetbrains.jewel.intui.window.styling.light
 import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.styling.TitleBarStyle
-import java.io.InputStream
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    KoinInit().init()
+    //KoinInit().init()
 
     val icon = svgResource("icons/kotlin.svg")
 
@@ -71,15 +67,15 @@ fun main() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private fun svgResource(
-    resourcePath: String,
-    loader: ResourceLoader = ResourceLoader.Default
-): Painter =
-    loader.load(resourcePath)
-        .use { stream: InputStream ->
-            loadSvgPainter(stream, Density(1f))
-        }
+@OptIn(ExperimentalResourceApi::class)
+private fun svgResource(resourcePath: String): Painter =
+    checkNotNull(ResourceLoader.javaClass.classLoader.getResourceAsStream(resourcePath)) {
+        "Could not load resource $resourcePath: it does not exist or can't be read."
+    }
+        .readAllBytes()
+        .decodeToSvgPainter(Density(1f))
+
+private object ResourceLoader
 
 @Preview
 @Composable

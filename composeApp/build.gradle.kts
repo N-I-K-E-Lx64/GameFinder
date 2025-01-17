@@ -1,13 +1,16 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.multiplatform)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.android.application)
 
-    alias(libs.plugins.serialization)
+    alias(libs.plugins.kotlinx.serialization)
 
     alias(libs.plugins.sqlDelight.plugin)
     alias(libs.plugins.buildKonfig)
@@ -15,40 +18,29 @@ plugins {
     id("dev.hydraulic.conveyor") version "1.9"
 }
 
-version = "1.0.2"
+version = "1.1.0"
 
-java {
-    toolchain {
+
+kotlin {
+    jvmToolchain {
         languageVersion = JavaLanguageVersion.of(17)
         vendor = JvmVendorSpec.JETBRAINS
     }
-}
 
-kotlin {
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
 
-    jvm("desktop") {
-        jvmToolchain {
-            languageVersion = JavaLanguageVersion.of(17)
-            vendor = JvmVendorSpec.JETBRAINS
-        }
-    }
+    jvm("desktop")
     
     sourceSets {
         val desktopMain by getting
 
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
-
+            implementation(compose.uiTooling)
             implementation(libs.androidx.activity.compose)
 
-            implementation(libs.koin.android)
             implementation(libs.ktor.client.android)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.sqlDelight.android)
@@ -57,15 +49,15 @@ kotlin {
             api(libs.koin.core)
             api(libs.koin.compose)
 
-            api(libs.multiplatform.noArg)
-            api(libs.multiplatform.coroutines)
-
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
             implementation(compose.materialIconsExtended)
+
+            implementation(libs.kermit)
 
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)
@@ -76,10 +68,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
 
-            implementation(libs.napier)
-
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.koin)
+
+            implementation(libs.settings.noArg)
+            implementation(libs.settings.coroutines)
 
             implementation(libs.sqlDelight.runtime)
             implementation(libs.sqlDelight.coroutines)
@@ -87,22 +80,22 @@ kotlin {
 
             implementation(libs.material3.window.size.multiplatform)
 
-            implementation(libs.kamel)
+            implementation(libs.composeIcons.featherIcons)
+
+            implementation(libs.coil)
+            implementation(libs.coil.network.ktor)
             implementation(libs.compose.shimmer)
             implementation(libs.reorderable)
         }
         desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-
-            implementation(libs.logback)
-
-            implementation(libs.compose.ui.tooling.preview)
+            implementation(compose.desktop.currentOs) { exclude(group = "org.jetbrains.compose.material") }
 
             implementation(libs.ktor.client.desktop)
             implementation(libs.kotlinx.coroutines.swing)
 
             implementation(libs.sqlDelight.jvm)
 
+            implementation(libs.jewel.int.ui.standalone)
             implementation(libs.jewel.int.ui.decoratedWindow)
         }
     }
@@ -134,11 +127,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    dependencies {
-        debugImplementation(libs.compose.ui.tooling.preview)
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
@@ -194,13 +184,21 @@ sqldelight {
 }
 
 dependencies {
-    linuxAmd64(compose.desktop.linux_x64)
-    macAarch64(compose.desktop.macos_arm64)
-    windowsAmd64(compose.desktop.windows_x64)
+    debugImplementation(compose.uiTooling)
 }
 
-configurations.all {
+tasks {
+    withType<JavaExec> {
+        // afterEvaluate is needed because the Compose Gradle Plugin register the task in the afterEvaluate block
+        afterEvaluate {
+            javaLauncher = project.javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+            setExecutable(javaLauncher.map { it.executablePath.asFile.absoluteFile }.get())
+        }
+    }
+}
+
+/*configurations.all {
     attributes {
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
-}
+}*/

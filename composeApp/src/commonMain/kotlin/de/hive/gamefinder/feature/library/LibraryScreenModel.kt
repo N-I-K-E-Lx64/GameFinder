@@ -2,12 +2,12 @@ package de.hive.gamefinder.feature.library
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.kermit.Logger
 import de.hive.gamefinder.core.adapter.exception.EmptySearchResultException
 import de.hive.gamefinder.core.application.port.`in`.GameUseCase
 import de.hive.gamefinder.core.application.port.`in`.IgdbUseCase
 import de.hive.gamefinder.core.domain.*
 import de.hive.gamefinder.core.utils.UiEvents
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,7 +74,7 @@ class LibraryScreenModel(
                 _gamePredictions.value = emptyList()
 
                 _eventsFlow.trySend(UiEvents.ShowSnackbar("${game.name} has been successfully imported into the library."))
-                Napier.i { "${game.name} has been successfully imported into the library." }
+                Logger.i { "${game.name} has been successfully imported into the library." }
 
                 if (game.multiplayerMode == null) {
                     _eventsFlow.trySend(UiEvents.ShowSnackbarWithAction("${game.name} has no information about multiplayer.", "Update", game.id))
@@ -82,7 +82,7 @@ class LibraryScreenModel(
             } catch (ex: EmptySearchResultException) {
                 ex.message?.let {
                     _eventsFlow.trySend(UiEvents.ShowSnackbar(it))
-                    Napier.e { it }
+                    Logger.e { it }
                 }
             }
         }
